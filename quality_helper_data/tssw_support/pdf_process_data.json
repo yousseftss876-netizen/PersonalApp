@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "created_at": "2026-02-06T14:10:43.388392",
+  "keywords_used": [
+    "python code"
+  ],
+  "total_requested": 1,
+  "total_fetched": 1,
+  "subjects": [
+    "Capture The Flags Family Based Evaluation Of Agentic Llms Via Semantics Preserving Transformations"
+  ],
+  "pdfs": [
+    {
+      "filename": "Capture_The_Flags_Family_Based_Evaluation_Of_Agentic_Llms_Via_Semantics_Preserving_Transformations.pdf",
+      "keyword": "python code",
+      "subject": "Capture The Flags Family Based Evaluation Of Agentic Llms Via Semantics Preserving Transformations",
+      "size_kb": 1534,
+      "arxiv_url": "https://arxiv.org/abs/2602.05523"
+    }
+  ],
+  "pdf_links": [
+    "Capture_The_Flags_Family_Based_Evaluation_Of_Agentic_Llms_Via_Semantics_Preserving_Transformations.pdf"
+  ]
+}

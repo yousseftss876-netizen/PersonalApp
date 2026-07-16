@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .blur-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .blur-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .blur-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            top: 50%;
+            right: -50px;
+            animation-delay: -5s;
+        }
+        
+        .blur-orb-3 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .sidebar-link.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .section-title {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-green { background: #dcfce7; color: #15803d; }
+        .badge-yellow { background: #fef3c7; color: #b45309; }
+        .badge-red { background: #fee2e2; color: #dc2626; }
+        .badge-purple { background: #f3e8ff; color: #7c3aed; }
+        .badge-orange { background: #ffedd5; color: #ea580c; }
+        
+        .table-modern {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table-modern thead {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+        
+        .table-modern tbody tr:nth-child(even) {
+            background: rgba(248, 250, 252, 0.5);
+        }
+        
+        .table-modern tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+        
+        .code-block pre {
+            padding: 1rem;
+            overflow-x: auto;
+            color: #e2e8f0;
+        }
+        
+        .code-keyword { color: #c084fc; }
+        .code-string { color: #86efac; }
+        .code-function { color: #60a5fa; }
+        .code-comment { color: #64748b; }
+        .code-class { color: #fbbf24; }
+        
+        .service-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .popup-overlay.active {
+            display: flex;
+        }
+        
+        .popup-content {
+            background: white;
+            border-radius: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
+            border-left: 2px solid #e2e8f0;
+        }
+        
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -0.5rem;
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+
+        .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.75));
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 1.25rem; /* 20px */
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* Smaller, pill-shaped, subtle badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem; /* smaller padding */
+    font-size: 0.65rem; /* smaller text size */
+    font-weight: 600;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: #4b5563;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Color variants remain the same, but now they look more delicate */
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.badge-purple { background: #f3e8ff; color: #7c3aed; }
+.badge-yellow { background: #fef3c7; color: #b45309; }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="blur-orb blur-orb-1"></div>
+        <div class="blur-orb blur-orb-2"></div>
+        <div class="blur-orb blur-orb-3"></div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <aside class="sidebar fixed left-0 top-0 h-full w-64 p-4 z-50">
+            <div class="flex items-center space-x-3 mb-8 px-2">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-envelope text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-800">TSS Tools</h1>
+                    <p class="text-xs text-slate-500">Application Report</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-1">
+                <a href="#overview" class="sidebar-link active">
+                    <i class="fas fa-chart-pie w-5 mr-3"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#services" class="sidebar-link">
+                    <i class="fas fa-th-large w-5 mr-3"></i>
+                    <span>Services</span>
+                </a>
+                <a href="#timeline" class="sidebar-link">
+                    <i class="fas fa-history w-5 mr-3"></i>
+                    <span>Timeline</span>
+                </a>
+                <a href="#auth-flow" class="sidebar-link">
+                    <i class="fas fa-lock w-5 mr-3"></i>
+                    <span>Authentication</span>
+                </a>
+                <a href="#imap-system" class="sidebar-link">
+                    <i class="fas fa-envelope-open w-5 mr-3"></i>
+                    <span>IMAP System</span>
+                </a>
+                <a href="#connections" class="sidebar-link">
+                    <i class="fas fa-project-diagram w-5 mr-3"></i>
+                    <span>Connections</span>
+                </a>
+                <a href="#sse-system" class="sidebar-link">
+                    <i class="fas fa-broadcast-tower w-5 mr-3"></i>
+                    <span>SSE Updates</span>
+                </a>
+                <a href="#users" class="sidebar-link">
+                    <i class="fas fa-users w-5 mr-3"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#access-matrix" class="sidebar-link">
+                    <i class="fas fa-th w-5 mr-3"></i>
+                    <span>Access Matrix</span>
+                </a>
+                <a href="#data-arch" class="sidebar-link">
+                    <i class="fas fa-database w-5 mr-3"></i>
+                    <span>Data Architecture</span>
+                </a>
+            </nav>
+            
+            <div class="absolute bottom-4 left-4 right-4">
+                <div class="glass-card rounded-xl p-3 text-center">
+                    <p class="text-xs text-slate-500">Made By</p>
+                    <p class="text-sm font-medium text-slate-700">Ouiguemane Youssef</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="ml-64 flex-1 p-8">
+
+            <!-- Add this new header row here -->
+    <div class="sticky top-0 z-40 bg-white/60 backdrop-blur-md border-b border-slate-200/50 shadow-sm mb-8">
+        <div class="flex items-center justify-end h-16 px-6">
+            <!-- User Profile Dropdown -->
+            <div class="relative">
+                <button id="userMenuButton" class="flex items-center space-x-3 focus:outline-none">
+                    <!-- Circular Avatar -->
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-medium shadow-lg">
+                        <!-- Initials or real photo -->
+                        <span class="text-sm"><i class="fas fa-user"></i></span> <!-- Replace with user initials or <img> -->
+                    </div>
+                    <!-- Optional: show name on larger screens -->
+                    <span class="hidden md:block font-medium text-slate-800">{{ current_user.name }}</span>
+                    <i class="fas fa-chevron-down text-slate-500 text-xs transition-transform duration-200" id="chevron"></i>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="userDropdown" class="absolute right-0 mt-3 w-64 glass-card rounded-xl shadow-2xl py-2 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-50">
+                    <!-- User Info -->
+                    <div class="px-4 py-3 border-b border-slate-200/50">
+                        <p class="font-semibold text-slate-800">{{ current_user.entity }}</p>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div class="py-1">
+                        <a href="{{ url_for('tssw_rapport_index') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-sky-50/70 hover:text-sky-600 transition-colors">
+                            <i class="fas fa-th-large w-5 mr-3 text-slate-500"></i>
+                            Other Project
+                        </a>
+                        <a href="{{ url_for('services') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-sky-50/70 hover:text-sky-600 transition-colors">
+                          <i class="fas fa-cloud w-5 mr-3 text-slate-500"></i>
+                            Back to Services
+                        </a>
+
+                        <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50/70 transition-colors">
+                            <i class="fas fa-sign-out-alt w-5 mr-3"></i>
+                            Log Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+            <section id="overview" class="mb-12">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold section-title">Application Report</h1>
+                        <p class="text-slate-500 mt-1">TSS Tools Access Platform Overview</p>
+                    </div>
+                    <span class="badge badge-blue">
+                        <i class="fas fa-circle text-xs mr-2 animate-pulse"></i>
+                        v2.0
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="stat-card rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center">
+                                <i class="fas fa-users text-white text-xl"></i>
+                            </div>
+                            <span class="badge badge-green">Active</span>
+                        </div>
+                        <p class="text-3xl font-bold text-slate-800">37</p>
+                        <p class="text-sm text-slate-500">Total Users</p>
+                    </div>
+                    
+                    <div class="stat-card rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                                <i class="fas fa-building text-white text-xl"></i>
+                            </div>
+                            <span class="badge badge-blue">Groups</span>
+                        </div>
+                        <p class="text-3xl font-bold text-slate-800">5</p>
+                        <p class="text-sm text-slate-500">Entities</p>
+                    </div>
+                    
+                    <div class="stat-card rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                                <i class="fas fa-th-large text-white text-xl"></i>
+                            </div>
+                            <span class="badge badge-purple">Features</span>
+                        </div>
+                        <p class="text-3xl font-bold text-slate-800">5</p>
+                        <p class="text-sm text-slate-500">Services</p>
+                    </div>
+                    
+                    <div class="stat-card rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                                <i class="fas fa-key text-white text-xl"></i>
+                            </div>
+                            <span class="badge badge-yellow">Types</span>
+                        </div>
+                        <p class="text-3xl font-bold text-slate-800">8</p>
+                        <p class="text-sm text-slate-500">Permissions</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">
+                            <i class="fas fa-chart-pie text-sky-500 mr-2"></i>
+                            Users by Entity
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="entityChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">
+                            <i class="fas fa-chart-bar text-violet-500 mr-2"></i>
+                            Permission Distribution
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="permissionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="services" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Platform Services</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('gmail')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                                <i class="fab fa-google text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">Gmail Access</h3>
+                                <p class="text-sm text-slate-500">Email management</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">Entity-based Gmail account access via IMAP with real-time updates.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('extract')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                                <i class="fas fa-file-export text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">Extract Emails</h3>
+                                <p class="text-sm text-slate-500">Email analysis</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">Extract SPF/DKIM status, sender IPs, and export to CSV.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('domain')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                                <i class="fas fa-globe text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">Domain Checker</h3>
+                                <p class="text-sm text-slate-500">DNS lookups</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">Bulk MX, TXT, SPF, DMARC lookups with parallel processing.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('news')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                                <i class="fas fa-newspaper text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">Find News</h3>
+                                <p class="text-sm text-slate-500">News monitoring</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">Monitor news-tagged Gmail accounts with management features.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('blacklist')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">Blacklist Lookup</h3>
+                                <p class="text-sm text-slate-500">IP reputation</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">Check IPs against Spamhaus (CSS, PBL, XBL, SBL) and Barracuda.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card service-card rounded-2xl p-5" onclick="openPopup('rapport')">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">TSSW Rapport</h3>
+                                <p class="text-sm text-slate-500">Admin reports</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">TSSW-only reporting dashboard for administrative tasks.</p>
+                        <div class="mt-4 flex items-center text-sky-600 text-sm">
+                            <span>View details</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="timeline" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Development Timeline</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="glass-card rounded-xl p-4 ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="badge badge-blue">December 2025</span>
+                                <span class="text-xs text-slate-400">Latest</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-800">Blacklist Lookup Optimization</h4>
+                            <p class="text-sm text-slate-600 mt-1">30 concurrent workers, SSE streaming, glassmorphism UI</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="glass-card rounded-xl p-4 ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="badge badge-green">December 2025</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-800">Domain Checker & TSSW Rapport</h4>
+                            <p class="text-sm text-slate-600 mt-1">SPF A Records validation, unified Domain Lookup tab, TSSW Rapport service</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="glass-card rounded-xl p-4 ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="badge badge-purple">August 2025</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-800">Multi-Service Platform</h4>
+                            <p class="text-sm text-slate-600 mt-1">Service selection dashboard, Extract Emails service, TSSF entity integration</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="glass-card rounded-xl p-4 ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="badge badge-yellow">August 2025</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-800">Entity-Based Connection Pooling</h4>
+                            <p class="text-sm text-slate-600 mt-1">Shared IMAP connections per entity, automatic cleanup, TSSW admin access</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="glass-card rounded-xl p-4 ml-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="badge badge-orange">July 2025</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-800">Initial Release</h4>
+                            <p class="text-sm text-slate-600 mt-1">Flask-Login authentication, entity access control, Gmail folder categorization Of GMass Service</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="auth-flow" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Authentication System</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-lock text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800">Flask-Login Authentication Flow</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="font-semibold text-slate-700 mb-3">How Login Works</h4>
+                            <ol class="space-y-3">
+                                <li class="flex items-start space-x-3">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">1</span>
+                                    <p class="text-sm text-slate-600">User submits username and password via login form</p>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">2</span>
+                                    <p class="text-sm text-slate-600"><code class="bg-slate-100 px-1 rounded">load_users_from_file()</code> reads users.txt and parses credentials</p>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">3</span>
+                                    <p class="text-sm text-slate-600">Password is compared (plaintext in file)</p>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">4</span>
+                                    <p class="text-sm text-slate-600"><code class="bg-slate-100 px-1 rounded">login_user(user, remember=True)</code> creates session</p>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">5</span>
+                                    <p class="text-sm text-slate-600">User object with entity and permissions stored in session</p>
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div class="code-block">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700">
+                                <span class="text-slate-400 text-sm">app.py - Login Route</span>
+                                <span class="badge badge-blue">Python</span>
+                            </div>
+                            <pre><code><span class="code-keyword">@app.route</span>(<span class="code-string">'/login'</span>, methods=[<span class="code-string">'GET'</span>, <span class="code-string">'POST'</span>])
+<span class="code-keyword">def</span> <span class="code-function">login</span>():
+    <span class="code-keyword">if</span> request.method == <span class="code-string">'POST'</span>:
+        username = request.form.get(<span class="code-string">'username'</span>)
+        password = request.form.get(<span class="code-string">'password'</span>)
+        
+        users = <span class="code-function">load_users_from_file</span>()
+        <span class="code-keyword">for</span> user_data <span class="code-keyword">in</span> users:
+            <span class="code-keyword">if</span> user_data[<span class="code-string">'username'</span>] == username:
+                <span class="code-keyword">if</span> user_data[<span class="code-string">'password'</span>] == password:
+                    user = <span class="code-class">User</span>(user_data)
+                    <span class="code-function">login_user</span>(user, remember=<span class="code-keyword">True</span>)
+                    <span class="code-keyword">return</span> redirect(url_for(<span class="code-string">'services'</span>))
+        
+        flash(<span class="code-string">'Invalid credentials'</span>, <span class="code-string">'error'</span>)
+    <span class="code-keyword">return</span> render_template(<span class="code-string">'login.html'</span>)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="imap-system" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">IMAP Email System</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
+                            <i class="fas fa-envelope-open text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800">Gmail IMAP Integration</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-4">
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="badge badge-green">Step 1</span>
+                                    <span class="font-medium text-slate-700">Connect to Gmail</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Connect to <code class="bg-slate-100 px-1 rounded">imap.gmail.com:993</code> using SSL/TLS</p>
+                            </div>
+                            
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="badge badge-green">Step 2</span>
+                                    <span class="font-medium text-slate-700">Authenticate</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Login with email and App Password (not regular password)</p>
+                            </div>
+                            
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="badge badge-green">Step 3</span>
+                                    <span class="font-medium text-slate-700">Fetch Emails</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Use UID FETCH for headers only (subject, from, date)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="code-block">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700">
+                                <span class="text-slate-400 text-sm">IMAP Connection</span>
+                                <span class="badge badge-blue">Python</span>
+                            </div>
+                            <pre><code><span class="code-keyword">import</span> imaplib
+
+<span class="code-keyword">def</span> <span class="code-function">connect_to_gmail</span>(email, app_password):
+    <span class="code-comment"># Create IMAP4 client with SSL</span>
+    imap = imaplib.<span class="code-class">IMAP4_SSL</span>(
+        <span class="code-string">'imap.gmail.com'</span>, 
+        <span class="code-class">993</span>
+    )
+    
+    <span class="code-comment"># Authenticate with App Password</span>
+    imap.login(email, app_password)
+    
+    <span class="code-comment"># Select inbox folder</span>
+    imap.select(<span class="code-string">'INBOX'</span>)
+    
+    <span class="code-comment"># Get last 20 UIDs</span>
+    status, messages = imap.uid(<span class="code-string">'search'</span>, <span class="code-keyword">None</span>, <span class="code-string">'ALL'</span>)
+    uids = messages[<span class="code-class">0</span>].split()[-<span class="code-class">20</span>:]
+    
+    <span class="code-keyword">return</span> imap</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-sky-600 mb-1">20</div>
+                            <p class="text-sm text-slate-600">Max emails per folder</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-emerald-600 mb-1">993</div>
+                            <p class="text-sm text-slate-600">SSL/TLS Port</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-violet-600 mb-1">6</div>
+                            <p class="text-sm text-slate-600">Gmail categories</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="connections" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Connection Pooling Architecture</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
+                            <i class="fas fa-project-diagram text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800">Entity-Based Connection Management</h3>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="glass-card rounded-xl p-6 bg-slate-50/50">
+                            <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
+                                <div class="glass-card rounded-lg p-3 text-center">
+                                    <i class="fas fa-user text-sky-500 text-xl mb-2"></i>
+                                    <p class="font-medium">User Login</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-slate-400"></i>
+                                <div class="glass-card rounded-lg p-3 text-center">
+                                    <i class="fas fa-building text-emerald-500 text-xl mb-2"></i>
+                                    <p class="font-medium">Entity Check</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-slate-400"></i>
+                                <div class="glass-card rounded-lg p-3 text-center">
+                                    <i class="fas fa-plug text-violet-500 text-xl mb-2"></i>
+                                    <p class="font-medium">Connection Pool</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-slate-400"></i>
+                                <div class="glass-card rounded-lg p-3 text-center">
+                                    <i class="fas fa-envelope text-amber-500 text-xl mb-2"></i>
+                                    <p class="font-medium">Gmail Accounts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                                    <i class="fas fa-users text-sky-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-700">Entity-Level Sharing</p>
+                                    <p class="text-sm text-slate-600">All users from the same entity share IMAP connections</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                    <i class="fas fa-bolt text-emerald-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-700">Lazy Initialization</p>
+                                    <p class="text-sm text-slate-600">Connections created only when first user from entity logs in</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                                    <i class="fas fa-sync text-violet-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-700">Auto-Reconnection</p>
+                                    <p class="text-sm text-slate-600">Automatic reconnection on connection failure</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="code-block">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700">
+                                <span class="text-slate-400 text-sm">connection_manager.py</span>
+                                <span class="badge badge-blue">Python</span>
+                            </div>
+                            <pre><code><span class="code-keyword">class</span> <span class="code-class">GmailConnectionManager</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self):
+        self.entity_connections = {}
+        self.entity_user_count = {}
+        self.lock = threading.<span class="code-class">Lock</span>()
+    
+    <span class="code-keyword">def</span> <span class="code-function">user_login</span>(self, entity):
+        <span class="code-keyword">with</span> self.lock:
+            <span class="code-keyword">if</span> entity <span class="code-keyword">not in</span> self.entity_connections:
+                self.<span class="code-function">_create_connections</span>(entity)
+            self.entity_user_count[entity] += <span class="code-class">1</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sse-system" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Real-Time Updates with SSE</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center">
+                            <i class="fas fa-broadcast-tower text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800">Server-Sent Events Architecture</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center">
+                                        <i class="fas fa-envelope text-white text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-slate-700">Email Sync</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Real-time email updates pushed to browser every 10 seconds</p>
+                            </div>
+                            
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                                        <i class="fas fa-globe text-white text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-slate-700">Domain Lookup</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Progress streaming for bulk DNS lookups (X/Y format)</p>
+                            </div>
+                            
+                            <div class="glass-card rounded-xl p-4">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-slate-700">Blacklist Check</span>
+                                </div>
+                                <p class="text-sm text-slate-600">Real-time progress with animated progress bar</p>
+                            </div>
+                        </div>
+                        
+                        <div class="code-block">
+                            <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700">
+                                <span class="text-slate-400 text-sm">SSE Implementation</span>
+                                <span class="badge badge-blue">Python + JS</span>
+                            </div>
+                            <pre><code><span class="code-comment"># Server-side (Flask)</span>
+<span class="code-keyword">@app.route</span>(<span class="code-string">'/stream'</span>)
+<span class="code-keyword">def</span> <span class="code-function">stream</span>():
+    <span class="code-keyword">def</span> <span class="code-function">generate</span>():
+        <span class="code-keyword">for</span> i, result <span class="code-keyword">in</span> enumerate(results):
+            data = json.dumps({
+                <span class="code-string">'progress'</span>: i + <span class="code-class">1</span>,
+                <span class="code-string">'result'</span>: result
+            })
+            <span class="code-keyword">yield</span> f<span class="code-string">"data: {data}\n\n"</span>
+    
+    <span class="code-keyword">return</span> Response(generate(),
+        mimetype=<span class="code-string">'text/event-stream'</span>)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="users" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Users & Entities</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-users text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-800">User Directory</h3>
+                                <p class="text-sm text-slate-500">37 registered users across 5 entities</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3">
+                            <div class="relative">
+                                <input type="text" id="userSearch" placeholder="Search users..." 
+                                       class="pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 outline-none text-sm"
+                                       onkeyup="filterUsers()">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            </div>
+                            
+                            <select id="entityFilter" onchange="filterUsers()" 
+                                    class="px-4 py-2 rounded-xl border border-slate-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 outline-none text-sm">
+                                <option value="">All Entities</option>
+                                <option value="TSS1">TSS1</option>
+                                <option value="TSS2">TSS2</option>
+                                <option value="TSS3">TSS3</option>
+                                <option value="TSSF">TSSF</option>
+                                <option value="TSSW">TSSW</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-sky-600">11</div>
+                            <p class="text-sm text-slate-600">TSS1</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-emerald-600">8</div>
+                            <p class="text-sm text-slate-600">TSS2</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-amber-600">9</div>
+                            <p class="text-sm text-slate-600">TSS3</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-orange-600">7</div>
+                            <p class="text-sm text-slate-600">TSSF</p>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-red-600">2</div>
+                            <p class="text-sm text-slate-600">TSSW</p>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-slate-200" style="max-height: 400px; overflow-y: auto;">
+                        <table class="w-full table-modern" id="usersTable">
+                            <thead class="sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 bg-slate-50">Entity</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 bg-slate-50">Name</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 bg-slate-50">Username</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 bg-slate-50">Permissions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200" id="usersTableBody">
+                                <tr class="user-row" data-entity="TSS1" data-name="mohamed amine tahri" data-username="mohamedamine_tahri"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Mohamed Amine Tahri</td><td class="px-4 py-3 text-sm text-slate-600">Mohamedamine_tahri</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="issam tchikou" data-username="issam_tchikou"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Issam Tchikou</td><td class="px-4 py-3 text-sm text-slate-600">Issam_Tchikou</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="el alilti yassine" data-username="el alilti_yassine"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">El Alilti Yassine</td><td class="px-4 py-3 text-sm text-slate-600">El Alilti_Yassine</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="ahmimed alae" data-username="ahmimed_alae"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ahmimed Alae</td><td class="px-4 py-3 text-sm text-slate-600">Ahmimed_Alae</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="ghoufran hachlaf" data-username="ghoufran_hachlaf"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ghoufran Hachlaf</td><td class="px-4 py-3 text-sm text-slate-600">GHOUFRAN_HACHLAF</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="soufiane saadi" data-username="soufiane_saadi"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Soufiane Saadi</td><td class="px-4 py-3 text-sm text-slate-600">SOUFIANE_SAADI</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="taoufik razak" data-username="taoufik_razak"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Taoufik Razak</td><td class="px-4 py-3 text-sm text-slate-600">TAOUFIK_RAZAK</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="youssef chakour" data-username="youssef_chakour"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Youssef Chakour</td><td class="px-4 py-3 text-sm text-slate-600">YOUSSEF_CHAKOUR</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="ouessan benayad" data-username="ouessan_benayad"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ouessan Benayad</td><td class="px-4 py-3 text-sm text-slate-600">ouessan_benayad</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="omar el outmani" data-username="omar_eloutmani"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Omar El Outmani</td><td class="px-4 py-3 text-sm text-slate-600">omar_eloutmani</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS1" data-name="oussama almorabet" data-username="oussama_almorabet"><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Oussama Almorabet</td><td class="px-4 py-3 text-sm text-slate-600">oussama_almorabet</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="abdelali" data-username="abdelali"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Abdelali</td><td class="px-4 py-3 text-sm text-slate-600">abdelali</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="m. edraoui" data-username="m.edraoui"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">M. Edraoui</td><td class="px-4 py-3 text-sm text-slate-600">M.Edraoui</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="h. boudfa" data-username="h.boudfa"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">H. Boudfa</td><td class="px-4 py-3 text-sm text-slate-600">H.BOUDFA</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="i. ait hadi" data-username="i.ait_hadi"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">I. Ait Hadi</td><td class="px-4 py-3 text-sm text-slate-600">I.Ait_Hadi</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="r. el abdellaoui" data-username="r.el_abdellaoui"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">R. El Abdellaoui</td><td class="px-4 py-3 text-sm text-slate-600">R.El_Abdellaoui</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="h. ahaddouch" data-username="h.ahaddouch"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">H. Ahaddouch</td><td class="px-4 py-3 text-sm text-slate-600">H.AHADDOUCH</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS2" data-name="adnan" data-username="adnan"><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Adnan</td><td class="px-4 py-3 text-sm text-slate-600">Adnan</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="adil benmoussa" data-username="adilbenmoussa"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Adil Benmoussa</td><td class="px-4 py-3 text-sm text-slate-600">AdilBenmoussa</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="ayoub lakbir" data-username="ayoublakbir"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ayoub Lakbir</td><td class="px-4 py-3 text-sm text-slate-600">AYOUBLAKBIR</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="soufian akdi" data-username="soufianakdi"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Soufian Akdi</td><td class="px-4 py-3 text-sm text-slate-600">SoufianAKDI</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="elarjoun moustapha" data-username="elarjounmoustapha"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Elarjoun Moustapha</td><td class="px-4 py-3 text-sm text-slate-600">ElarjounMOUSTAPHA</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="nihad el bazi" data-username="nihadel_bazi"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Nihad El Bazi</td><td class="px-4 py-3 text-sm text-slate-600">NihadEl_Bazi</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="ouzzanabil" data-username="ouzzanabil"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ouzzanabil</td><td class="px-4 py-3 text-sm text-slate-600">ouzzanabil</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="el harras rhimou" data-username="elharrasrhimou"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">El Harras Rhimou</td><td class="px-4 py-3 text-sm text-slate-600">ElHarrasRHIMOU</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="m. amine elmorabet" data-username="m.amine_elmorabet"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">M. Amine Elmorabet</td><td class="px-4 py-3 text-sm text-slate-600">M.Amine_Elmorabet</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-yellow text-xs">news</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="khaoula oughanem" data-username="khaoula.oughanem"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Khaoula Oughanem</td><td class="px-4 py-3 text-sm text-slate-600">Khaoula.Oughanem</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSS3" data-name="mariam el morabit" data-username="mariam_elmorabit"><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Mariam El Morabit</td><td class="px-4 py-3 text-sm text-slate-600">Mariam_ElMORABIT</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="el morabit mariam" data-username="elmorabitmariam"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">El Morabit Mariam</td><td class="px-4 py-3 text-sm text-slate-600">ElmorabitMariam</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="arifi chakir" data-username="arifichakir"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Arifi Chakir</td><td class="px-4 py-3 text-sm text-slate-600">ArifiChakir</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="ahmimed aya" data-username="ahmimedaya"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ahmimed Aya</td><td class="px-4 py-3 text-sm text-slate-600">AhmimedAya</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="ahmimed alae" data-username="ahmimedalae"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Ahmimed Alae</td><td class="px-4 py-3 text-sm text-slate-600">AhmimedAlae</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="el alilti yassine" data-username="elaliltiyassine"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">El Alilti Yassine</td><td class="px-4 py-3 text-sm text-slate-600">ELaliltiYassine</td><td class="px-4 py-3"><span class="badge badge-blue text-xs">gmass</span></td></tr>
+                                <tr class="user-row" data-entity="TSSF" data-name="rabab loumrani" data-username="rabab_loumrani"><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Rabab Loumrani</td><td class="px-4 py-3 text-sm text-slate-600">Rabab_Loumrani</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-green text-xs">ok</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-blue text-xs">gmass</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSSW" data-name="redouan" data-username="redouan"><td class="px-4 py-3"><span class="badge bg-red-100 text-red-700">TSSW</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Redouan</td><td class="px-4 py-3 text-sm text-slate-600">redouan</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-yellow text-xs">news</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-purple text-xs">report</span><span class="badge badge-blue text-xs">gmass</span><span class="badge badge-red text-xs">blacklist</span></div></td></tr>
+                                <tr class="user-row" data-entity="TSSW" data-name="y. ouiguemane" data-username="y.ouiguemane"><td class="px-4 py-3"><span class="badge bg-red-100 text-red-700">TSSW</span></td><td class="px-4 py-3 text-sm text-slate-700 font-medium">Y. Ouiguemane</td><td class="px-4 py-3 text-sm text-slate-600">y.ouiguemane</td><td class="px-4 py-3"><div class="flex flex-wrap gap-1"><span class="badge badge-yellow text-xs">news</span><span class="badge badge-purple text-xs">extract</span><span class="badge badge-yellow text-xs">domain</span><span class="badge badge-purple text-xs">report</span><span class="badge badge-blue text-xs">gmass</span><span class="badge badge-red text-xs">blacklist</span></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                        <span id="userCount">Showing 37 users</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="access-matrix" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Service Access Matrix</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full table-modern">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700 min-w-[100px]">Entity</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-envelope text-sky-500 mr-1"></i>Gmail</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-file-export text-emerald-500 mr-1"></i>Extract</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-globe text-violet-500 mr-1"></i>Domain</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-newspaper text-amber-500 mr-1"></i>News</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-shield-alt text-red-500 mr-1"></i>Blacklist</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-slate-700"><i class="fas fa-file-alt text-pink-500 mr-1"></i>Rapport</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr><td class="px-4 py-3"><span class="badge bg-sky-100 text-sky-700">TSS1</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i> Own</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-red"><i class="fas fa-times"></i></span></td></tr>
+                                <tr><td class="px-4 py-3"><span class="badge bg-emerald-100 text-emerald-700">TSS2</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i> Own</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-red"><i class="fas fa-times"></i></span></td></tr>
+                                <tr><td class="px-4 py-3"><span class="badge bg-amber-100 text-amber-700">TSS3</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i> Own</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-red"><i class="fas fa-times"></i></span></td></tr>
+                                <tr><td class="px-4 py-3"><span class="badge bg-orange-100 text-orange-700">TSSF</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i> Own</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span></td><td class="px-4 py-3 text-center"><span class="badge badge-red"><i class="fas fa-times"></i></span></td></tr>
+                                <tr class="bg-red-50/30"><td class="px-4 py-3"><span class="badge bg-red-100 text-red-700">TSSW</span><span class="ml-1 text-xs text-red-500">(Admin)</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check-double"></i> All</span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i></span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i></span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i></span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i></span></td><td class="px-4 py-3 text-center"><span class="badge badge-green"><i class="fas fa-check"></i></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div class="glass-card rounded-xl p-4 flex items-center space-x-3">
+                            <span class="badge badge-green"><i class="fas fa-check"></i></span>
+                            <div>
+                                <p class="font-medium text-slate-700">Full Access</p>
+                                <p class="text-xs text-slate-500">Service available to entity</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 flex items-center space-x-3">
+                            <span class="badge badge-yellow"><i class="fas fa-key"></i> Perm</span>
+                            <div>
+                                <p class="font-medium text-slate-700">Permission Required</p>
+                                <p class="text-xs text-slate-500">Needs specific permission flag</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-xl p-4 flex items-center space-x-3">
+                            <span class="badge badge-red"><i class="fas fa-times"></i></span>
+                            <div>
+                                <p class="font-medium text-slate-700">No Access</p>
+                                <p class="text-xs text-slate-500">Service not available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="data-arch" class="mb-12">
+                <h2 class="text-2xl font-bold section-title mb-6">Data Architecture</h2>
+                
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="glass-card rounded-xl p-5">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                                    <i class="fas fa-users text-sky-600"></i>
+                                </div>
+                                <h4 class="font-semibold text-slate-700">users.txt</h4>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Stores user authentication and permissions</p>
+                            <div class="code-block text-xs">
+                                <pre class="p-3"><code><span class="code-class">TSS1</span>,<span class="code-string">John Doe</span>,johndoe,pass123,<span class="code-keyword">gmass</span>
+<span class="code-class">TSSW</span>,<span class="code-string">Admin</span>,admin,admin123,<span class="code-keyword">ok,tssw_report</span></code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card rounded-xl p-5">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                    <i class="fas fa-envelope text-red-600"></i>
+                                </div>
+                                <h4 class="font-semibold text-slate-700">gmailaccounts.txt</h4>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Gmail IMAP credentials for each entity</p>
+                            <div class="code-block text-xs">
+                                <pre class="p-3"><code><span class="code-class">TSS1</span>,<span class="code-string">account@gmail.com</span>,<span class="code-keyword">xxxx-xxxx</span>
+<span class="code-class">TSS2</span>,<span class="code-string">news@gmail.com</span>,<span class="code-keyword">yyyy-yyyy</span>,<span class="code-comment">news</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-xl p-5">
+                        <h4 class="font-semibold text-slate-700 mb-4">Environment Variables</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-modern rounded-xl overflow-hidden">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700">Variable</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700">Purpose</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-slate-700">Required</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    <tr>
+                                        <td class="px-4 py-3"><code class="bg-slate-100 px-2 py-1 rounded text-sm">SESSION_SECRET</code></td>
+                                        <td class="px-4 py-3 text-sm text-slate-600">Flask session encryption key</td>
+                                        <td class="px-4 py-3"><span class="badge badge-green">Required</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3"><code class="bg-slate-100 px-2 py-1 rounded text-sm">DQS_KEY</code></td>
+                                        <td class="px-4 py-3 text-sm text-slate-600">Spamhaus DQS API key</td>
+                                        <td class="px-4 py-3"><span class="badge badge-yellow">For Blacklist</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="text-center py-8 text-slate-500 text-sm">
+                <p>TSS Tools Access - Application Report</p>
+                <p class="mt-1">22 December 2025 | App Version 2.1.0</p>
+            </footer>
+        </main>
+    </div>
+
+    <div id="popup-gmail" class="popup-overlay" onclick="closePopup('gmail')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                        <i class="fab fa-google text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Gmail Access</h3>
+                </div>
+                <button onclick="closePopup('gmail')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Entity-based Gmail account access with IMAP integration for viewing emails across organizational units.</p>
+                <div class="glass-card rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-2">Key Features</h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Real-time email updates via SSE</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Gmail folder categorization (Primary, Promotions, etc.)</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Entity-based access control</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Connection pooling for efficiency</li>
+                    </ul>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-blue">IMAP</span>
+                    <span class="badge badge-green">SSL/TLS</span>
+                    <span class="badge badge-purple">SSE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-extract" class="popup-overlay" onclick="closePopup('extract')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                        <i class="fas fa-file-export text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Extract Emails</h3>
+                </div>
+                <button onclick="closePopup('extract')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Advanced email analysis tool for extracting metadata and authentication information from emails.</p>
+                <div class="glass-card rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-2">Extraction Capabilities</h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>SPF/DKIM authentication status</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Sender IP addresses</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Email categorization</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>CSV export functionality</li>
+                    </ul>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-purple">Extract_emails</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-domain" class="popup-overlay" onclick="closePopup('domain')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                        <i class="fas fa-globe text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Domain Checker</h3>
+                </div>
+                <button onclick="closePopup('domain')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Bulk DNS lookup tool with parallel processing for checking domain configurations.</p>
+                <div class="glass-card rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-2">Lookup Types</h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>MX Records</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>TXT Records</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>SPF Validation</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>DMARC Policies</li>
+                    </ul>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-yellow">Domain_checker</span>
+                    <span class="badge badge-blue">20 workers</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-news" class="popup-overlay" onclick="closePopup('news')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                        <i class="fas fa-newspaper text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Find News</h3>
+                </div>
+                <button onclick="closePopup('news')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Monitor news-tagged Gmail accounts for newsletters and updates.</p>
+                <div class="glass-card rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-2">Features</h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Dedicated news account monitoring</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Account management (add/edit/delete)</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Entity-scoped access control</li>
+                    </ul>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-yellow">find_news</span>
+                    <span class="badge badge-green">allow_add_gmail_of_news</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-blacklist" class="popup-overlay" onclick="closePopup('blacklist')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">Blacklist Lookup</h3>
+                </div>
+                <button onclick="closePopup('blacklist')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Check IP addresses against major blacklist databases for reputation monitoring.</p>
+                <div class="glass-card rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-2">Blacklist Sources</h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Spamhaus CSS, PBL, XBL, SBL</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Spamhaus DBL (domains)</li>
+                        <li><i class="fas fa-check text-emerald-500 mr-2"></i>Barracuda</li>
+                    </ul>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-red">blacklist_lookup</span>
+                    <span class="badge badge-blue">30 workers</span>
+                    <span class="badge badge-purple">SSE streaming</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-rapport" class="popup-overlay" onclick="closePopup('rapport')">
+        <div class="popup-content p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800">TSSW Rapport</h3>
+                </div>
+                <button onclick="closePopup('rapport')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-slate-600">Administrative reporting dashboard exclusively for TSSW users.</p>
+                <div class="glass-card rounded-xl p-4 bg-red-50/50 border-red-200/50">
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-lock text-red-500 mt-1"></i>
+                        <p class="text-sm text-red-700">This service is restricted to TSSW entity users with the tssw_report permission.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge badge-purple">tssw_report</span>
+                    <span class="badge badge-red">TSSW only</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const entityChartData = {
+            labels: ['TSS1', 'TSS2', 'TSS3', 'TSSF', 'TSSW'],
+            values: [11, 8, 9, 7, 2]
+        };
+        
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('userMenuButton');
+    const dropdown = document.getElementById('userDropdown');
+    const chevron = document.getElementById('chevron');
+
+    button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('opacity-0');
+        dropdown.classList.toggle('scale-95');
+        dropdown.classList.toggle('pointer-events-none');
+        chevron.classList.toggle('rotate-180');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!button.contains(e.target)) {
+            dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            chevron.classList.remove('rotate-180');
+        }
+    });
+});
+
+
+        const entityCtx = document.getElementById('entityChart').getContext('2d');
+        new Chart(entityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: entityChartData.labels,
+                datasets: [{
+                    data: entityChartData.values,
+                    backgroundColor: [
+                        'rgba(14, 165, 233, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(249, 115, 22, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+        
+        const permissionCtx = document.getElementById('permissionChart').getContext('2d');
+        new Chart(permissionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['gmass', 'extract', 'domain', 'news', 'blacklist', 'report'],
+                datasets: [{
+                    label: 'Users',
+                    data: [35, 10, 10, 3, 2, 2],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(139, 92, 246, 0.7)',
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(234, 179, 8, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(236, 72, 153, 0.7)'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const entity = document.getElementById('entityFilter').value;
+            const rows = document.querySelectorAll('.user-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const rowEntity = row.dataset.entity;
+                const rowName = row.dataset.name;
+                const rowUsername = row.dataset.username;
+                
+                const matchesSearch = rowName.includes(search) || rowUsername.includes(search);
+                const matchesEntity = !entity || rowEntity === entity;
+                
+                if (matchesSearch && matchesEntity) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('userCount').textContent = `Showing ${visibleCount} users`;
+        }
+        
+        function openPopup(service) {
+            document.getElementById('popup-' + service).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closePopup(service) {
+            document.getElementById('popup-' + service).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                    popup.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

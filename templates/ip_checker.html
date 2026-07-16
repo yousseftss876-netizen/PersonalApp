@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPs Checker - TSS Services</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f4f8; }
+        .header-bg { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); }
+        .server-card { transition: all 0.25s ease; }
+        .server-card:hover { box-shadow: 0 4px 20px rgba(37,99,235,0.1); }
+        .status-available { color: #059669; background: #d1fae5; }
+        .status-down { color: #ffffff; background: #dc2626; }
+        .status-custom { color: #2563eb; background: #dbeafe; }
+        .status-none { color: #9ca3af; background: #f3f4f6; }
+        .ip-card-available { background-color: #d1fae5 !important; color: #059669 !important; border-color: #a7f3d0 !important; }
+        .ip-card-down { background-color: #fee2e2 !important; color: #dc2626 !important; border-color: #fecaca !important; }
+        .class-card-down { background-color: #fee2e2 !important; border-color: #fecaca !important; }
+        .fade-in { animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .modal-bg { background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); }
+        .ip-pill { font-size: 12px; letter-spacing: 0.02em; }
+        .expand-btn { transition: transform 0.2s; }
+        .expand-btn.open { transform: rotate(180deg); }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "IPs Checker" %}
+    {% set page_icon = "ph-network" %}
+    {% include '_header.html' %}
+
+    <main class="max-w-7xl mx-auto px-4 py-5">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-5">
+            <div class="flex gap-3">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="search-ip-input" placeholder="Search IP address..."
+                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                           onkeydown="if(event.key==='Enter')searchIP()">
+                </div>
+                <button onclick="searchIP()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-search mr-1.5"></i>Search
+                </button>
+            </div>
+            <div id="search-results" class="mt-3 hidden"></div>
+        </div>
+
+        {% if can_manage %}
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex gap-2">
+                <button onclick="showAddServerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                    <i class="fas fa-plus mr-1.5"></i>Add Server
+                </button>
+                <button onclick="showManageEventTypesModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-tags mr-1.5"></i>Event Types
+                </button>
+            </div>
+            <div id="server-count" class="text-sm text-gray-500"></div>
+        </div>
+        {% else %}
+        <div class="flex justify-end mb-4">
+            <div id="server-count" class="text-sm text-gray-500"></div>
+        </div>
+        {% endif %}
+
+        <div id="servers-container">
+            <div class="text-center py-16 text-gray-400">
+                <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+                <p class="text-sm">Loading...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-overlay" class="fixed inset-0 modal-bg z-50 hidden items-center justify-center" onclick="if(event.target===this)closeModal()">
+        <div id="modal-box" class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden fade-in"></div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 right-4 text-white px-5 py-2.5 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-[60] text-sm">
+        <span id="toast-msg"></span>
+    </div>
+
+    <script>
+        const CAN_MANAGE = {{ 'true' if can_manage else 'false' }};
+        let serversData = {};
+        let eventTypesCache = [];
+        let expandedClasses = new Set();
+
+        function toast(msg, type='info') {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.className = 'fixed bottom-4 right-4 text-white px-5 py-2.5 rounded-lg shadow-lg transform transition-all duration-300 z-[60] text-sm ' +
+                (type==='error'?'bg-red-600':type==='success'?'bg-emerald-600':'bg-gray-800');
+            t.classList.remove('translate-y-full','opacity-0');
+            setTimeout(()=>t.classList.add('translate-y-full','opacity-0'), 3000);
+        }
+
+        function showModal(html) {
+            document.getElementById('modal-box').innerHTML = html;
+            const m = document.getElementById('modal-overlay');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeModal() {
+            const m = document.getElementById('modal-overlay');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+
+        function statusBadge(status) {
+            if (!status) return '<span class="status-none px-2 py-0.5 rounded-full text-[11px] font-medium">No Status</span>';
+            const type = status.event_type;
+            const cls = type==='Available'?'status-available':type==='Down'?'status-down':'status-custom';
+            const time = new Date(status.timestamp).toLocaleDateString() + ' ' + new Date(status.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+            return `<span class="${cls} px-2 py-0.5 rounded-full text-[11px] font-medium">${type}</span>
+                    <span class="text-[10px] text-gray-400 ml-1">${time}</span>`;
+        }
+
+        function esc(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+        async function loadServers() {
+            try {
+                const res = await fetch('/api/ip-checker/servers');
+                const data = await res.json();
+                if (data.error) { toast(data.error,'error'); return; }
+                serversData = data.servers;
+                renderServers();
+            } catch(e) { toast('Failed to load servers.','error'); }
+        }
+
+        function renderServers() {
+            const c = document.getElementById('servers-container');
+            const names = Object.keys(serversData).sort();
+            document.getElementById('server-count').textContent = names.length + ' server' + (names.length!==1?'s':'');
+
+            if (names.length === 0) {
+                c.innerHTML = `<div class="text-center py-20">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-server text-blue-300 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-400 text-sm">No servers yet</p>
+                    ${CAN_MANAGE?'<p class="text-gray-300 text-xs mt-1">Click "Add Server" to start</p>':''}
+                </div>`;
+                return;
+            }
+            c.innerHTML = names.map(n => renderServer(n, serversData[n])).join('');
+        }
+
+        function renderServer(name, srv) {
+            const cidrs = Object.keys(srv.classes).sort();
+            const totalIPs = cidrs.reduce((s,c)=>s+srv.classes[c].ip_count, 0);
+            
+            // Check if server status is Down
+            const isServerDown = srv.status && srv.status.event_type === 'Down';
+            const serverBgClass = isServerDown ? 'bg-red-50' : 'bg-white';
+
+            const manageBtns = CAN_MANAGE ? `
+                <div class="flex items-center gap-1">
+                    <button onclick="showGenerateIPsModal('${esc(name)}')" class="p-1.5 rounded-md text-emerald-500 hover:bg-emerald-50 transition-colors" title="Generate IPs">
+                        <i class="fas fa-magic text-xs"></i>
+                    </button>
+                    <button onclick="showAddClassToServerModal('${esc(name)}')" class="p-1.5 rounded-md text-blue-500 hover:bg-blue-50 transition-colors" title="Add Class">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                    <button onclick="showDeclareEventModal('${esc(name)}')" class="p-1.5 rounded-md text-amber-500 hover:bg-amber-50 transition-colors" title="Set Status">
+                        <i class="fas fa-flag text-xs"></i>
+                    </button>
+                    <button onclick="showRenameServerModal('${esc(name)}')" class="p-1.5 rounded-md text-gray-400 hover:bg-gray-100 transition-colors" title="Rename">
+                        <i class="fas fa-pen text-xs"></i>
+                    </button>
+                    <button onclick="deleteServer('${esc(name)}')" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                        <i class="fas fa-trash text-xs"></i>
+                    </button>
+                </div>` : '';
+
+            return `<div class="server-card ${serverBgClass} rounded-xl border border-gray-100 shadow-sm mb-4 overflow-hidden fade-in">
+                <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <i class="fas fa-server text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-semibold text-gray-800 text-sm">${name}</h3>
+                                ${statusBadge(srv.status)}
+                            </div>
+                            <p class="text-[11px] text-gray-400">${cidrs.length} class${cidrs.length!==1?'es':''} &middot; ${totalIPs} IP${totalIPs!==1?'s':''}</p>
+                        </div>
+                    </div>
+                    ${manageBtns}
+                </div>
+                <div class="px-5 py-3 space-y-2">
+                    ${cidrs.length===0?'<p class="text-xs text-gray-400 italic py-2">No classes added</p>':cidrs.map(ci=>renderClass(name, ci, srv.classes[ci])).join('')}
+                </div>
+            </div>`;
+        }
+
+        function renderClass(serverName, cidr, cls) {
+            const key = serverName + '|' + cidr;
+            const isExpanded = expandedClasses.has(key);
+            const ipCount = cls.ip_count;
+            
+            // Check if class status is Down
+            const isClassDown = cls.status && cls.status.event_type === 'Down';
+            const classCardClass = isClassDown ? 'class-card-down' : 'bg-gray-50/70';
+
+            const manageBtns = CAN_MANAGE ? `
+                <div class="flex items-center gap-1 ml-auto">
+                    <button onclick="showAddIPsModal('${esc(serverName)}','${esc(cidr)}')" class="p-1 rounded text-green-500 hover:bg-green-50 transition-colors" title="Add IPs">
+                        <i class="fas fa-plus text-[10px]"></i>
+                    </button>
+                    <button onclick="showDeclareEventModal('${esc(serverName)}','${esc(cidr)}')" class="p-1 rounded text-amber-500 hover:bg-amber-50 transition-colors" title="Set Status">
+                        <i class="fas fa-flag text-[10px]"></i>
+                    </button>
+                    <button onclick="deleteClass('${esc(serverName)}','${esc(cidr)}')" class="p-1 rounded text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                        <i class="fas fa-trash text-[10px]"></i>
+                    </button>
+                </div>` : '';
+
+            const ipsSection = isExpanded && ipCount > 0 ? `
+                <div class="mt-2 pt-2 border-t border-gray-100 flex flex-wrap gap-1">
+                    ${cls.ips.map(ip => {
+                        let ipStatusClass = '';
+                        // First check for individual IP status
+                        // Note: cls.ip_statuses should be provided by backend if we want to be efficient
+                        // For now we'll assume the status logic handles it or we'll need to fetch
+                        // However, based on the user request, we should check if the individual IP has an event
+                        
+                        // We need to find if there's an event for this specific IP
+                        // This would require the backend to send IP statuses. 
+                        // Let's check how get_latest_status is used.
+                        
+                        // For now, let's use the class status as fallback but allow individual colors
+                        // if we had that data. Since we don't have per-IP status in 'servers' API yet,
+                        // I'll update the backend to include it.
+                        
+                        if (cls.ip_statuses && cls.ip_statuses[ip]) {
+                            const type = cls.ip_statuses[ip].event_type;
+                            if (type === 'Down') ipStatusClass = 'ip-card-down';
+                            else if (type === 'Available') ipStatusClass = 'ip-card-available';
+                        } else if (cls.status && cls.status.event_type === 'Down') {
+                            ipStatusClass = 'ip-card-down';
+                        } else if (cls.status && cls.status.event_type === 'Available') {
+                            ipStatusClass = 'ip-card-available';
+                        }
+                        
+                        return `
+                        <span class="ip-pill inline-flex items-center ${ipStatusClass || 'bg-gray-50 text-gray-600'} px-2 py-0.5 rounded-md border border-gray-150">
+                            ${ip}
+                            ${CAN_MANAGE ? `<button onclick="deleteIP('${esc(serverName)}','${esc(cidr)}','${ip}')" class="ml-1 text-red-300 hover:text-red-500 text-[9px]"><i class="fas fa-times"></i></button>` : ''}
+                        </span>`;
+                    }).join('')}
+                </div>` : '';
+
+            return `<div class="${classCardClass} rounded-lg p-3 border border-gray-100/80">
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleIPs('${esc(serverName)}','${esc(cidr)}')" class="expand-btn ${isExpanded?'open':''} text-gray-400 hover:text-gray-600 p-0.5" title="${isExpanded?'Collapse':'Expand'}">
+                        <i class="fas fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <span class="font-mono text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">${cidr}</span>
+                    <span class="text-[11px] text-gray-400">${ipCount} IP${ipCount!==1?'s':''}</span>
+                    ${statusBadge(cls.status)}
+                    ${manageBtns}
+                </div>
+                ${ipsSection}
+            </div>`;
+        }
+
+        function toggleIPs(server, cidr) {
+            const key = server + '|' + cidr;
+            if (expandedClasses.has(key)) expandedClasses.delete(key);
+            else expandedClasses.add(key);
+            renderServers();
+        }
+
+        function showAddServerModal() {
+            showModal(`
+                <div class="p-5">
+                    <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-server text-blue-500 mr-2"></i>Add Server</h3>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Server Name</label>
+                    <input id="m-server-name" type="text" placeholder="e.g. serv001" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-gray-50">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Class (CIDR)</label>
+                    <input id="m-server-cidr" type="text" placeholder="e.g. 145.239.96.0/24" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-gray-50 font-mono">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">IP Addresses <span class="text-gray-400">(one per line, optional)</span></label>
+                    <textarea id="m-server-ips" rows="5" placeholder="145.239.96.1&#10;145.239.96.2&#10;145.239.96.3" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-gray-50 font-mono resize-none"></textarea>
+                    <div id="m-server-results" class="hidden mb-3"></div>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Cancel</button>
+                        <button id="m-server-btn" onclick="addServer()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Add Server</button>
+                    </div>
+                </div>`);
+            setTimeout(()=>document.getElementById('m-server-name').focus(), 80);
+        }
+
+        async function addServer() {
+            const name = document.getElementById('m-server-name').value.trim();
+            const cidr = document.getElementById('m-server-cidr').value.trim();
+            const ips = document.getElementById('m-server-ips').value.trim();
+            if (!name || !cidr) { toast('Server name and class are required.','error'); return; }
+            const btn = document.getElementById('m-server-btn');
+            btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin mr-1"></i>Adding...';
+            try {
+                const res = await fetch('/api/ip-checker/server/add', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,cidr,ips})});
+                const data = await res.json();
+                btn.disabled=false; btn.innerHTML='Add Server';
+                if (data.success) {
+                    toast(data.message,'success');
+                    const r = data.results||{};
+                    if (r.added>0 || (r.invalid||[]).length || (r.duplicate||[]).length || (r.out_of_range||[]).length) {
+                        let html='';
+                        if(r.added>0) html+=`<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-xs text-emerald-700"><i class="fas fa-check mr-1"></i>${r.added} IPs added</div>`;
+                        if((r.invalid||[]).length) html+=`<div class="bg-red-50 border border-red-200 rounded-lg p-2 text-xs text-red-700 mt-1"><i class="fas fa-times mr-1"></i>Invalid: ${r.invalid.join(', ')}</div>`;
+                        if((r.out_of_range||[]).length) html+=`<div class="bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs text-amber-700 mt-1"><i class="fas fa-exclamation mr-1"></i>Out of range: ${r.out_of_range.join(', ')}</div>`;
+                        const rDiv=document.getElementById('m-server-results'); rDiv.innerHTML=html; rDiv.classList.remove('hidden');
+                    }
+                    loadServers();
+                } else toast(data.message||data.error,'error');
+            } catch(e) { btn.disabled=false; btn.innerHTML='Add Server'; toast('Failed.','error'); }
+        }
+
+        async function deleteServer(name) {
+            if(!confirm(`Delete server "${name}" and all its data?`)) return;
+            const res = await fetch('/api/ip-checker/server/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        function showRenameServerModal(old) {
+            showModal(`<div class="p-5">
+                <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-pen text-blue-500 mr-2"></i>Rename Server</h3>
+                <p class="text-xs text-gray-500 mb-2">Current: <strong>${old}</strong></p>
+                <input id="m-rename" type="text" value="${old}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                <div class="flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Cancel</button>
+                    <button onclick="renameServer('${esc(old)}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Rename</button>
+                </div>
+            </div>`);
+            setTimeout(()=>{const i=document.getElementById('m-rename');i.focus();i.select();},80);
+        }
+
+        async function renameServer(old) {
+            const nn=document.getElementById('m-rename').value.trim();
+            if(!nn){toast('Name required.','error');return;}
+            const res=await fetch('/api/ip-checker/server/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({old_name:old,new_name:nn})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');closeModal();loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        function showAddClassToServerModal(server) {
+            showModal(`<div class="p-5">
+                <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-plus text-blue-500 mr-2"></i>Add Class to ${server}</h3>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Class (CIDR)</label>
+                <input id="m-newclass-cidr" type="text" placeholder="e.g. 145.239.97.0/24" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-blue-400 bg-gray-50 font-mono">
+                <div class="flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Cancel</button>
+                    <button onclick="addClassToServer('${esc(server)}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Add Class</button>
+                </div>
+            </div>`);
+            setTimeout(()=>document.getElementById('m-newclass-cidr').focus(),80);
+        }
+
+        async function addClassToServer(server) {
+            const cidr=document.getElementById('m-newclass-cidr').value.trim();
+            if(!cidr){toast('CIDR is required.','error');return;}
+            const res=await fetch('/api/ip-checker/class/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({server,cidr})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');closeModal();loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        async function deleteClass(server,cidr) {
+            if(!confirm(`Delete class ${cidr} from ${server}?`))return;
+            const res=await fetch('/api/ip-checker/class/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({server,cidr})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        function showAddIPsModal(server, cidr) {
+            showModal(`<div class="p-5">
+                <h3 class="text-base font-semibold text-gray-800 mb-1"><i class="fas fa-plus text-green-500 mr-2"></i>Add IPs</h3>
+                <p class="text-xs text-gray-500 mb-3">${server} &middot; <span class="font-mono">${cidr}</span></p>
+                <textarea id="m-add-ips" rows="6" placeholder="One IP per line" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 font-mono bg-gray-50 resize-none focus:ring-2 focus:ring-green-400"></textarea>
+                <p class="text-[11px] text-gray-400 mb-3"><i class="fas fa-info-circle mr-1"></i>IPs must be within <span class="font-mono font-medium">${cidr}</span></p>
+                <div id="m-ips-results" class="hidden mb-3"></div>
+                <div class="flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Cancel</button>
+                    <button id="m-ips-btn" onclick="addIPs('${esc(server)}','${esc(cidr)}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Add IPs</button>
+                </div>
+            </div>`);
+            setTimeout(()=>document.getElementById('m-add-ips').focus(),80);
+        }
+
+        async function addIPs(server,cidr) {
+            const ips=document.getElementById('m-add-ips').value.trim();
+            if(!ips){toast('Enter IPs.','error');return;}
+            const btn=document.getElementById('m-ips-btn');
+            btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin mr-1"></i>Adding...';
+            const res=await fetch('/api/ip-checker/ips/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({server,cidr,ips})});
+            const data=await res.json();
+            btn.disabled=false;btn.innerHTML='Add IPs';
+            if(data.success){
+                toast(data.message,'success');
+                const r=data.results||{};
+                let html='';
+                if(r.added>0) html+=`<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-xs text-emerald-700"><i class="fas fa-check mr-1"></i>${r.added} added</div>`;
+                if((r.invalid||[]).length) html+=`<div class="bg-red-50 border border-red-200 rounded-lg p-2 text-xs text-red-700 mt-1">Invalid: ${r.invalid.join(', ')}</div>`;
+                if((r.out_of_range||[]).length) html+=`<div class="bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs text-amber-700 mt-1">Out of range: ${r.out_of_range.join(', ')}</div>`;
+                if(html){const d=document.getElementById('m-ips-results');d.innerHTML=html;d.classList.remove('hidden');}
+                expandedClasses.add(server+'|'+cidr);
+                loadServers();
+            } else toast(data.message||data.error,'error');
+        }
+
+        async function deleteIP(server,cidr,ip) {
+            if(!confirm(`Remove ${ip}?`))return;
+            const res=await fetch('/api/ip-checker/ip/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({server,cidr,ip})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        function showGenerateIPsModal(currentServerName) {
+            const names = Object.keys(serversData).sort();
+            
+            showModal(`
+                <div class="p-5">
+                    <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-magic text-emerald-500 mr-2"></i>Generate Random IPs</h3>
+                    
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Select Servers</label>
+                    <div class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50 mb-3">
+                        ${names.map(n => `
+                            <label class="flex items-center gap-2 px-1 py-0.5 hover:bg-white rounded cursor-pointer">
+                                <input type="checkbox" name="m-gen-servers" value="${n}" ${n===currentServerName?'checked':''} onchange="updateGenCidrs()">
+                                <span class="text-xs font-medium">${n}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Select Classes</label>
+                    <div id="m-gen-cidrs-container" class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50 mb-3">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+                            <input id="m-gen-from" type="number" value="1" min="1" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+                            <input id="m-gen-to" type="number" value="100" min="1" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <label class="block text-xs font-medium text-gray-600 mb-1">IP Filter</label>
+                    <select id="m-gen-filter" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-4 focus:ring-2 focus:ring-emerald-400 bg-gray-50">
+                        <option value="all">All Registered IPs</option>
+                        <option value="Available">Only Available</option>
+                        <option value="Down">Only Down</option>
+                    </select>
+
+                    <div id="m-gen-output-container" class="hidden mb-4">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Output (Copied!)</label>
+                        <textarea id="m-gen-output" rows="5" readonly class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono bg-gray-100 resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Close</button>
+                        <button id="m-gen-btn" onclick="generateIPs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Get Random IPs</button>
+                    </div>
+                </div>
+            `);
+            updateGenCidrs();
+        }
+
+        function updateGenCidrs() {
+            const selectedServers = Array.from(document.querySelectorAll('input[name="m-gen-servers"]:checked')).map(cb => cb.value);
+            const container = document.getElementById('m-gen-cidrs-container');
+            const allCidrs = new Set();
+            selectedServers.forEach(s => {
+                if (serversData[s]) {
+                    Object.keys(serversData[s].classes).forEach(c => allCidrs.add(c));
+                }
+            });
+            const sortedCidrs = Array.from(allCidrs).sort();
+            
+            if (sortedCidrs.length === 0) {
+                container.innerHTML = '<p class="text-[10px] text-gray-400 italic">No classes found</p>';
+                return;
+            }
+            
+            container.innerHTML = sortedCidrs.map(c => `
+                <label class="flex items-center gap-2 px-1 py-0.5 hover:bg-white rounded cursor-pointer">
+                    <input type="checkbox" name="m-gen-cidrs" value="${c}" checked class="rounded text-emerald-600">
+                    <span class="text-xs font-mono">${c}</span>
+                </label>
+            `).join('');
+        }
+
+        async function generateIPs() {
+            const selectedServers = Array.from(document.querySelectorAll('input[name="m-gen-servers"]:checked')).map(cb => cb.value);
+            const selectedCidrs = Array.from(document.querySelectorAll('input[name="m-gen-cidrs"]:checked')).map(cb => cb.value);
+            const from = parseInt(document.getElementById('m-gen-from').value);
+            const to = parseInt(document.getElementById('m-gen-to').value);
+            const filter = document.getElementById('m-gen-filter').value;
+
+            if (selectedServers.length === 0) { toast('Select at least one server.', 'error'); return; }
+            if (selectedCidrs.length === 0) { toast('Select at least one class.', 'error'); return; }
+            if (isNaN(from) || isNaN(to) || from > to) { toast('Invalid range.', 'error'); return; }
+
+            const btn = document.getElementById('m-gen-btn');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generating...';
+
+            try {
+                const res = await fetch('/api/ip-checker/ips/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ servers: selectedServers, cidrs: selectedCidrs, from, to, filter })
+                });
+                const data = await res.json();
+                btn.disabled = false; btn.innerHTML = 'Get Random IPs';
+
+                if (data.success) {
+                    const output = document.getElementById('m-gen-output');
+                    const container = document.getElementById('m-gen-output-container');
+                    output.value = data.output;
+                    container.classList.remove('hidden');
+                    
+                    output.select();
+                    try {
+                        await navigator.clipboard.writeText(data.output);
+                        toast('Generated IPs copied to clipboard!', 'success');
+                    } catch(err) {
+                        toast('Generated successfully, please copy from the box.', 'info');
+                    }
+                } else {
+                    toast(data.message || data.error, 'error');
+                }
+            } catch (e) {
+                btn.disabled = false; btn.innerHTML = 'Get Random IPs';
+                toast('Failed to generate IPs.', 'error');
+            }
+        }
+
+        async function showDeclareEventModal(server, cidr) {
+            if(eventTypesCache.length===0){
+                const r=await fetch('/api/ip-checker/event-types');
+                const d=await r.json();
+                eventTypesCache=d.event_types||[];
+            }
+            const srv=serversData[server]||{};
+            const classes=Object.keys(srv.classes||{}).sort();
+            const eventOpts=eventTypesCache.map(t=>`<option value="${t}">${t}</option>`).join('');
+            const classOpts=classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+            const defaultScope=cidr?'class':'server';
+            const defaultClassSel=cidr||'';
+
+            showModal(`<div class="p-5">
+                <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-flag text-amber-500 mr-2"></i>Set Status - ${server}</h3>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                <select id="m-evt-type" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 bg-gray-50 focus:ring-2 focus:ring-amber-400">${eventOpts}</select>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Apply to</label>
+                <select id="m-evt-scope" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 bg-gray-50 focus:ring-2 focus:ring-amber-400" onchange="toggleEvtScope()">
+                    <option value="server" ${defaultScope==='server'?'selected':''}>Entire Server</option>
+                    <option value="class" ${defaultScope==='class'?'selected':''}>Specific Class</option>
+                    <option value="ip">Specific IPs</option>
+                </select>
+                <div id="m-evt-class-sec" class="${defaultScope==='class'?'':'hidden'} mb-3">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Class</label>
+                    <select id="m-evt-class" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 font-mono">${classOpts}</select>
+                </div>
+                <div id="m-evt-ips-sec" class="hidden mb-3">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">IPs (one per line)</label>
+                    <textarea id="m-evt-ips" rows="3" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 font-mono resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 mt-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Cancel</button>
+                    <button onclick="declareEvent('${esc(server)}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Set Status</button>
+                </div>
+            </div>`);
+            if(defaultClassSel){
+                setTimeout(()=>{document.getElementById('m-evt-class').value=defaultClassSel;},50);
+            }
+        }
+
+        function toggleEvtScope() {
+            const s=document.getElementById('m-evt-scope').value;
+            document.getElementById('m-evt-class-sec').classList.toggle('hidden',s!=='class');
+            document.getElementById('m-evt-ips-sec').classList.toggle('hidden',s!=='ip');
+        }
+
+        async function declareEvent(server) {
+            const eventType=document.getElementById('m-evt-type').value;
+            const scope=document.getElementById('m-evt-scope').value;
+            let cidr=null, ips=[];
+            if(scope==='class') cidr=document.getElementById('m-evt-class').value;
+            if(scope==='ip'){
+                ips=document.getElementById('m-evt-ips').value.trim().split('\n').map(s=>s.trim()).filter(Boolean);
+                if(!ips.length){toast('Enter at least one IP.','error');return;}
+            }
+            const res=await fetch('/api/ip-checker/event/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({server,event_type:eventType,scope,cidr,ips})});
+            const data=await res.json();
+            if(data.success){toast('Status updated!','success');closeModal();loadServers();}else toast(data.message||data.error,'error');
+        }
+
+        async function searchIP() {
+            const ip=document.getElementById('search-ip-input').value.trim();
+            if(!ip){toast('Enter an IP address.','error');return;}
+            const c=document.getElementById('search-results');
+            c.classList.remove('hidden');
+            c.innerHTML='<div class="text-center py-3"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>';
+            const res=await fetch('/api/ip-checker/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ip})});
+            const data=await res.json();
+            if(!data.success){c.innerHTML=`<div class="bg-red-50 rounded-lg p-3 text-sm text-red-700"><i class="fas fa-exclamation-circle mr-1"></i>${data.message}</div>`;return;}
+            if(data.results.length===0){c.innerHTML=`<div class="bg-amber-50 rounded-lg p-3 text-sm text-amber-700"><i class="fas fa-search mr-1"></i>No matches for <span class="font-mono font-medium">${ip}</span></div>`;return;}
+            c.innerHTML=data.results.map(r=>{
+                const regBadge=r.registered?'<span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[11px] font-medium border border-emerald-200">Registered</span>':'<span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full text-[11px] font-medium border border-amber-200">In range, not added</span>';
+                return `<div class="search-result bg-gray-50 rounded-lg p-3 mb-2 border border-gray-100 fade-in">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-lg text-xs font-semibold"><i class="fas fa-server mr-1"></i>${r.server}</span>
+                        <span class="font-mono text-xs text-gray-600 bg-white px-2 py-0.5 rounded border">${r.cidr}</span>
+                        ${regBadge}
+                        ${r.status?statusBadge(r.status):''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function showManageEventTypesModal() {
+            const r=await fetch('/api/ip-checker/event-types');
+            const d=await r.json();
+            eventTypesCache=d.event_types||[];
+            renderEventTypesModal();
+        }
+
+        function renderEventTypesModal() {
+            const list=eventTypesCache.map(t=>{
+                const isDef=(t==='Available'||t==='Down');
+                const col=t==='Available'?'emerald':t==='Down'?'red':'blue';
+                return `<div class="flex items-center justify-between bg-${col}-50 border border-${col}-200 rounded-lg px-3 py-2">
+                    <span class="text-xs font-medium text-${col}-700"><i class="fas fa-tag mr-1"></i>${t}</span>
+                    ${isDef?'<span class="text-[10px] text-gray-400">default</span>':`<button onclick="deleteEventType('${esc(t)}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-times"></i></button>`}
+                </div>`;
+            }).join('');
+            showModal(`<div class="p-5">
+                <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-tags text-purple-500 mr-2"></i>Event Types</h3>
+                <div class="grid grid-cols-2 gap-2 mb-4">${list}</div>
+                <div class="flex gap-2">
+                    <input id="m-new-evt-type" type="text" placeholder="New event type..." class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:ring-2 focus:ring-purple-400">
+                    <button onclick="addEventType()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Add</button>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm">Close</button>
+                </div>
+            </div>`);
+        }
+
+        async function addEventType() {
+            const name=document.getElementById('m-new-evt-type').value.trim();
+            if(!name){toast('Name required.','error');return;}
+            const res=await fetch('/api/ip-checker/event-types/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');eventTypesCache.push(name);renderEventTypesModal();}else toast(data.message||data.error,'error');
+        }
+
+        async function deleteEventType(name) {
+            if(!confirm(`Delete event type "${name}"?`))return;
+            const res=await fetch('/api/ip-checker/event-types/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+            const data=await res.json();
+            if(data.success){toast(data.message,'success');eventTypesCache=eventTypesCache.filter(t=>t!==name);renderEventTypesModal();}else toast(data.message||data.error,'error');
+        }
+
+        document.addEventListener('DOMContentLoaded',()=>loadServers());
+    </script>
+</body>
+</html>

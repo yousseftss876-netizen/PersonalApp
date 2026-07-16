@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS Services</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* ── Sticky header ───────────────────────────── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* ── Search bar ──────────────────────────────── */
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 420px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 16px 9px 40px;
+            border-radius: 50px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 13.5px;
+            color: #334155;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .search-wrap input:focus {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+        }
+        .search-wrap .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 17px;
+        }
+        .search-wrap .clear-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%; transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+        .search-wrap input:not(:placeholder-shown) ~ .clear-btn { display: block; }
+
+        /* ── Profile avatar + dropdown ───────────────── */
+        .avatar-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700;
+            color: white; cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(99,102,241,.35);
+            flex-shrink: 0;
+            transition: transform .15s;
+        }
+        .avatar-btn:hover { transform: scale(1.07); }
+
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 230px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+            overflow: hidden;
+            display: none;
+            z-index: 100;
+            animation: fadeSlide .15s ease;
+        }
+        .profile-menu.open { display: block; }
+
+        @keyframes fadeSlide {
+            from { opacity:0; transform:translateY(-6px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .profile-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border-bottom: 1px solid #ede9fe;
+        }
+        .profile-menu a, .profile-menu button {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
+            font-size: 13.5px; font-weight: 500;
+            color: #374151;
+            text-decoration: none;
+            width: 100%;
+            background: none; border: none; cursor: pointer;
+            transition: background .15s;
+            text-align: left;
+        }
+        .profile-menu a:hover, .profile-menu button:hover { background: #f8fafc; }
+        .profile-menu .danger { color: #ef4444; }
+        .profile-menu .danger:hover { background: #fef2f2; }
+        .profile-menu .divider { border-top: 1px solid #f1f5f9; margin: 4px 0; }
+
+        /* ── Welcome banner ──────────────────────────── */
+        .welcome-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #312e81 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 240px; height: 240px;
+            background: rgba(99,102,241,.18);
+            border-radius: 50%;
+        }
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; right: 100px;
+            width: 200px; height: 200px;
+            background: rgba(168,85,247,.12);
+            border-radius: 50%;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Search no-results ───────────────────────── */
+        #noResults { display: none; }
+
+        /* ── Service cards ───────────────────────────── */
+        .svc-card {
+            background: #fff;
+            border: 1px solid #e8ecf0;
+            border-radius: 18px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .2s;
+        }
+        .svc-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 48px -8px rgba(0,0,0,0.13);
+            border-color: transparent;
+        }
+        .svc-card .card-glow {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            border-radius: 18px;
+            transition: opacity .22s;
+            pointer-events: none;
+        }
+        .svc-card:hover .card-glow { opacity: 1; }
+
+        .card-icon-wrap {
+            width: 54px; height: 54px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,.18);
+        }
+
+        .tag {
+            font-size: 10.5px; font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 20px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .launch-arrow {
+            display: flex; align-items: center; justify-content: center;
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 18px;
+            transition: background .15s, color .15s, transform .15s;
+        }
+        .svc-card:hover .launch-arrow {
+            background: var(--card-color, #6366f1);
+            color: white;
+            transform: rotate(-40deg);
+        }
+
+        /* ── Flash messages ──────────────────────────── */
+        .flash-msg {
+            border-radius: 12px; padding: 12px 16px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13.5px; margin-bottom: 12px;
+        }
+    
+        /* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+
+</style>
+</head>
+<body>
+<div class="tssw-watermark">{{ current_user.entity }}</div>
+
+<!-- ══════════════════════════════════════════
+     STICKY HEADER
+══════════════════════════════════════════ -->
+<header class="site-header">
+    <div class="max-w-7xl mx-auto px-5 py-3 flex items-center gap-4">
+
+        <!-- Logo -->
+        <a href="{{ url_for('services') }}" class="flex items-center gap-2.5 flex-shrink-0">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#a855f7)">
+                <i class="ph ph-squares-four text-white" style="font-size:18px"></i>
+            </div>
+            <span class="font-bold text-slate-800 text-[15px] tracking-tight hidden sm:block">TSS Platform</span>
+        </a>
+
+        <!-- Search -->
+        <div class="search-wrap">
+            <i class="ph ph-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search services…" oninput="filterCards(this.value)" autocomplete="off">
+            <span class="clear-btn" onclick="clearSearch()"><i class="ph ph-x"></i></span>
+        </div>
+
+        <!-- Profile -->
+        <div class="relative ml-auto flex-shrink-0" id="profileWrap">
+            <div class="avatar-btn" onclick="toggleProfile(event)" title="{{ current_user.name }}">
+                {{ current_user.name[0].upper() }}
+            </div>
+
+            <div class="profile-menu" id="profileMenu">
+                <!-- User info -->
+                <div class="profile-header">
+                    <div class="flex items-center gap-3">
+                        <div class="avatar-btn" style="width:38px;height:38px;font-size:15px;cursor:default">
+                            {{ current_user.name[0].upper() }}
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-800 text-sm">{{ current_user.name }}</div>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full text-indigo-700 bg-indigo-100">{{ current_user.entity }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if current_user.has_user_management_permission %}
+                <a href="{{ url_for('manage_users') }}">
+                    <i class="ph ph-users-three text-indigo-500" style="font-size:17px"></i>
+                    Manage Users
+                </a>
+                {% endif %}
+
+                {% if current_user.has_access_management_permission %}
+                <a href="{{ url_for('access_management') }}">
+                    <i class="ph ph-shield-check text-indigo-500" style="font-size:17px"></i>
+                    Access Management
+                </a>
+                {% endif %}
+
+                {% if current_user.has_processes_management_permission %}
+                <a href="{{ url_for('processes_management_page') }}">
+                    <i class="ph ph-list-checks text-indigo-500" style="font-size:17px"></i>
+                    Processes Management
+                </a>
+                {% endif %}
+
+                {% if current_user.has_warmup_lists_permission %}
+                <a href="{{ url_for('warmup_lists_page') }}">
+                    <i class="ph ph-fire-simple text-indigo-500" style="font-size:17px"></i>
+                    Warmup Lists
+                </a>
+                {% endif %}
+
+                {% if current_user.has_warmup_reports_permission %}
+                <a href="{{ url_for('warmup_reports') }}">
+                    <i class="ph ph-chart-line-up text-indigo-500" style="font-size:17px"></i>
+                    Warmup Reports
+                </a>
+                {% endif %}
+
+                <div class="divider"></div>
+
+                <a href="{{ url_for('logout') }}" class="danger">
+                    <i class="ph ph-sign-out" style="font-size:17px"></i>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════ -->
+<main class="max-w-7xl mx-auto px-5 py-7">
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-msg {% if category == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif category == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %}">
+                    <i class="ph {% if category == 'error' %}ph-warning-circle{% elif category == 'success' %}ph-check-circle{% else %}ph-info{% endif %}" style="font-size:18px;flex-shrink:0"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Welcome banner -->
+    <div class="welcome-banner mb-8">
+        <div class="relative z-10">
+            <p class="text-indigo-300 text-sm font-medium mb-1 tracking-wide uppercase">Welcome back</p>
+            <h1 class="text-3xl font-extrabold gradient-text mb-1">{{ current_user.name }}</h1>
+            <p class="text-slate-400 text-sm mt-2 max-w-md">Access your {{ current_user.entity }} workspace and manage all your tools from one place. Use the search bar or choose a service below to get started.</p>
+        </div>
+    </div>
+
+    <!-- Section label -->
+    <div class="flex items-center justify-between mb-5">
+        <h2 class="text-base font-semibold text-slate-500 tracking-wide uppercase" style="letter-spacing:.08em">Available Services</h2>
+        <span id="serviceCount" class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full"></span>
+    </div>
+
+    <!-- ── Services Grid ──────────────────────── -->
+    <div id="servicesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+        {% if current_user.has_gmass_permission %}
+        <div class="svc-card" style="--card-color:#3b82f6"
+             data-name="tss gmail access email inbox browse"
+             onclick="location.href='{{ url_for('gmail_access') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #3b82f6"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+                        <i class="ph ph-envelope-simple"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#1d4ed8;background:#eff6ff">Email</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">TSS Gmail Access</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Browse Gmail accounts with real-time sync and folder categorization.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_extract_emails_permission %}
+        <div class="svc-card" style="--card-color:#10b981"
+             data-name="extract emails spf dkim security analysis csv"
+             onclick="location.href='{{ url_for('extract_emails') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #10b981"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)">
+                        <i class="ph ph-magnifying-glass"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#065f46;background:#ecfdf5">Analysis</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">TSS Extract Emails</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Extract emails with SPF/DKIM check, sender IP, and CSV export.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_find_news_permission %}
+        <div class="svc-card" style="--card-color:#f59e0b"
+             data-name="find news gmail inbox copy source"
+             onclick="location.href='{{ url_for('find_news') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #f59e0b"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                        <i class="ph ph-newspaper"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#92400e;background:#fffbeb">News</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Find News</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Access news Gmail accounts and copy email source quickly.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_domain_checker_permission %}
+        <div class="svc-card" style="--card-color:#8b5cf6"
+             data-name="domain checker dns dmarc spf mx txt lookup bulk"
+             onclick="location.href='{{ url_for('domain_checker') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #8b5cf6"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+                        <i class="ph ph-globe-hemisphere-west"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#5b21b6;background:#f5f3ff">DNS</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Domain Checker</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">DMARC, SPF, MX &amp; TXT record lookups with bulk domain support.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_blacklist_lookup_permission %}
+        <div class="svc-card" style="--card-color:#ef4444"
+             data-name="blacklist lookup spamhaus barracuda ip domain block"
+             onclick="location.href='{{ url_for('blacklist_lookup') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #ef4444"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+                        <i class="ph ph-shield-warning"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#991b1b;background:#fef2f2">Security</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Blacklist Lookup</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Check IPs and domains against Spamhaus &amp; Barracuda blacklists.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_tssw_report_permission %}
+        <div class="svc-card" style="--card-color:#1e5694"
+             data-name="tssw rapport report analytics data export"
+             onclick="location.href='{{ url_for('tssw_rapport_index') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #1e5694"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#1e5694,#153d6e)">
+                        <i class="ph ph-chart-bar"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#1e3a5f;background:#e8f0fa">Reports</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">TSSW Rapport</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Specialized reporting and analytics with export tools.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_quality_helper_permission %}
+        <div class="svc-card" style="--card-color:#22c55e"
+             data-name="quality seeds helper image keyword automation zip"
+             onclick="location.href='{{ url_for('quality_helper') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #22c55e"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#22c55e,#15803d)">
+                        <i class="ph ph-plant"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#14532d;background:#f0fdf4">Automation</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Quality Seeds Helper</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Generate images from keywords and automate seed content management.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_news_subscription_permission %}
+        <div class="svc-card" style="--card-color:#f97316"
+             data-name="news subscription newsletter automate domain signup"
+             onclick="location.href='{{ url_for('news_subscription') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #f97316"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#f97316,#c2410c)">
+                        <i class="ph ph-rss-simple"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#9a3412;background:#fff7ed">Automation</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">News Subscription</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Bulk automate newsletter signups with real-time progress tracking.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_ips_cheker_permission %}
+        <div class="svc-card" style="--card-color:#0ea5e9"
+             data-name="ips checker server ip class cidr event history search"
+             onclick="location.href='{{ url_for('ip_checker_page') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #0ea5e9"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#0ea5e9,#2563eb)">
+                        <i class="ph ph-network"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#0c4a6e;background:#f0f9ff">Network</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">IPs Checker</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Manage servers, IP classes, track events, and search addresses.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_download_extension_permission or current_user.has_add_extensions_permission %}
+        <div class="svc-card" style="--card-color:#6366f1"
+             data-name="extensions browser chrome firefox icedragon download plugin"
+             onclick="location.href='{{ url_for('useful_extensions') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #6366f1"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+                        <i class="ph ph-puzzle-piece"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#3730a3;background:#eef2ff">Extensions</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Useful Extensions</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Download Chrome, Firefox, and IceDragon browser extensions.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_email_founder_permission %}
+        <div class="svc-card" style="--card-color:#f97316"
+             data-name="email founder gmail extract folder range download txt"
+             onclick="location.href='{{ url_for('email_founder_page') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #f97316"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#f97316,#ea580c)">
+                        <i class="ph ph-envelope-open"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#9a3412;background:#fff7ed">Extraction</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Email Extarctor</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Extract Gmail emails by folder and range, download as text files.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_domain_founder_permission %}
+        <div class="svc-card" style="--card-color:#a855f7"
+             data-name="domain founder spf record include a records ip check search"
+             onclick="location.href='{{ url_for('domain_founder_page') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #a855f7"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">
+                        <i class="ph ph-crosshair-simple"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#6b21a8;background:#faf5ff">DNS</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">Domain Finder</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Analyze SPF records — find includes, A records, and verify IPs.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_subdomain_finder_permission %}
+        <div class="svc-card" style="--card-color:#0ea5e9"
+             data-name="subdomain finder subfinder discovery dns enumerate scan"
+             onclick="location.href='{{ url_for('subdomain_finder_page') }}'">
+            <div class="card-glow" style="box-shadow:inset 0 0 0 1.5px #0ea5e9"></div>
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="card-icon-wrap" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+                        <i class="ph ph-planet"></i>
+                    </div>
+                    <div class="launch-arrow"><i class="ph ph-arrow-up-right"></i></div>
+                </div>
+                <div class="tag mb-2" style="color:#075985;background:#e0f2fe">Recon</div>
+                <h3 class="font-bold text-slate-800 text-[15px] leading-snug mb-1">SubDomain Finder</h3>
+                <p class="text-slate-500 text-[13px] leading-relaxed">Discover subdomains at scale using subfinder — manage multiple parallel processes.</p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- No results -->
+    <div id="noResults" class="text-center py-20">
+        <i class="ph ph-magnifying-glass" style="font-size:48px;color:#cbd5e1"></i>
+        <p class="mt-3 text-slate-400 font-medium text-[15px]">No services match "<span id="noResultsQuery"></span>"</p>
+        <p class="text-slate-400 text-sm mt-1">Try a different keyword</p>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-slate-400 text-xs mt-10">TSS Services Platform &mdash; Contact TSSW for support</p>
+</main>
+
+
+<script>
+    // ── Profile dropdown ──────────────────────────
+    function toggleProfile(e) {
+        e.stopPropagation();
+        document.getElementById('profileMenu').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('profileWrap');
+        if (!wrap.contains(e.target)) {
+            document.getElementById('profileMenu').classList.remove('open');
+        }
+    });
+
+    // ── Service count ─────────────────────────────
+    const allCards = Array.from(document.querySelectorAll('.svc-card'));
+    function updateCount(n) {
+        const el = document.getElementById('serviceCount');
+        el.textContent = n + ' service' + (n === 1 ? '' : 's');
+    }
+    updateCount(allCards.length);
+
+    // ── Search / filter ───────────────────────────
+    function filterCards(q) {
+        const query = q.toLowerCase().trim();
+        let visible = 0;
+        allCards.forEach(card => {
+            const text = (card.dataset.name + ' ' + card.innerText).toLowerCase();
+            const match = !query || text.includes(query);
+            card.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        updateCount(visible);
+        const noRes = document.getElementById('noResults');
+        const grid = document.getElementById('servicesGrid');
+        if (visible === 0 && query) {
+            noRes.style.display = 'block';
+            document.getElementById('noResultsQuery').textContent = q;
+            grid.style.display = 'none';
+        } else {
+            noRes.style.display = 'none';
+            grid.style.display = '';
+        }
+    }
+
+    function clearSearch() {
+        const input = document.getElementById('searchInput');
+        input.value = '';
+        filterCards('');
+        input.focus();
+    }
+</script>
+
+</body>
+</html>

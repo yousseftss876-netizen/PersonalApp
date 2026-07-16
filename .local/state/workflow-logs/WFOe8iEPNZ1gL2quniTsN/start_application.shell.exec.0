@@ -1,0 +1,40 @@
+[2026-03-25 12:14:16 +0000] [119] [INFO] Starting gunicorn 25.1.0
+[2026-03-25 12:14:16 +0000] [119] [INFO] Listening at:  (119)
+[2026-03-25 12:14:16 +0000] [119] [INFO] Using worker: sync
+[2026-03-25 12:14:16 +0000] [119] [INFO] Control socket listening at /home/runner/workspace/gunicorn.ctl
+[2026-03-25 12:14:16 +0000] [132] [INFO] Booting worker with pid: 132
+[2026-03-25 12:14:16 +0000] [132] [WARNING] Reloader is on. Use in development only!
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:17 +0000] [119] [INFO] Handling signal: winch
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:18 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:14:19 +0000] [119] [INFO] Handling signal: winch
+[2026-03-25 12:19:44 +0000] [119] [INFO] Handling signal: term
+[2026-03-25 12:19:44 +0000] [132] [INFO] Worker exiting (pid: 132)
+[2026-03-25 12:19:44 +0000] [119] [INFO] Shutting down: Master

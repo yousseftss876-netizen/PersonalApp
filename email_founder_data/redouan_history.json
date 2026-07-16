@@ -1,0 +1,30 @@
+[
+  {
+    "key": "redouan_20260420_122219",
+    "gmail_email": "fatcut.net@gmail.com",
+    "folder_label": "INBOX",
+    "mode_label": "Text HTML Only",
+    "range_from": 1,
+    "range_to": 100,
+    "status": "completed",
+    "email_count": 100,
+    "output_file": "emails_20260420_122219.txt",
+    "started_at": "2026-04-20 12:22:19",
+    "finished_at": "2026-04-20 12:22:44",
+    "error": null
+  },
+  {
+    "key": "redouan_20260218_120524",
+    "gmail_email": "fatcut.net@gmail.com",
+    "folder_label": "newLB",
+    "mode_label": "Text Plain Only",
+    "range_from": 6,
+    "range_to": 10,
+    "status": "completed",
+    "email_count": 4,
+    "output_file": "emails_20260218_120524.txt",
+    "started_at": "2026-02-18 12:05:24",
+    "finished_at": "2026-02-18 12:05:29",
+    "error": null
+  }
+]

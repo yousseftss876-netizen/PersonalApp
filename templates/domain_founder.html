@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Finder - TSS Services</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .user-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .process-card { transition: all 0.3s ease; cursor: pointer; }
+        .process-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1); }
+        .process-card.selected { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
+        .toast { animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .progress-bar { transition: width 0.3s ease; }
+        .result-table th { position: sticky; top: 0; z-index: 10; }
+        .domain-badge { display: inline-flex; align-items: center; gap: 4px; background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; margin: 2px; }
+        .path-breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; margin-top: 4px; }
+        .path-node { font-family: ui-monospace, monospace; font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+        .path-node-ok { background: #ecfdf5; color: #065f46; }
+        .path-node-broken { background: #fef2f2; color: #991b1b; font-weight: 600; }
+        .path-sep { color: #d1d5db; font-size: 8px; }
+        .result-row-expanded .path-breadcrumb { display: flex; }
+
+        .active-tab { background:#8b5cf6!important; color:#fff!important; }
+        .inactive-tab { background:#ede9fe!important; color:#6b21a8!important; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 min-h-screen">
+    {% set page_title = "Domain Finder" %}
+    {% set page_icon = "ph-crosshair-simple" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="mb-3">
+            <span id="domainCount" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">0 domains</span>
+        </div>
+        <div class="flex gap-6">
+            <div class="w-80 flex-shrink-0 space-y-4">
+                <div class="glass-card rounded-xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-gray-800"><i class="fas fa-globe mr-2 text-indigo-500"></i>My Domains</h3>
+                        <button onclick="openDomainsModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+                            <i class="fas fa-edit mr-1"></i>Manage
+                        </button>
+                    </div>
+                    <div id="domainsList" class="max-h-64 overflow-y-auto space-y-1 text-sm text-gray-600">
+                        <p class="text-gray-400 italic">No domains added yet</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-5 shadow-sm">
+                    <h3 class="font-semibold text-gray-800 mb-3"><i class="fas fa-rocket mr-2 text-purple-500"></i>Launch Process</h3>
+                    <div class="space-y-2">
+                        <div class="process-card rounded-lg p-3 border border-gray-200 hover:border-indigo-400" onclick="selectProcess('include')" id="proc-include">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-link text-blue-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">Include Records</div>
+                                    <div class="text-xs text-gray-500">Domains without SPF in includes</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="process-card rounded-lg p-3 border border-gray-200 hover:border-indigo-400" onclick="selectProcess('a_records')" id="proc-a_records">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-server text-green-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">A Records</div>
+                                    <div class="text-xs text-gray-500">A: domains without SPF</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="process-card rounded-lg p-3 border border-gray-200 hover:border-indigo-400" onclick="selectProcess('ip')" id="proc-ip">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <i class="fas fa-network-wired text-orange-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">IPs Check</div>
+                                    <div class="text-xs text-gray-500">Check SPF IP authorization</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="process-card rounded-lg p-3 border border-gray-200 hover:border-indigo-400" onclick="selectProcess('query')" id="proc-query">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-search text-purple-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">Query Search</div>
+                                    <div class="text-xs text-gray-500">Search text in SPF records</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="process-card rounded-lg p-3 border border-gray-200 hover:border-indigo-400" onclick="selectProcess('cname')" id="proc-cname">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center">
+                                    <i class="fas fa-exchange-alt text-teal-600 text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">CNAME Records</div>
+                                    <div class="text-xs text-gray-500">CNAMEs without SPF records</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="processParams" class="mt-4 hidden">
+                        <div id="ipParams" class="hidden">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">IP Addresses (one per line)</label>
+                            <textarea id="ipInput" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="192.168.1.1&#10;10.0.0.1"></textarea>
+                        </div>
+                        <div id="queryParams" class="hidden">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Search Queries <span class="text-gray-400 font-normal">(one per line)</span></label>
+                            <textarea id="queryInput" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" placeholder="google&#10;outlook&#10;sendgrid"></textarea>
+                            <div class="text-xs text-gray-400 mt-1"><span id="queryCount">0 queries</span></div>
+                        </div>
+                    </div>
+
+                    <button onclick="startProcess()" id="startBtn" class="mt-4 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-play mr-2"></i>Start Process
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800"><i class="fas fa-tasks mr-2 text-indigo-500"></i>Processes</h2>
+                    <button onclick="refreshProcesses()" class="text-gray-500 hover:text-indigo-600 transition-colors text-sm">
+                        <i class="fas fa-sync-alt mr-1"></i>Refresh
+                    </button>
+                </div>
+
+                <div id="processesContainer" class="space-y-4">
+                    <div class="glass-card rounded-xl p-8 text-center">
+                        <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No processes yet. Select a process type and click Start.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="domainsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden">
+            <div class="p-5 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-globe mr-2 text-indigo-500"></i>Manage Domains</h3>
+                    <button onclick="closeDomainsModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Enter domains (one per line)</label>
+                    <textarea id="domainsTextarea" rows="12" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono" placeholder="example.com&#10;domain.org&#10;test.net"></textarea>
+                    <div class="flex items-center justify-between mt-2">
+                        <span id="modalDomainCount" class="text-xs text-gray-500">0 domains</span>
+                        <div class="flex gap-2">
+                            <button onclick="clearDomains()" class="text-xs text-red-500 hover:text-red-700"><i class="fas fa-trash mr-1"></i>Clear All</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeDomainsModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                <button onclick="saveDomains()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+                    <i class="fas fa-save mr-1"></i>Save Domains
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed top-16 right-4 z-[2000] px-4 py-3 rounded-lg shadow-lg text-sm font-medium toast"></div>
+
+    <script>
+        let selectedProcess = null;
+        let userDomains = [];
+        let pollInterval = null;
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.className = 'fixed top-16 right-4 z-[2000] px-4 py-3 rounded-lg shadow-lg text-sm font-medium toast';
+            t.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500', 'text-white');
+            t.textContent = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        async function loadDomains() {
+            try {
+                const res = await fetch('/api/domain-founder/domains');
+                const data = await res.json();
+                userDomains = data.domains || [];
+                updateDomainDisplay();
+            } catch(e) { console.error('Failed to load domains', e); }
+        }
+
+        function updateDomainDisplay() {
+            const count = userDomains.length;
+            document.getElementById('domainCount').textContent = `${count} domain${count !== 1 ? 's' : ''}`;
+            const list = document.getElementById('domainsList');
+            if (count === 0) {
+                list.innerHTML = '<p class="text-gray-400 italic">No domains added yet</p>';
+            } else {
+                const shown = userDomains.slice(0, 50);
+                list.innerHTML = shown.map(d => `<div class="domain-badge">${d}</div>`).join('') +
+                    (count > 50 ? `<p class="text-xs text-gray-400 mt-2">...and ${count - 50} more</p>` : '');
+            }
+        }
+
+        function openDomainsModal() {
+            document.getElementById('domainsTextarea').value = userDomains.join('\n');
+            updateModalCount();
+            document.getElementById('domainsModal').classList.remove('hidden');
+        }
+
+        function closeDomainsModal() {
+            document.getElementById('domainsModal').classList.add('hidden');
+        }
+
+        function updateModalCount() {
+            const text = document.getElementById('domainsTextarea').value;
+            const lines = text.split('\n').filter(l => l.trim()).length;
+            document.getElementById('modalDomainCount').textContent = `${lines} domain${lines !== 1 ? 's' : ''}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const ta = document.getElementById('domainsTextarea');
+            if (ta) ta.addEventListener('input', updateModalCount);
+            const qi = document.getElementById('queryInput');
+            if (qi) qi.addEventListener('input', function() {
+                const count = qi.value.split('\n').map(q => q.trim()).filter(q => q).length;
+                const el = document.getElementById('queryCount');
+                if (el) el.textContent = `${count} quer${count !== 1 ? 'ies' : 'y'}`;
+            });
+        });
+
+        function clearDomains() {
+            document.getElementById('domainsTextarea').value = '';
+            updateModalCount();
+        }
+
+        async function saveDomains() {
+            const text = document.getElementById('domainsTextarea').value;
+            const domains = text.split('\n').map(l => l.trim().toLowerCase()).filter(l => l && l.includes('.'));
+            const unique = [...new Set(domains)];
+            try {
+                const res = await fetch('/api/domain-founder/domains', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domains: unique})
+                });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                userDomains = unique;
+                updateDomainDisplay();
+                closeDomainsModal();
+                showToast(`Saved ${unique.length} domains`, 'success');
+            } catch(e) { showToast('Failed to save domains', 'error'); }
+        }
+
+        function selectProcess(type) {
+            selectedProcess = type;
+            document.querySelectorAll('.process-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('proc-' + type).classList.add('selected');
+            document.getElementById('processParams').classList.remove('hidden');
+            document.getElementById('ipParams').classList.toggle('hidden', type !== 'ip');
+            document.getElementById('queryParams').classList.toggle('hidden', type !== 'query');
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        async function startProcess() {
+            if (!selectedProcess) return;
+            if (userDomains.length === 0) {
+                showToast('Please add domains first', 'error');
+                return;
+            }
+
+            const params = {};
+            if (selectedProcess === 'ip') {
+                const ips = document.getElementById('ipInput').value.split('\n').map(l => l.trim()).filter(l => l);
+                if (ips.length === 0) { showToast('Please enter at least one IP address', 'error'); return; }
+                params.ips = ips;
+            } else if (selectedProcess === 'query') {
+                const queries = document.getElementById('queryInput').value.split('\n').map(q => q.trim()).filter(q => q);
+                if (queries.length < 1) { showToast('Please enter at least one search query', 'error'); return; }
+                params.queries = queries;
+            }
+
+            document.getElementById('startBtn').disabled = true;
+            try {
+                const res = await fetch('/api/domain-founder/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({type: selectedProcess, params: params})
+                });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); document.getElementById('startBtn').disabled = false; return; }
+                showToast('Process started!', 'success');
+                refreshProcesses();
+                startPolling();
+            } catch(e) { showToast('Failed to start process', 'error'); }
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(refreshProcesses, 3000);
+        }
+
+        function stopPolling() {
+            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+        }
+
+        async function refreshProcesses() {
+            try {
+                const res = await fetch('/api/domain-founder/processes');
+                const data = await res.json();
+                renderProcesses(data.processes || []);
+                const hasRunning = (data.processes || []).some(p => {
+                    if (p.status === 'running' || p.status === 'starting') return true;
+                    const a = p.availability || {};
+                    return a.status === 'running';
+                });
+                if (hasRunning && !pollInterval) startPolling();
+                if (!hasRunning && pollInterval) stopPolling();
+            } catch(e) { console.error('Failed to refresh', e); }
+        }
+
+        function getTypeLabel(type) {
+            const labels = { 'include': 'Include Records', 'a_records': 'A Records', 'ip': 'IPs Check', 'query': 'Query Search', 'cname': 'CNAME Records' };
+            return labels[type] || type;
+        }
+
+        function getTypeIcon(type) {
+            const icons = { 'include': 'fa-link text-blue-600', 'a_records': 'fa-server text-green-600', 'ip': 'fa-network-wired text-orange-600', 'query': 'fa-search text-purple-600', 'cname': 'fa-exchange-alt text-teal-600' };
+            return icons[type] || 'fa-cog text-gray-600';
+        }
+
+        function getTypeColor(type) {
+            const colors = { 'include': 'blue', 'a_records': 'green', 'ip': 'orange', 'query': 'purple', 'cname': 'teal' };
+            return colors[type] || 'gray';
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'running' || status === 'starting') return '<span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs"><i class="fas fa-spinner fa-spin"></i>Running</span>';
+            if (status === 'completed') return '<span class="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs"><i class="fas fa-check"></i>Completed</span>';
+            if (status === 'stopped') return '<span class="inline-flex items-center gap-1 bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs"><i class="fas fa-stop"></i>Stopped</span>';
+            if (status === 'interrupted') return '<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs"><i class="fas fa-exclamation-triangle"></i>Interrupted</span>';
+            return `<span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">${status}</span>`;
+        }
+
+        function buildPathBreadcrumb(pathArr) {
+            if (!pathArr || pathArr.length <= 1) return '';
+            const steps = pathArr.map((step, si) => {
+                const isLast = si === pathArr.length - 1;
+                const cls = isLast ? 'path-node path-node-broken' : 'path-node path-node-ok';
+                const sep = si < pathArr.length - 1 ? '<i class="fas fa-angle-right path-sep"></i>' : '';
+                return `<span class="${cls}">${step}</span>${sep}`;
+            }).join('');
+            return `<div class="path-breadcrumb">${steps}</div>`;
+        }
+
+        function renderResultsTable(p) {
+            const results = p.results || [];
+            if (results.length === 0) return '';
+
+            let headers = '';
+            let rows = '';
+
+            if (p.type === 'include' || p.type === 'a_records') {
+                headers = `<th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">#</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Domain (No SPF)</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Source</th>`;
+                const hoverColor = p.type === 'include' ? 'blue' : 'green';
+                rows = results.map((r, i) => {
+                    const pathArr = r.path || [];
+                    const source = r.source || '';
+                    const pathHtml = buildPathBreadcrumb(pathArr);
+                    return `<tr class="border-b border-gray-100 hover:bg-${hoverColor}-50">
+                        <td class="px-3 py-2 text-xs text-gray-400 align-top">${i + 1}</td>
+                        <td class="px-3 py-2 align-top">
+                            <div class="text-sm font-medium text-gray-800 font-mono">${r.domain}</div>
+                            ${pathHtml}
+                        </td>
+                        <td class="px-3 py-2 text-xs text-gray-500 font-mono align-top">${source}</td>
+                    </tr>`;
+                }).join('');
+            } else if (p.type === 'ip') {
+                headers = `<th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">#</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Domain</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">IP</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Status</th>`;
+                rows = results.map((r, i) => `<tr class="border-b border-gray-100 hover:bg-orange-50">
+                    <td class="px-3 py-2 text-xs text-gray-400">${i + 1}</td>
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800">${r.domain}</td>
+                    <td class="px-3 py-2 text-sm font-mono text-orange-700">${r.ip}</td>
+                    <td class="px-3 py-2"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">pass</span></td>
+                </tr>`).join('');
+            } else if (p.type === 'query') {
+                headers = `<th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">#</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Domain</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">SPF Record</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Matched Queries</th>`;
+                rows = results.map((r, i) => {
+                    let spfText = r.spf || '';
+                    const matchedList = r.matched_queries || (r.query ? r.query.split(', ') : []);
+                    try {
+                        matchedList.forEach(q => {
+                            spfText = spfText.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'), '<mark class="bg-yellow-200 px-0.5 rounded">$1</mark>');
+                        });
+                    } catch(e) {}
+                    const matchedBadges = matchedList.map(q => `<span class="inline-block bg-purple-100 text-purple-700 rounded px-1 py-0.5 text-xs mr-1">${q}</span>`).join('');
+                    return `<tr class="border-b border-gray-100 hover:bg-purple-50">
+                        <td class="px-3 py-2 text-xs text-gray-400">${i + 1}</td>
+                        <td class="px-3 py-2 text-sm font-medium text-gray-800">${r.domain}</td>
+                        <td class="px-3 py-2 text-xs text-gray-600 font-mono max-w-md truncate">${spfText}</td>
+                        <td class="px-3 py-2 text-xs align-top">${matchedBadges}</td>
+                    </tr>`;
+                }).join('');
+            } else if (p.type === 'cname') {
+                headers = `<th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">#</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">Main Domain</th>
+                           <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 bg-gray-50">MAIN DOMAIN OF CNAME (No SPF)</th>`;
+                rows = results.map((r, i) => `<tr class="border-b border-gray-100 hover:bg-teal-50">
+                    <td class="px-3 py-2 text-xs text-gray-400 align-top">${i + 1}</td>
+                    <td class="px-3 py-2 text-sm font-medium text-gray-800 font-mono align-top">${r.domain}</td>
+                    <td class="px-3 py-2 text-sm text-teal-700 font-mono align-top">${r.cname}</td>
+                </tr>`).join('');
+            }
+
+            const processKey = p.key;
+            const availBtnHtml = renderAvailabilityButton(p);
+            return `<div class="mt-3">
+                <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                    <span class="text-xs font-semibold text-gray-600">${results.length} result${results.length !== 1 ? 's' : ''}</span>
+                    <div class="flex gap-2 flex-wrap items-center">
+                        <button onclick="copyResults('${processKey}')" class="text-xs text-indigo-600 hover:text-indigo-800"><i class="fas fa-copy mr-1"></i>Copy</button>
+                        <button onclick="exportCSV('${processKey}')" class="text-xs text-green-600 hover:text-green-800"><i class="fas fa-file-csv mr-1"></i>Export CSV</button>
+                        ${availBtnHtml}
+                    </div>
+                </div>
+                <div class="overflow-auto max-h-80 rounded-lg border border-gray-200">
+                    <table class="result-table w-full text-left">
+                        <thead><tr>${headers}</tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        let processesData = [];
+        let lastProcessKeys = [];
+
+        function renderProcesses(processes) {
+            processesData = processes;
+            const container = document.getElementById('processesContainer');
+            if (processes.length === 0) {
+                container.innerHTML = `<div class="glass-card rounded-xl p-8 text-center">
+                    <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">No processes yet. Select a process type and click Start.</p>
+                </div>`;
+                lastProcessKeys = [];
+                return;
+            }
+
+            const currentKeys = processes.map(p => p.key);
+            const keysChanged = JSON.stringify(currentKeys) !== JSON.stringify(lastProcessKeys);
+
+            if (keysChanged) {
+                container.innerHTML = processes.map(p => {
+                    const isResumableCard = p.status === 'interrupted' || p.status === 'stopped';
+                    const cardStyle = isResumableCard
+                        ? (p.status === 'interrupted' ? 'glass-card rounded-xl p-5 shadow-sm border-2 border-amber-400 bg-amber-50/50' : 'glass-card rounded-xl p-5 shadow-sm border-2 border-orange-400 bg-orange-50/50')
+                        : 'glass-card rounded-xl p-5 shadow-sm';
+                    return `<div id="proc-card-${p.key}" class="${cardStyle}">${renderProcessCard(p)}</div>`;
+                }).join('');
+                lastProcessKeys = currentKeys;
+            } else {
+                processes.forEach(p => {
+                    const card = document.getElementById('proc-card-' + p.key);
+                    if (card) {
+                        // Update card border style based on current status
+                        const isResumableCard = p.status === 'interrupted' || p.status === 'stopped';
+                        card.className = isResumableCard
+                            ? (p.status === 'interrupted' ? 'glass-card rounded-xl p-5 shadow-sm border-2 border-amber-400 bg-amber-50/50' : 'glass-card rounded-xl p-5 shadow-sm border-2 border-orange-400 bg-orange-50/50')
+                            : 'glass-card rounded-xl p-5 shadow-sm';
+                        const scrollables = card.querySelectorAll('.overflow-auto');
+                        const scrollPositions = [];
+                        scrollables.forEach(el => scrollPositions.push({ top: el.scrollTop, left: el.scrollLeft }));
+                        card.innerHTML = renderProcessCard(p);
+                        const newScrollables = card.querySelectorAll('.overflow-auto');
+                        newScrollables.forEach((el, idx) => {
+                            if (scrollPositions[idx]) {
+                                el.scrollTop = scrollPositions[idx].top;
+                                el.scrollLeft = scrollPositions[idx].left;
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        function renderProcessCard(p, isAdminView) {
+            isAdminView = isAdminView || false;
+            const color = getTypeColor(p.type);
+            const pct = p.total > 0 ? Math.round((p.progress / p.total) * 100) : 0;
+            const isRunning = p.status === 'running' || p.status === 'starting';
+            const isInterrupted = p.status === 'interrupted';
+            const isStopped = p.status === 'stopped';
+            const isResumable = isInterrupted || isStopped;
+            const isDeleted = p.deleted;
+            const resultCount = (p.results || []).length;
+
+            let paramsInfo = '';
+            if (p.type === 'ip' && p.params && p.params.ips) {
+                paramsInfo = `<span class="text-xs text-gray-500 ml-2">IPs: ${p.params.ips.slice(0, 3).join(', ')}${p.params.ips.length > 3 ? '...' : ''}</span>`;
+            } else if (p.type === 'query' && p.params && (p.params.queries || p.params.query)) {
+                const qList = p.params.queries ? p.params.queries : [p.params.query];
+                paramsInfo = `<span class="text-xs text-gray-500 ml-2">Queries: ${qList.map(q => `"${q}"`).join(', ')}</span>`;
+            }
+
+            let resultsHtml = '';
+            if (resultCount > 0) {
+                resultsHtml = renderResultsTable(p, isAdminView);
+            } else if (!isRunning && p.status !== 'starting') {
+                resultsHtml = '<div class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-500 text-center"><i class="fas fa-info-circle mr-1"></i>No matching domains found</div>';
+            }
+
+            const userBadge = isAdminView && p.username
+                ? `<span class="inline-flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-bold"><i class="fas fa-user"></i>${p.username}</span>`
+                : '';
+            const archivedBadge = isDeleted
+                ? `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold"><i class="fas fa-archive"></i>Archived</span>`
+                : '';
+            const resumeNote = isResumable && !isAdminView
+                ? `<div class="mt-3 p-3 ${isInterrupted ? 'bg-amber-50 border-amber-300' : 'bg-orange-50 border-orange-300'} border rounded-xl flex items-center justify-between gap-3 flex-wrap">
+                     <div class="flex items-center gap-2 ${isInterrupted ? 'text-amber-800' : 'text-orange-800'} text-sm font-medium">
+                         <i class="fas fa-exclamation-triangle ${isInterrupted ? 'text-amber-500' : 'text-orange-500'}"></i>
+                         ${isInterrupted ? `Service restarted — this process was interrupted. You can resume from where it stopped (${p.progress}/${p.total} done).` : `Process was stopped manually. You can resume from where it left off (${p.progress}/${p.total} done).`}
+                     </div>
+                     <button onclick="resumeProcess('${p.key}')" class="inline-flex items-center gap-2 ${isInterrupted ? 'bg-amber-500 hover:bg-amber-600' : 'bg-orange-500 hover:bg-orange-600'} text-white px-4 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 transition-colors">
+                         <i class="fas fa-play"></i>Resume Now
+                     </button>
+                   </div>`
+                : '';
+
+            return `<div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="w-10 h-10 rounded-full bg-${color}-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas ${getTypeIcon(p.type)} text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-800 flex items-center gap-2 flex-wrap">
+                            ${getTypeLabel(p.type)}${paramsInfo}
+                            ${userBadge}
+                            ${archivedBadge}
+                        </div>
+                        <div class="text-xs text-gray-500">${p.started_at}${p.finished_at ? ' → ' + p.finished_at : ''}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    ${getStatusBadge(p.status)}
+                    ${resultCount > 0 ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-semibold">${resultCount} found</span>` : ''}
+                    ${isRunning ? `<button onclick="stopProcess('${p.key}')" class="text-red-500 hover:text-red-700 text-sm" title="Stop"><i class="fas fa-stop-circle mr-1"></i>Stop</button>` : ''}
+                    ${isResumable ? `<button onclick="resumeProcess('${p.key}')" class="inline-flex items-center gap-1 bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1 rounded text-xs font-semibold" title="Resume from where it stopped"><i class="fas fa-play"></i>Resume</button>` : ''}
+                    ${!isRunning ? `<button onclick="deleteProcess('${p.key}')" class="text-gray-400 hover:text-red-500 text-sm" title="Remove from your view"><i class="fas fa-trash"></i></button>` : ''}
+                </div>
+            </div>
+            ${resumeNote}
+            ${isRunning ? `<div class="mb-2">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Processing ${p.progress}/${p.total}</span>
+                    <span>${pct}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="progress-bar bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style="width: ${pct}%"></div>
+                </div>
+            </div>` : (isResumable ? `<div class="mb-2">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>${isInterrupted ? 'Completed ' + p.progress + '/' + p.total + ' before restart' : 'Stopped at ' + p.progress + '/' + p.total}</span>
+                    <span>${pct}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="progress-bar ${isInterrupted ? 'bg-amber-400' : 'bg-orange-400'} h-2 rounded-full" style="width: ${pct}%"></div>
+                </div>
+            </div>` : '')}
+            ${resultsHtml}`;
+        }
+
+        function findProcess(processKey) {
+            return processesData.find(p => p.key === processKey) || null;
+        }
+
+        function copyResults(processKey) {
+            const proc = findProcess(processKey);
+            if (!proc || !proc.results) return;
+            let text = '';
+            if (proc.type === 'include' || proc.type === 'a_records') {
+                text = proc.results.map(r => {
+                    const path = (r.path || []).join(' → ');
+                    return `${r.domain}\t${r.source || ''}\t${path}`;
+                }).join('\n');
+            } else if (proc.type === 'ip') {
+                text = proc.results.map(r => `${r.domain}\t${r.ip}\tpass`).join('\n');
+            } else if (proc.type === 'query') {
+                text = proc.results.map(r => {
+                    const mq = (r.matched_queries || (r.query ? r.query.split(', ') : [])).join('; ');
+                    return `${r.domain}\t${r.spf}\t${mq}`;
+                }).join('\n');
+            } else if (proc.type === 'cname') {
+                text = proc.results.map(r => `${r.domain}\t${r.cname}`).join('\n');
+            }
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => showToast('Results copied!', 'success')).catch(() => {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        showToast('Results copied!', 'success');
+                    });
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('Results copied!', 'success');
+                }
+            } catch(e) {
+                showToast('Failed to copy results', 'error');
+            }
+        }
+
+        function exportCSV(processKey) {
+            const proc = findProcess(processKey);
+            if (!proc || !proc.results) return;
+            let csv = '';
+            if (proc.type === 'include' || proc.type === 'a_records') {
+                csv = 'Domain,Found In,Path\n';
+                csv += proc.results.map(r => {
+                    const path = (r.path || []).join(' → ');
+                    return `"${r.domain}","${r.source || ''}","${path}"`;
+                }).join('\n');
+            } else if (proc.type === 'ip') {
+                csv = 'Domain,IP,SPF Result\n';
+                csv += proc.results.map(r => `"${r.domain}","${r.ip}","pass"`).join('\n');
+            } else if (proc.type === 'query') {
+                csv = 'Domain,SPF Record,Matched Queries\n';
+                csv += proc.results.map(r => {
+                    const mq = (r.matched_queries || (r.query ? r.query.split(', ') : [])).join('; ');
+                    return `"${r.domain}","${(r.spf || '').replace(/"/g, '""')}","${mq}"`;
+                }).join('\n');
+            } else if (proc.type === 'cname') {
+                csv = 'Main Domain,Canonical Name (No SPF)\n';
+                csv += proc.results.map(r => `"${r.domain}","${r.cname}"`).join('\n');
+            }
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `domain_founder_${proc.type}_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exported!', 'success');
+        }
+
+        async function stopProcess(key) {
+            try {
+                await fetch('/api/domain-founder/stop', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key: key})
+                });
+                showToast('Process stopped', 'success');
+                refreshProcesses();
+            } catch(e) { showToast('Failed to stop process', 'error'); }
+        }
+        window.stopProcess = stopProcess;
+
+        async function resumeProcess(key) {
+            try {
+                const res = await fetch('/api/domain-founder/resume', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key: key})
+                });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast('Process resumed!', 'success');
+                refreshProcesses();
+                startPolling();
+            } catch(e) { showToast('Failed to resume process', 'error'); }
+        }
+        window.resumeProcess = resumeProcess;
+
+        function renderAvailabilityButton(p) {
+            if (!['include', 'a_records', 'cname'].includes(p.type)) return '';
+            if (!p.results || p.results.length === 0) return '';
+            if (p.status === 'running' || p.status === 'starting') return '';
+            const a = p.availability || {};
+            const key = p.key;
+            if (a.status === 'running') {
+                const txt = a.total > 0 ? `Checking ${a.progress}/${a.total}...` : 'Checking...';
+                return `<button disabled class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded cursor-wait inline-flex items-center gap-1"><i class="fas fa-spinner fa-spin"></i>${txt}</button>`;
+            }
+            if (a.status === 'completed') {
+                const cnt = a.available_count || 0;
+                return `<a href="/api/domain-founder/download-available?key=${encodeURIComponent(key)}" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded inline-flex items-center gap-1"><i class="fas fa-download"></i>Download Available Domains${cnt ? ` (${cnt})` : ''}</a>
+                    <button onclick="checkAvailability('${key}', true)" class="text-xs text-gray-500 hover:text-gray-700" title="Re-check"><i class="fas fa-redo"></i></button>`;
+            }
+            if (a.status === 'error') {
+                const msg = (a.error || 'Check failed').replace(/'/g, '&#39;');
+                return `<button onclick="checkAvailability('${key}')" class="text-xs bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded inline-flex items-center gap-1" title="${msg}"><i class="fas fa-exclamation-triangle"></i>Retry availability check</button>`;
+            }
+            return `<button onclick="checkAvailability('${key}')" class="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded inline-flex items-center gap-1"><i class="fas fa-search-dollar"></i>Check Available Domains</button>`;
+        }
+
+        async function checkAvailability(key, isRecheck) {
+            if (isRecheck && !confirm('Re-run the availability check on Namecheap for this process?')) return;
+            try {
+                const res = await fetch('/api/domain-founder/check-availability', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key: key})
+                });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast('Availability check started', 'success');
+                refreshProcesses();
+                startPolling();
+            } catch(e) { showToast('Failed to start availability check', 'error'); }
+        }
+        window.checkAvailability = checkAvailability;
+
+        async function deleteProcess(key) {
+            if (!confirm('Remove from your view? Admins can still see it in the archive.')) return;
+            try {
+                await fetch('/api/domain-founder/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({key: key})
+                });
+                showToast('Removed from your view', 'success');
+                refreshProcesses();
+            } catch(e) { showToast('Failed to remove process', 'error'); }
+        }
+        window.deleteProcess = deleteProcess;
+
+        loadDomains();
+        refreshProcesses();
+        startPolling();
+    </script>
+</body>
+</html>

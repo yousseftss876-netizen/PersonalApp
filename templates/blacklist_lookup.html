@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS - Blacklist Lookup</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-dark {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4);
+        }
+        .input-modern {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .input-modern:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .result-row:hover {
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+        }
+        .badge-listed { 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white; 
+        }
+        .badge-clean { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; 
+        }
+        .select-filter {
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background: white;
+        }
+        .select-filter:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .pagination-btn {
+            transition: all 0.2s ease;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .progress-ring {
+            animation: pulse 2s infinite;
+        }
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: #8b5cf6 #f3f4f6;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148, 163, 184, 0.3);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    {% set page_title = "Blacklist Lookup" %}
+    {% set page_icon = "ph-shield-warning" %}
+    {% include '_header.html' %}
+        <div class="tssw-watermark">{{ current_user.entity }}</div>
+
+
+
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="glass-card rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-6">
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-2 text-purple-600"></i> Enter Data
+                    </label>
+                    <p class="text-sm text-gray-500 mb-3">Format: <code class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-mono text-xs">SERVEUR;IP;DOMAIN;STATUS</code> (one per line, IP can be IPv4 or IPv6)</p>
+                    <textarea id="blacklist-input" class="input-modern w-full h-32 px-4 py-3 rounded-xl resize-none font-mono text-sm" placeholder="SERVEUR1;192.168.1.1;example.com;Production&#10;SERVEUR2;2a02:c207:2294:2913:0392:3d47:a0fe:ee30;domain.org;Paused"></textarea>
+                    <div class="mt-2 flex items-center space-x-4">
+                        <label class="text-purple-600 cursor-pointer hover:underline font-semibold text-sm flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            <input type="file" id="blacklist-file" accept=".txt" class="hidden">
+                            Upload .txt file
+                        </label>
+                        <span class="text-gray-400">|</span>
+                        <span id="line-count" class="text-sm text-gray-500">0 lines</span>
+                    </div>
+                </div>
+
+                <div id="errors-section" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <h3 class="font-bold text-red-800 mb-2 flex items-center text-sm">
+                        <i class="fas fa-exclamation-circle mr-2"></i> Validation Errors
+                    </h3>
+                    <ul id="errors-list" class="space-y-1 text-sm text-red-700 max-h-24 overflow-y-auto"></ul>
+                </div>
+
+                <div class="flex gap-3 mb-6">
+                    <button id="check-btn" class="btn-primary text-white px-6 py-3 rounded-xl flex items-center space-x-2 shadow-lg font-semibold">
+                        <i class="fas fa-search"></i>
+                        <span>Check Blacklists</span>
+                    </button>
+                    <button id="clear-btn" class="btn-secondary text-white px-4 py-3 rounded-xl flex items-center space-x-2 shadow-lg font-semibold">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Clear</span>
+                    </button>
+                                        <a
+    href="{{ url_for('static', filename='downloads/GetIps.rar') }}"
+    download
+    class="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-800 transition"
+>
+    <i class="fas fa-file-archive"></i>
+    Download Tool Package
+    <span class="text-xs text-gray-400">(WinRAR)</span>
+</a>
+                </div>
+
+                <div id="stats-section" class="hidden mb-6">
+                    <div class="grid grid-cols-3 md:grid-cols-7 gap-3">
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-purple-600"><span id="stat-total">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">Total</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-red-500"><span id="stat-css">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">CSS</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-orange-500"><span id="stat-pbl">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">PBL</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-yellow-600"><span id="stat-xbl">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">XBL</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600"><span id="stat-sbl">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">SBL</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-pink-500"><span id="stat-barracuda">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">Barracuda</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-3 text-center">
+                            <div class="text-2xl font-bold text-indigo-500"><span id="stat-dbl">0</span></div>
+                            <div class="text-xs font-semibold text-gray-600">DBL</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="filter-section" class="hidden mb-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl border border-purple-100">
+                    <div class="flex flex-wrap gap-3 items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold text-gray-700"><i class="fas fa-filter mr-1 text-purple-600"></i>Filters:</span>
+                        </div>
+                        <select class="column-filter select-filter text-sm" data-column="css">
+                            <option value="">CSS: All</option>
+                            <option value="Listed">CSS: Listed</option>
+                            <option value="Clean">CSS: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="pbl">
+                            <option value="">PBL: All</option>
+                            <option value="Listed">PBL: Listed</option>
+                            <option value="Clean">PBL: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="xbl">
+                            <option value="">XBL: All</option>
+                            <option value="Listed">XBL: Listed</option>
+                            <option value="Clean">XBL: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="sbl">
+                            <option value="">SBL: All</option>
+                            <option value="Listed">SBL: Listed</option>
+                            <option value="Clean">SBL: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="barracuda">
+                            <option value="">Barracuda: All</option>
+                            <option value="Listed">Barracuda: Listed</option>
+                            <option value="Clean">Barracuda: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="dbl">
+                            <option value="">DBL: All</option>
+                            <option value="Listed">DBL: Listed</option>
+                            <option value="Clean">DBL: Clean</option>
+                        </select>
+                        <select class="column-filter select-filter text-sm" data-column="status">
+                            <option value="">ALL</option>
+                            <option value="Paused">Paused</option>
+                            <option value="Production">Production</option>
+                        </select>
+                        <button id="reset-filters-btn" class="text-sm text-purple-600 hover:text-purple-800 font-semibold">
+                            <i class="fas fa-undo mr-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div id="toolbar-section" class="hidden mb-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="Search server, IP, or domain..." class="input-modern pl-10 pr-4 py-2 rounded-lg text-sm w-64">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <span id="results-count" class="text-sm text-gray-500"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="copy-clean-btn" class="btn-success text-white px-4 py-2 rounded-lg flex items-center space-x-2 text-sm font-semibold shadow">
+                                <i class="fas fa-copy"></i>
+                                <span>Copy Clean IPs</span>
+                            </button>
+                            <button id="export-csv-btn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center space-x-2 text-sm font-semibold shadow">
+                                <i class="fas fa-download"></i>
+                                <span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-section" class="hidden">
+                    <div class="table-container overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gradient-to-r from-gray-800 to-gray-700 text-white">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold cursor-pointer group" onclick="copyColumnValues('serveur', event)" title="Click to copy all Serveur values">
+                                        <span class="flex items-center">
+                                            Serveur
+                                            <i class="fas fa-copy text-xs ml-2 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        </span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left font-semibold cursor-pointer group" onclick="copyColumnValues('ip', event)" title="Click to copy all IP values">
+                                        <span class="flex items-center">
+                                            IP
+                                            <i class="fas fa-copy text-xs ml-2 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        </span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left font-semibold cursor-pointer group" onclick="copyColumnValues('domain', event)" title="Click to copy all Domain values">
+                                        <span class="flex items-center">
+                                            Domain
+                                            <i class="fas fa-copy text-xs ml-2 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        </span>
+                                    </th>
+                                    <th class="px-4 py-3 text-center font-semibold">Status</th>
+                                    <th class="px-4 py-3 text-center font-semibold">CSS</th>
+                                    <th class="px-4 py-3 text-center font-semibold">PBL</th>
+                                    <th class="px-4 py-3 text-center font-semibold">XBL</th>
+                                    <th class="px-4 py-3 text-center font-semibold">SBL</th>
+                                    <th class="px-4 py-3 text-center font-semibold">Barracuda</th>
+                                    <th class="px-4 py-3 text-center font-semibold">DBL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body" class="divide-y divide-gray-100 bg-white"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="pagination-section" class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="showing-total">0</span> results
+                                                        <!-- Add this new select here -->
+        <div class="flex items-center gap-2">
+            <label for="page-size" class="text-sm font-medium text-gray-700">Rows per page:</label>
+            <select id="page-size" class="select-filter text-sm border border-gray-300 rounded-lg px-3 py-1">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="all">All</option>
+            </select>
+        </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="prev-btn" class="pagination-btn px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium disabled:opacity-50">
+                                <i class="fas fa-chevron-left mr-1"></i>Prev
+                            </button>
+                            <div id="page-numbers" class="flex gap-1"></div>
+                            <button id="next-btn" class="pagination-btn px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium disabled:opacity-50">
+                                Next<i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="glass-card rounded-2xl p-8 shadow-2xl text-center max-w-sm mx-4">
+            <div class="relative w-24 h-24 mx-auto mb-4">
+                <div class="absolute inset-0 rounded-full border-4 border-purple-200"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-purple-600 border-t-transparent loading-spinner"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-shield-virus text-2xl text-purple-600"></i>
+                </div>
+            </div>
+            <p class="text-gray-800 text-lg font-bold mb-2">Checking Blacklists</p>
+            <p id="progress-text" class="text-purple-600 font-semibold text-xl mb-1">0 / 0</p>
+            <p class="text-gray-500 text-sm">Processing entries...</p>
+            <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 z-50">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        let allResults = [];
+        let filteredResults = [];
+        let columnFilters = {};
+        let searchQuery = '';
+        let currentPage = 1;
+        let itemsPerPage = 10;
+
+        document.getElementById('blacklist-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('blacklist-input').value = event.target.result;
+                    updateLineCount();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('blacklist-input').addEventListener('input', updateLineCount);
+
+        function updateLineCount() {
+            const lines = document.getElementById('blacklist-input').value.split('\n').filter(l => l.trim()).length;
+            document.getElementById('line-count').textContent = `${lines} line${lines !== 1 ? 's' : ''}`;
+        }
+
+        document.getElementById('check-btn').addEventListener('click', checkBlacklists);
+        document.getElementById('clear-btn').addEventListener('click', clearAll);
+
+        document.querySelectorAll('.column-filter').forEach(select => {
+            select.addEventListener('change', function() {
+                columnFilters[this.dataset.column] = this.value;
+                currentPage = 1;
+                applyFilters();
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', function() {
+            searchQuery = this.value.toLowerCase();
+            currentPage = 1;
+            applyFilters();
+        });
+
+        document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+                
+                
+                document.getElementById('page-size').addEventListener('change', function () {
+    const value = this.value;
+
+    if (value === 'all') {
+        itemsPerPage = filteredResults.length || allResults.length || 1;
+    } else {
+        itemsPerPage = parseInt(value);
+    }
+
+    currentPage = 1;
+    displayResults();
+});
+
+
+
+        document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+        document.getElementById('copy-clean-btn').addEventListener('click', copyCleanIPs);
+        document.getElementById('prev-btn').addEventListener('click', () => changePage(-1));
+        document.getElementById('next-btn').addEventListener('click', () => changePage(1));
+
+        function clearAll() {
+            document.getElementById('blacklist-input').value = '';
+            updateLineCount();
+            allResults = [];
+            filteredResults = [];
+            columnFilters = {};
+            searchQuery = '';
+            currentPage = 1;
+            document.getElementById('search-input').value = '';
+            resetFilters();
+            document.getElementById('stats-section').classList.add('hidden');
+            document.getElementById('filter-section').classList.add('hidden');
+            document.getElementById('toolbar-section').classList.add('hidden');
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('errors-section').classList.add('hidden');
+        }
+
+        function resetFilters() {
+            columnFilters = {};
+            document.querySelectorAll('.column-filter').forEach(s => s.value = '');
+            currentPage = 1;
+            applyFilters();
+        }
+
+        async function checkBlacklists() {
+            const input = document.getElementById('blacklist-input').value.trim();
+            if (!input) {
+                showToast('Please enter data in the required format', 'error');
+                return;
+            }
+
+            const lines = input.split('\n').filter(l => l.trim());
+            const overlay = document.getElementById('loading-overlay');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.getElementById('progress-bar');
+
+            overlay.classList.remove('hidden');
+            progressText.textContent = '0 / ' + lines.length;
+            progressBar.style.width = '0%';
+
+            try {
+                const response = await fetch('/api/check_blacklists_stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lines: lines })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const events = buffer.split('\n\n');
+                    buffer = events.pop();
+
+                    for (const event of events) {
+                        if (event.startsWith('data: ')) {
+                            const data = JSON.parse(event.slice(6));
+                            
+                            if (data.type === 'start') {
+                                if (data.errors && data.errors.length > 0) {
+                                    showErrors(data.errors);
+                                }
+                            } else if (data.type === 'progress') {
+                                progressText.textContent = data.current + ' / ' + data.total;
+                                progressBar.style.width = ((data.current / data.total) * 100) + '%';
+                            } else if (data.type === 'complete') {
+                                allResults = data.results || [];
+                                columnFilters = {};
+                                searchQuery = '';
+                                currentPage = 1;
+                                
+                                if (allResults.length > 0) {
+                                    applyFilters();
+                                    updateStatistics(allResults);
+                                    document.getElementById('filter-section').classList.remove('hidden');
+                                    document.getElementById('toolbar-section').classList.remove('hidden');
+                                    document.getElementById('stats-section').classList.remove('hidden');
+                                } else {
+                                    showToast('No valid entries found', 'error');
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                showToast('Error checking blacklists: ' + error.message, 'error');
+            } finally {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function applyFilters() {
+            filteredResults = allResults.filter(r => {
+                for (let col in columnFilters) {
+                    if (columnFilters[col]) {
+                        if (col === 'status') {
+                            const rowStatus = (r[col] || '').toLowerCase();
+                            const filterStatus = columnFilters[col].toLowerCase();
+                            if (rowStatus !== filterStatus) {
+                                return false;
+                            }
+                        } else {
+                            if (r[col] !== columnFilters[col]) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                if (searchQuery) {
+                    const searchStr = ((r.serveur || '') + ' ' + (r.ip || '') + ' ' + (r.domain || '')).toLowerCase();
+                    if (!searchStr.includes(searchQuery)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            displayResults();
+        }
+
+        function displayResults() {
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+
+            const totalItems = filteredResults.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = Math.min(startIdx + itemsPerPage, totalItems);
+            const pageResults = filteredResults.slice(startIdx, endIdx);
+
+            document.getElementById('showing-start').textContent = totalItems > 0 ? startIdx + 1 : 0;
+            document.getElementById('showing-end').textContent = endIdx;
+            document.getElementById('showing-total').textContent = totalItems;
+            document.getElementById('results-count').textContent = `${totalItems} result${totalItems !== 1 ? 's' : ''}`;
+
+            pageResults.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'result-row transition-colors';
+                
+                const getBadge = (value) => {
+                    return value === 'Listed' 
+                        ? '<span class="inline-block px-2 py-1 rounded-md text-xs font-bold badge-listed">Listed</span>'
+                        : '<span class="inline-block px-2 py-1 rounded-md text-xs font-bold badge-clean">' + value + '</span>';
+                };
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-gray-900">${escapeHtml(row.serveur)}</td>
+                    <td class="px-4 py-3 font-mono text-gray-700">${escapeHtml(row.ip)}</td>
+                    <td class="px-4 py-3 text-gray-700">${escapeHtml(row.domain)}</td>
+                    <td class="px-4 py-3 text-center">
+    ${getStatusBadge(row.status)}
+</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.css)}</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.pbl)}</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.xbl)}</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.sbl)}</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.barracuda)}</td>
+                    <td class="px-4 py-3 text-center">${getBadge(row.dbl)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updatePagination(totalPages);
+            document.getElementById('results-section').classList.remove('hidden');
+        }
+
+        function updatePagination(totalPages) {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pageNumbers = document.getElementById('page-numbers');
+
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+
+            pageNumbers.innerHTML = '';
+            
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                pageNumbers.appendChild(createPageBtn(1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-2 text-gray-400';
+                    dots.textContent = '...';
+                    pageNumbers.appendChild(dots);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pageNumbers.appendChild(createPageBtn(i));
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'px-2 text-gray-400';
+                    dots.textContent = '...';
+                    pageNumbers.appendChild(dots);
+                }
+                pageNumbers.appendChild(createPageBtn(totalPages));
+            }
+        }
+
+        function createPageBtn(pageNum) {
+            const btn = document.createElement('button');
+            btn.className = `pagination-btn px-3 py-2 rounded-lg border text-sm font-medium ${
+                pageNum === currentPage 
+                    ? 'active border-purple-600' 
+                    : 'border-gray-300 bg-white hover:border-purple-400'
+            }`;
+            btn.textContent = pageNum;
+            btn.addEventListener('click', () => goToPage(pageNum));
+            return btn;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            displayResults();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayResults();
+        }
+
+        function updateStatistics(results) {
+            const stats = { css: 0, pbl: 0, xbl: 0, sbl: 0, dbl: 0, barracuda: 0 };
+            results.forEach(r => {
+                if (r.css === 'Listed') stats.css++;
+                if (r.pbl === 'Listed') stats.pbl++;
+                if (r.xbl === 'Listed') stats.xbl++;
+                if (r.sbl === 'Listed') stats.sbl++;
+                if (r.dbl === 'Listed') stats.dbl++;
+                if (r.barracuda === 'Listed') stats.barracuda++;
+            });
+            document.getElementById('stat-total').textContent = results.length;
+            document.getElementById('stat-css').textContent = stats.css;
+            document.getElementById('stat-pbl').textContent = stats.pbl;
+            document.getElementById('stat-xbl').textContent = stats.xbl;
+            document.getElementById('stat-sbl').textContent = stats.sbl;
+            document.getElementById('stat-dbl').textContent = stats.dbl;
+            document.getElementById('stat-barracuda').textContent = stats.barracuda;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyColumnValues(column, event) {
+            event.stopPropagation();
+            
+            if (filteredResults.length === 0) {
+                showToast('No results to copy', 'error');
+                return;
+            }
+            
+            const values = filteredResults
+                .map(r => r[column])
+                .filter(v => v && v.trim())
+                .join('\n');
+            
+            if (!values) {
+                showToast('No values found in this column', 'error');
+                return;
+            }
+            
+            function copyTextFallback(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+}
+
+try {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(values);
+    } else {
+        copyTextFallback(values);
+    }
+
+    const count = values.split('\n').length;
+    showToast(`Copied ${count} ${column}${count !== 1 ? 's' : ''} to clipboard!`);
+} catch (e) {
+    showToast('Failed to copy', 'error');
+}
+
+        }
+
+        function copyCleanIPs() {
+            const cleanIPs = allResults
+                .filter(r => r.css === 'Clean' && r.pbl === 'Clean' && r.xbl === 'Clean' && 
+                           r.sbl === 'Clean' && r.barracuda === 'Clean' && r.dbl === 'Clean')
+                .map(r => r.ip)
+                .filter(ip => ip && ip.trim())
+                .join('\n');
+            
+            if (!cleanIPs) {
+                showToast('No clean IPs found', 'error');
+                return;
+            }
+            
+            function copyTextFallback(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(cleanIPs).then(() => {
+                        const count = cleanIPs.split('\n').length;
+                        showToast(`Copied ${count} clean IP${count !== 1 ? 's' : ''} to clipboard!`);
+                    }).catch(err => {
+                        copyTextFallback(cleanIPs);
+                        const count = cleanIPs.split('\n').length;
+                        showToast(`Copied ${count} clean IP${count !== 1 ? 's' : ''} to clipboard!`);
+                    });
+                } else {
+                    copyTextFallback(cleanIPs);
+                    const count = cleanIPs.split('\n').length;
+                    showToast(`Copied ${count} clean IP${count !== 1 ? 's' : ''} to clipboard!`);
+                }
+            } catch (e) {
+                showToast('Failed to copy', 'error');
+            }
+        }
+
+        function exportCSV() {
+            if (filteredResults.length === 0) {
+                showToast('No results to export', 'error');
+                return;
+            }
+
+            const headers = ['Serveur', 'IP', 'Domain', 'Status', 'CSS', 'PBL', 'XBL', 'SBL', 'Barracuda', 'DBL'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredResults.map(r => [
+                    `"${r.serveur}"`, `"${r.ip}"`, `"${r.domain}"`, `"${r.status}"`,
+                    r.css, r.pbl, r.xbl, r.sbl, r.barracuda, r.dbl
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `blacklist_results_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exported successfully!');
+        }
+
+        function showErrors(errors) {
+            const section = document.getElementById('errors-section');
+            const list = document.getElementById('errors-list');
+            list.innerHTML = errors.map(e => `<li><i class="fas fa-times-circle mr-1"></i>${escapeHtml(e)}</li>`).join('');
+            section.classList.remove('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            
+            toast.className = toast.className.replace(/bg-\w+-500/g, '');
+            toast.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500');
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+
+
+function getStatusBadge(status) {
+    if (!status) return '';
+
+    const s = status.toLowerCase();
+
+    if (s === 'production') {
+        return `
+            <span class="inline-block px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800">
+                Production
+            </span>
+        `;
+    }
+
+    if (s === 'paused') {
+        return `
+            <span class="inline-block px-2 py-1 rounded-md text-xs font-bold
+                         bg-orange-100 text-orange-800 border border-orange-200">
+                Paused
+            </span>
+        `;
+    }
+
+    // fallback (if other status appears)
+    return `
+        <span class="inline-block px-2 py-1 rounded-md text-xs font-bold
+                     bg-gray-100 text-gray-800 border border-gray-200">
+            ${escapeHtml(status)}
+        </span>
+    `;
+}
+
+
+        updateLineCount();
+                
+                
+                
+    </script>
+</body>
+</html>

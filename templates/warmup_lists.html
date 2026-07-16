@@ -1,0 +1,2536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Warmup Lists — TSS Platform</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand: #6366f1;
+            --brand-2: #a855f7;
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --border: #e8ecf4;
+            --text: #1e293b;
+            --muted: #64748b;
+            --success: #10b981;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .page-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .hero-icon {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 24px rgba(99,102,241,.25);
+            flex-shrink: 0;
+        }
+        .hero-icon i { font-size: 26px; color: #fff; }
+        .hero-text h1 { font-size: 22px; font-weight: 800; letter-spacing: -.03em; }
+        .hero-text p  { font-size: 13.5px; color: var(--muted); margin-top: 3px; }
+        .hero-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+        /* ── Stats strip ── */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .stat-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon.purple { background: #ede9fe; }
+        .stat-icon.purple i { color: #6d28d9; font-size: 18px; }
+        .stat-icon.green  { background: #d1fae5; }
+        .stat-icon.green  i { color: #059669; font-size: 18px; }
+        .stat-icon.amber  { background: #fef3c7; }
+        .stat-icon.amber  i { color: #d97706; font-size: 18px; }
+        .stat-body .val { font-size: 20px; font-weight: 800; }
+        .stat-body .lbl { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+
+        /* ── Entity filter ── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .filter-bar label {
+            font-size: 12px; font-weight: 600; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .04em;
+            white-space: nowrap;
+        }
+        .filter-select {
+            padding: 7px 32px 7px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px; font-family: inherit; font-weight: 600;
+            color: var(--text);
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .filter-select:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+            background-color: #fff;
+        }
+        .filter-count {
+            margin-left: auto;
+            font-size: 12px; color: var(--muted); font-weight: 500;
+        }
+
+        /* ── Section header ── */
+        .section-hd {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .section-hd h2 { font-size: 15px; font-weight: 700; }
+
+        /* ── Buttons ── */
+        .btn-add {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 18px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(99,102,241,.3);
+            transition: opacity .15s, transform .15s;
+        }
+        .btn-add:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-add i { font-size: 16px; }
+
+        .btn-message {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 18px;
+            background: #fff;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            transition: background .12s, border-color .12s, box-shadow .15s, transform .15s;
+        }
+        .btn-message:hover {
+            background: #f5f3ff;
+            border-color: #c4b5fd;
+            box-shadow: 0 4px 14px rgba(99,102,241,.15);
+            transform: translateY(-1px);
+        }
+        .btn-message i { font-size: 16px; color: #6366f1; }
+
+        /* ── List cards ── */
+        .lists-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 12px;
+            transition: box-shadow .15s, border-color .15s;
+        }
+        .list-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,.07);
+            border-color: #d4d8f0;
+        }
+
+        .list-card-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+        .list-badge {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .list-badge i { font-size: 20px; color: #6d28d9; }
+
+        .list-info { min-width: 0; }
+        .list-name {
+            font-size: 14px; font-weight: 700;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: var(--text);
+        }
+        .list-meta {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 5px; flex-wrap: wrap;
+        }
+        .pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px; font-weight: 600;
+        }
+        .pill-total  { background: #f1f5f9; color: #475569; }
+        .pill-used   { background: #fef3c7; color: #92400e; }
+        .pill-remain { background: #d1fae5; color: #065f46; }
+        .pill-empty  { background: #fee2e2; color: #991b1b; }
+
+        .progress-wrap {
+            margin-top: 8px;
+            height: 5px;
+            background: #f1f5f9;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width .4s ease;
+        }
+
+        .list-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-icon {
+            width: 34px; height: 34px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #f8fafc;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background .12s, border-color .12s;
+        }
+        .btn-icon i { font-size: 16px; color: var(--muted); transition: color .12s; }
+        .btn-icon:hover            { background: #ede9fe; border-color: #c4b5fd; }
+        .btn-icon:hover i          { color: #6d28d9; }
+        .btn-icon.danger:hover     { background: #fee2e2; border-color: #fca5a5; }
+        .btn-icon.danger:hover i   { color: #dc2626; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+        }
+        .empty-state i { font-size: 48px; color: #c4b5fd; }
+        .empty-state h3 { margin-top: 14px; font-size: 16px; font-weight: 700; color: var(--muted); }
+        .empty-state p  { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+
+        /* ── Modal ── */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,.45);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity .2s;
+        }
+        .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%; max-width: 460px;
+            box-shadow: 0 24px 64px rgba(0,0,0,.18);
+            transform: translateY(12px) scale(.97);
+            transition: transform .2s;
+        }
+        .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
+
+        .modal-head {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 22px;
+        }
+        .modal-head-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#6366f1,#a855f7);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-head-icon i { font-size: 20px; color: #fff; }
+        .modal-head h2 { font-size: 16px; font-weight: 800; }
+        .modal-head p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 7px; letter-spacing: .04em; text-transform: uppercase; }
+        .form-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px; font-family: inherit;
+            color: var(--text);
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+            background: #fafbfd;
+        }
+        .form-input:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+            background: #fff;
+        }
+        .form-hint { font-size: 11.5px; color: #94a3b8; margin-top: 6px; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+        .btn-cancel {
+            padding: 9px 20px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #f8fafc;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer; color: var(--muted);
+            transition: background .12s;
+        }
+        .btn-cancel:hover { background: #f1f5f9; }
+        .btn-save {
+            padding: 9px 22px;
+            border: none; border-radius: 10px;
+            background: linear-gradient(135deg,#6366f1,#a855f7);
+            color: #fff;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(99,102,241,.3);
+            transition: opacity .15s;
+        }
+        .btn-save:hover { opacity: .9; }
+        .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+        .del-name { font-weight: 700; color: var(--text); }
+        .btn-delete-confirm {
+            padding: 9px 22px;
+            border: none; border-radius: 10px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            transition: opacity .15s;
+        }
+        .btn-delete-confirm:hover { opacity: .85; }
+
+        /* ── Latest Message Modal ── */
+        .msg-modal {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%; max-width: 520px;
+            box-shadow: 0 24px 64px rgba(0,0,0,.18);
+            transform: translateY(12px) scale(.97);
+            transition: transform .2s;
+        }
+        .modal-backdrop.open .msg-modal { transform: translateY(0) scale(1); }
+
+        .msg-modal-head {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .msg-modal-head-left { display: flex; align-items: center; gap: 12px; }
+        .msg-modal-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#6366f1,#a855f7);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .msg-modal-icon i { font-size: 20px; color: #fff; }
+        .msg-modal-head h2 { font-size: 16px; font-weight: 800; }
+        .msg-modal-head p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+        .btn-close-x {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: #f8fafc;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background .12s, border-color .12s;
+            flex-shrink: 0;
+        }
+        .btn-close-x:hover { background: #fee2e2; border-color: #fca5a5; }
+        .btn-close-x:hover i { color: #dc2626; }
+        .btn-close-x i { font-size: 15px; color: var(--muted); transition: color .12s; }
+
+        .msg-textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 13px 15px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 13.5px; font-family: inherit; line-height: 1.65;
+            color: var(--text);
+            background: #fafbfd;
+            resize: vertical;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .msg-textarea:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+            background: #fff;
+        }
+        .msg-char-hint {
+            font-size: 11.5px; color: #94a3b8;
+            margin-top: 6px; text-align: right;
+        }
+
+        /* ── Add Record Modal Overlay ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,.45);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1200;
+            opacity: 0; pointer-events: none;
+            transition: opacity .2s;
+            padding: 20px;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-overlay.open .hist-modal { transform: translateY(0) scale(1); }
+        .modal-overlay .hist-modal {
+            transform: translateY(12px) scale(.97);
+            transition: transform .2s;
+        }
+
+        /* ── Toast ── */
+        .toast-wrap {
+            position: fixed; bottom: 24px; right: 24px;
+            display: flex; flex-direction: column; gap: 8px;
+            z-index: 2000;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px;
+            background: #1e293b;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 13px; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,.18);
+            animation: toastIn .25s ease;
+        }
+        .toast i { font-size: 17px; }
+        .toast.ok  i { color: #34d399; }
+        .toast.err i { color: #f87171; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── History Button ── */
+        .btn-history {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 20px;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(99,102,241,.35);
+            transition: box-shadow .2s, transform .15s;
+            letter-spacing: -.01em;
+        }
+        .btn-history:hover { box-shadow: 0 8px 28px rgba(99,102,241,.45); transform: translateY(-2px); }
+        .btn-history i { font-size: 17px; }
+
+        /* ── History Modal Overlay ── */
+        .hist-overlay {
+            position: fixed; inset: 0;
+            background: rgba(8,12,30,.6);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1100;
+            opacity: 0; pointer-events: none;
+            transition: opacity .28s cubic-bezier(.4,0,.2,1);
+            padding: 20px;
+        }
+        .hist-overlay.open { opacity: 1; pointer-events: all; }
+
+        .hist-modal {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%; max-width: 1100px;
+            height: 90vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 40px 100px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06);
+            transform: translateY(20px) scale(.96);
+            transition: transform .28s cubic-bezier(.34,1.56,.64,1);
+            overflow: hidden;
+        }
+        .hist-overlay.open .hist-modal { transform: translateY(0) scale(1); }
+
+        /* Header — gradient bar */
+        .hist-header {
+            display: flex; align-items: center; gap: 16px;
+            padding: 0 28px;
+            height: 72px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #1d4ed8 100%);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .hist-header::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .hist-header-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .hist-header-icon i { font-size: 22px; color: #fff; }
+        .hist-header-text { position: relative; }
+        .hist-header-text h2 { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+        .hist-header-text p  { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+        .hist-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; position: relative; }
+        .hist-badge {
+            padding: 4px 12px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 20px;
+            font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,.85);
+        }
+        .hist-close {
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            border: 1px solid rgba(255,255,255,.2);
+            background: rgba(255,255,255,.1);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .hist-close:hover { background: rgba(239,68,68,.7); border-color: rgba(239,68,68,.5); }
+        .hist-close i { font-size: 16px; color: rgba(255,255,255,.8); }
+
+        /* Toolbar: filters + tabs in one strip */
+        .hist-toolbar {
+            display: flex; align-items: center; gap: 0;
+            border-bottom: 1px solid #e8ecf4;
+            flex-shrink: 0;
+            background: #fafbfd;
+        }
+
+        /* Tabs — left side of toolbar */
+        .hist-tabs {
+            display: flex; align-items: center; gap: 0;
+            padding: 0 8px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+        .hist-tab {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0 16px;
+            height: 100%;
+            font-size: 12.5px; font-weight: 600; color: #64748b;
+            border: none; background: none;
+            cursor: pointer;
+            border-bottom: 2.5px solid transparent;
+            white-space: nowrap;
+            transition: color .15s, border-color .15s, background .15s;
+            border-radius: 0;
+        }
+        .hist-tab i { font-size: 14px; }
+        .hist-tab:hover { color: #6366f1; background: rgba(99,102,241,.04); }
+        .hist-tab.active { color: #6366f1; border-bottom-color: #6366f1; background: rgba(99,102,241,.06); }
+
+        /* Divider between tabs and filters */
+        .hist-toolbar-sep {
+            width: 1px; height: 30px;
+            background: #e2e8f0;
+            flex-shrink: 0;
+            margin: 0 8px;
+        }
+
+        /* Filters — right side of toolbar */
+        .hist-filters {
+            display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+            padding: 0 16px 0 0;
+            flex: 1;
+            overflow-x: auto;
+        }
+        .hist-filter-label {
+            font-size: 11px; font-weight: 700; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: .06em;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .hist-date-input, .hist-time-input {
+            padding: 6px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px; font-family: inherit; color: #1e293b;
+            background: #fff;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+            flex-shrink: 0;
+        }
+        .hist-date-input:focus, .hist-time-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+        }
+        .hist-filter-arr { color: #cbd5e1; font-size: 12px; flex-shrink: 0; }
+        .hist-apply-btn {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 12px; font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap; flex-shrink: 0;
+            transition: opacity .15s, box-shadow .15s;
+            box-shadow: 0 2px 8px rgba(99,102,241,.3);
+        }
+        .hist-apply-btn:hover { opacity: .88; box-shadow: 0 4px 14px rgba(99,102,241,.4); }
+        .hist-reset-btn {
+            padding: 6px 12px;
+            background: #fff;
+            color: #64748b;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer; flex-shrink: 0;
+            transition: background .12s, border-color .12s;
+        }
+        .hist-reset-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        /* Body */
+        .hist-body {
+            flex: 1; overflow-y: auto;
+            padding: 20px 24px 24px;
+            scroll-behavior: smooth;
+        }
+        .hist-body::-webkit-scrollbar { width: 6px; }
+        .hist-body::-webkit-scrollbar-track { background: transparent; }
+        .hist-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+
+        /* Panels */
+        .hist-panel { display: none; }
+        .hist-panel.active { display: block; }
+
+        /* Summary strip */
+        .hist-summary-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+            margin-bottom: 18px;
+        }
+        .hist-stat {
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .hist-stat.purple { background: linear-gradient(135deg,#f5f3ff,#ede9fe); border: 1px solid #ddd6fe; }
+        .hist-stat.sky    { background: linear-gradient(135deg,#f0f9ff,#e0f2fe); border: 1px solid #bae6fd; }
+        .hist-stat.green  { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 1px solid #bbf7d0; }
+        .hist-stat-icon {
+            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hist-stat.purple .hist-stat-icon { background: #ede9fe; }
+        .hist-stat.purple .hist-stat-icon i { color: #6d28d9; font-size: 18px; }
+        .hist-stat.sky .hist-stat-icon    { background: #e0f2fe; }
+        .hist-stat.sky .hist-stat-icon i  { color: #0284c7; font-size: 18px; }
+        .hist-stat.green .hist-stat-icon  { background: #dcfce7; }
+        .hist-stat.green .hist-stat-icon i { color: #16a34a; font-size: 18px; }
+        .hist-stat-body {}
+        .hist-stat-val { font-size: 20px; font-weight: 800; color: #1e293b; line-height: 1; }
+        .hist-stat-lbl { font-size: 11px; font-weight: 600; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing:.04em; }
+
+        /* Chart container */
+        .hist-chart-wrap {
+            position: relative;
+            background: #fff;
+            border: 1px solid #e8ecf4;
+            border-radius: 16px;
+            padding: 20px 20px 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .hist-chart-title {
+            font-size: 13px; font-weight: 700; color: #1e293b;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .hist-chart-title i { font-size: 16px; color: #6366f1; }
+        .hist-chart-sub { font-size: 11px; color: #94a3b8; font-weight: 500; }
+
+        /* Two-col layout for distrib */
+        .hist-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* Table */
+        .hist-table-wrap {
+            border: 1px solid #e8ecf4;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .hist-table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .hist-table thead th {
+            padding: 11px 16px;
+            text-align: left;
+            font-size: 11px; font-weight: 700; color: #6366f1;
+            text-transform: uppercase; letter-spacing: .05em;
+            background: linear-gradient(135deg,#f5f3ff,#ede9fe);
+            border-bottom: 1px solid #ddd6fe;
+            white-space: nowrap;
+        }
+        .hist-table thead th:last-child,
+        .hist-table thead th:nth-child(3) { text-align: right; }
+        .hist-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
+        .hist-table tbody tr:last-child { border-bottom: none; }
+        .hist-table tbody tr:hover { background: #f5f3ff; }
+        .hist-table tbody tr:nth-child(even) { background: #fafbfd; }
+        .hist-table tbody tr:nth-child(even):hover { background: #f5f3ff; }
+        .hist-table td { padding: 10px 16px; vertical-align: middle; }
+
+        /* Empty & Loading */
+        .hist-empty {
+            text-align: center; padding: 80px 20px;
+        }
+        .hist-empty i { font-size: 48px; color: #c4b5fd; }
+        .hist-empty h3 { font-size: 16px; font-weight: 700; color: #64748b; margin-top: 14px; }
+        .hist-empty p { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+
+        .hist-loading {
+            text-align: center; padding: 80px 20px;
+        }
+        .hist-loading .spin {
+            width: 38px; height: 38px;
+            border: 3px solid #e8ecf4;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: hspin .75s linear infinite;
+            margin: 0 auto 14px;
+        }
+        @keyframes hspin { to { transform: rotate(360deg); } }
+        .hist-loading p { font-size: 13px; color: #64748b; }
+
+        /* ── Small-multiples entity filter toolbar ── */
+        .sm-toolbar {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f0f4ff 100%);
+            border: 1.5px solid #ddd6fe;
+            border-radius: 14px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 8px rgba(99,102,241,.06);
+        }
+        .sm-toolbar-label {
+            font-size: 11px; font-weight: 900; color: #4f46e5;
+            text-transform: uppercase; letter-spacing: .08em;
+            white-space: nowrap;
+            display: flex; align-items: center; gap: 7px;
+            margin-right: 4px;
+        }
+        .sm-toolbar-label i { font-size: 14px; color: #6366f1; }
+        .sm-entity-btn {
+            padding: 6px 16px;
+            border-radius: 22px;
+            border: 1.5px solid #e2e8f0;
+            background: #fff;
+            font-size: 12px; font-weight: 800; color: #64748b;
+            cursor: pointer;
+            transition: all .2s cubic-bezier(.34,1.56,.64,1);
+            white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .sm-entity-btn:hover { 
+            border-color: #a5b4fc; 
+            color: #6366f1; 
+            background: #f5f3ff; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99,102,241,.15);
+        }
+        .sm-entity-btn.active { 
+            background: #6366f1; 
+            border-color: #6366f1; 
+            color: #fff; 
+            box-shadow: 0 4px 16px rgba(99,102,241,.4);
+            transform: translateY(-1px);
+            font-weight: 900;
+        }
+        .sm-entity-btn.tss1.active { 
+            background: #2563eb; 
+            border-color: #2563eb; 
+            box-shadow: 0 4px 16px rgba(37,99,235,.4); 
+        }
+        .sm-entity-btn.tss2.active { 
+            background: #16a34a; 
+            border-color: #16a34a; 
+            box-shadow: 0 4px 16px rgba(22,163,74,.4); 
+        }
+        .sm-entity-btn.tss3.active { 
+            background: #d97706; 
+            border-color: #d97706; 
+            box-shadow: 0 4px 16px rgba(217,119,6,.4); 
+        }
+
+        /* ── Small-multiples grid ── */
+        .sm-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+        .sm-card {
+            background: #fff;
+            border: 1.5px solid #e8ecf4;
+            border-top-width: 4px;
+            border-radius: 16px;
+            padding: 16px 16px 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+            transition: box-shadow .25s cubic-bezier(.34,1.56,.64,1), transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s;
+            overflow: hidden;
+            position: relative;
+        }
+        .sm-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0;
+            transition: opacity .2s;
+        }
+        .sm-card:hover { 
+            box-shadow: 0 12px 32px rgba(99,102,241,.16); 
+            transform: translateY(-3px);
+            border-color: #ddd6fe;
+        }
+        .sm-card:hover::before { opacity: .5; }
+        .sm-card-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 12px; gap: 8px;
+        }
+        .sm-card-name {
+            font-size: 12px; font-weight: 900; color: #1e293b;
+            display: flex; align-items: center; gap: 8px;
+            line-height: 1.4; flex: 1; min-width: 0;
+            letter-spacing: -.015em;
+        }
+        .sm-card-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.8);
+        }
+        .sm-card-stats {
+            display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;
+        }
+        .sm-card-stat {
+            font-size: 10px; font-weight: 800; color: #64748b;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9); 
+            border-radius: 7px;
+            padding: 3px 8px; white-space: nowrap;
+            display: flex; align-items: center; gap: 4px;
+            border: 1px solid #e2e8f0;
+            transition: all .15s;
+        }
+        .sm-card-stat:hover {
+            background: linear-gradient(135deg, #f0f4ff, #ede9fe);
+            border-color: #ddd6fe;
+            color: #6366f1;
+        }
+        .sm-card-stat b { color: #334155; font-weight: 900; }
+        .sm-card-stat i { font-size: 10px; }
+        .sm-card-canvas-wrap { position: relative; height: 130px; }
+
+        @media (max-width: 780px) {
+            .hist-two-col { grid-template-columns: 1fr; }
+            .hist-toolbar { flex-direction: column; align-items: stretch; height: auto; }
+            .hist-tabs { border-bottom: 1px solid #e8ecf4; }
+            .hist-filters { padding: 8px 12px; flex-wrap: wrap; }
+            .hist-toolbar-sep { display: none; }
+        }
+        @media (max-width: 600px) {
+            .stats-strip { grid-template-columns: 1fr 1fr; }
+            .list-card { grid-template-columns: 1fr; }
+            .list-actions { justify-content: flex-end; }
+            .hero { flex-wrap: wrap; }
+            .hero-actions { width: 100%; }
+            .hist-summary-row { grid-template-columns: 1fr; }
+            .hist-modal { border-radius: 16px; height: 95vh; }
+            .hist-body { padding: 14px; }
+            .hist-header { padding: 0 16px; }
+        }
+                /* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="tssw-watermark">{{ current_user.entity }}</div>
+{% set page_title = "Warmup Lists" %}
+{% set page_icon  = "ph-fire-simple" %}
+{% include '_header.html' %}
+
+<div class="page-wrap">
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-icon"><i class="ph ph-fire-simple"></i></div>
+        <div class="hero-text">
+            <h1>Warmup Lists</h1>
+            <p>Track remaining sends across your email warmup lists</p>
+        </div>
+        <div class="hero-actions">
+            <!-- History button: only shown for users with Warmup_History permission -->
+            <button class="btn-history" id="btnHistory" style="display:none;" onclick="openHistoryModal()">
+                <i class="ph ph-chart-line-up"></i> History
+            </button>
+            <!-- Latest Message button: only rendered for admins (JS will also hide it) -->
+            <button class="btn-message" id="btnLatestMessage" style="display:none;" onclick="openMessageModal()">
+                <i class="ph ph-chat-text"></i> Latest Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="ph ph-list-bullets"></i></div>
+            <div class="stat-body">
+                <div class="val" id="statTotal">—</div>
+                <div class="lbl">Total Lists</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="ph ph-check-circle"></i></div>
+            <div class="stat-body">
+                <div class="val" id="statRemaining">—</div>
+                <div class="lbl">Total Remaining</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon amber"><i class="ph ph-paper-plane-right"></i></div>
+            <div class="stat-body">
+                <div class="val" id="statUsed">—</div>
+                <div class="lbl">Total Sent</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity filter (TSSW users only — shown after load) -->
+    <div class="filter-bar" id="entityFilterBar" style="display:none;">
+        <label for="entitySelect"><i class="ph ph-funnel" style="margin-right:4px;vertical-align:-2px;"></i>Entity</label>
+        <select class="filter-select" id="entitySelect" onchange="applyEntityFilter()">
+            <option value="ALL">ALL</option>
+        </select>
+        <span class="filter-count" id="filterCount"></span>
+    </div>
+
+    <!-- Section header -->
+    <div class="section-hd">
+        <h2 id="sectionTitle">Lists</h2>
+        <button class="btn-add" id="btnAddList" style="display:none;" onclick="openAddModal()">
+            <i class="ph ph-plus"></i> Add List
+        </button>
+    </div>
+
+    <!-- Lists -->
+    <div class="lists-grid" id="listsGrid">
+        <div class="empty-state">
+            <i class="ph ph-fire-simple"></i>
+            <h3>Loading…</h3>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Add / Edit Modal ── -->
+<div class="modal-backdrop" id="editModal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-head-icon"><i class="ph ph-fire-simple"></i></div>
+            <div>
+                <h2 id="editModalTitle">Add Warmup List</h2>
+                <p id="editModalSub">Fill in the details below</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">List Name</label>
+            <input class="form-input" id="fieldName" type="text" placeholder="e.g. TSS1 - DATA SEEDS"/>
+            <div class="form-hint">A unique label for this warmup list</div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Total Emails Sent</label>
+            <input class="form-input" id="fieldTotal" type="number" min="0" placeholder="e.g. 600"/>
+            <div class="form-hint">Maximum number of emails allowed for this list</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+            <button class="btn-save" id="editSaveBtn" onclick="saveList()">
+                <i class="ph ph-floppy-disk" style="margin-right:5px;vertical-align:-2px;"></i>Save
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Delete Confirm Modal ── -->
+<div class="modal-backdrop" id="delModal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-head-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">
+                <i class="ph ph-trash"></i>
+            </div>
+            <div>
+                <h2>Delete List</h2>
+                <p>This action cannot be undone</p>
+            </div>
+        </div>
+        <p style="font-size:14px;color:#475569;line-height:1.6;">
+            Are you sure you want to delete <span class="del-name" id="delName"></span>?
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+            <button class="btn-delete-confirm" onclick="confirmDelete()">
+                <i class="ph ph-trash" style="margin-right:5px;vertical-align:-2px;"></i>Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Latest Message Modal ── -->
+<div class="modal-backdrop" id="msgModal">
+    <div class="msg-modal">
+        <div class="msg-modal-head">
+            <div class="msg-modal-head-left">
+                <div class="msg-modal-icon"><i class="ph ph-chat-text"></i></div>
+                <div>
+                    <h2>Latest Message</h2>
+                    <p>Edit and save the message shown on the Warmup Extension</p>
+                </div>
+            </div>
+            <button class="btn-close-x" onclick="closeMsgModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <textarea class="msg-textarea" id="msgTextarea" placeholder="Type your latest message here…" oninput="updateMsgHint()"></textarea>
+        <div class="msg-char-hint" id="msgCharHint">&nbsp;</div>
+        <div class="modal-actions" style="margin-top:18px;">
+            <button class="btn-cancel" onclick="closeMsgModal()">Cancel</button>
+            <button class="btn-save" id="msgSaveBtn" onclick="saveMessage()">
+                <i class="ph ph-floppy-disk" style="margin-right:5px;vertical-align:-2px;"></i>Save
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── History Charts Modal ── -->
+<div class="hist-overlay" id="histOverlay">
+    <div class="hist-modal">
+
+        <!-- Gradient Header -->
+        <div class="hist-header">
+            <div class="hist-header-icon"><i class="ph ph-chart-line-up"></i></div>
+            <div class="hist-header-text">
+                <h2>Send History</h2>
+                <p>Email drops per list — filter by date &amp; time range</p>
+            </div>
+            <div class="hist-header-right">
+                <span class="hist-badge" id="histBadge" style="display:none;"></span>
+                <button class="hist-close" onclick="closeHistoryModal()"><i class="ph ph-x"></i></button>
+            </div>
+        </div>
+
+        <!-- Toolbar: Tabs + Filters in one row -->
+        <div class="hist-toolbar">
+            <!-- Tabs -->
+            <div class="hist-tabs">
+                <button class="hist-tab active" id="tabTimeline" onclick="switchTab('timeline')">
+                    <i class="ph ph-chart-line"></i> Timeline
+                </button>
+                <button class="hist-tab" id="tabBylist" onclick="switchTab('bylist')">
+                    <i class="ph ph-chart-bar"></i> By List
+                </button>
+                <button class="hist-tab" id="tabDistrib" onclick="switchTab('distrib')">
+                    <i class="ph ph-chart-pie-slice"></i> Distribution
+                </button>
+                <button class="hist-tab" id="tabDrops" onclick="switchTab('drops')">
+                    <i class="ph ph-table"></i> Table
+                </button>
+            </div>
+
+            <div class="hist-toolbar-sep"></div>
+
+            <!-- Filters -->
+            <div class="hist-filters">
+                <span class="hist-filter-label">From</span>
+                <input class="hist-date-input" type="date" id="hDateFrom"/>
+                <input class="hist-time-input" type="time" id="hTimeFrom" step="60"/>
+                <span class="hist-filter-arr">→</span>
+                <span class="hist-filter-label">To</span>
+                <input class="hist-date-input" type="date" id="hDateTo"/>
+                <input class="hist-time-input" type="time" id="hTimeTo" step="60"/>
+                <button class="hist-apply-btn" onclick="applyHistoryFilter()"><i class="ph ph-funnel" style="vertical-align:-2px;margin-right:4px;"></i>Apply</button>
+                <button class="hist-reset-btn" onclick="resetHistoryFilter()"><i class="ph ph-arrow-counter-clockwise" style="vertical-align:-2px;margin-right:3px;"></i>Reset</button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="hist-body">
+
+            <!-- Loading -->
+            <div class="hist-loading" id="histLoading">
+                <div class="spin"></div>
+                <p>Loading history…</p>
+            </div>
+
+            <!-- Summary strip (hidden while loading) -->
+            <div class="hist-summary-row" id="histSummary" style="display:none;">
+                <div class="hist-stat purple">
+                    <div class="hist-stat-icon"><i class="ph ph-list-numbers"></i></div>
+                    <div class="hist-stat-body">
+                        <div class="hist-stat-val" id="hStatDrops">—</div>
+                        <div class="hist-stat-lbl">Total Drops</div>
+                    </div>
+                </div>
+                <div class="hist-stat sky">
+                    <div class="hist-stat-icon"><i class="ph ph-paper-plane-right"></i></div>
+                    <div class="hist-stat-body">
+                        <div class="hist-stat-val" id="hStatSent">—</div>
+                        <div class="hist-stat-lbl">Total Sent</div>
+                    </div>
+                </div>
+                <div class="hist-stat green">
+                    <div class="hist-stat-icon"><i class="ph ph-list-bullets"></i></div>
+                    <div class="hist-stat-body">
+                        <div class="hist-stat-val" id="hStatLists">—</div>
+                        <div class="hist-stat-lbl">Unique Lists</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline panel — small multiples -->
+            <div class="hist-panel active" id="panelTimeline">
+                <!-- Timeline toolbar with date range and entity filters -->
+                <div class="sm-toolbar">
+                    <span class="sm-toolbar-label"><i class="ph ph-calendar-blank"></i>Date Range</span>
+                    <input class="hist-date-input" type="date" id="tlDateFrom" oninput="updateTimelineDateRange()" style="font-size:11px;font-weight:700;"/>
+                    <span class="hist-filter-arr" style="font-size:11px;color:#cbd5e1;">to</span>
+                    <input class="hist-date-input" type="date" id="tlDateTo" oninput="updateTimelineDateRange()" style="font-size:11px;font-weight:700;"/>
+                    {% if current_user.has_warmup_lists_admin_permission %}
+                    <span style="margin-left:auto;display:flex;align-items:center;gap:10px;border-left:1px solid #e2e8f0;padding-left:12px;">
+                        <span class="sm-toolbar-label" style="margin:0;"><i class="ph ph-buildings"></i>Entity</span>
+                        <button class="sm-entity-btn active" data-entity="all"  onclick="setTlEntity('all')"><i class="ph ph-globe-simple" style="font-size:11px;margin-right:3px;"></i>All</button>
+                        <button class="sm-entity-btn tss1"  data-entity="TSS1" onclick="setTlEntity('TSS1')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#2563eb;"></i>TSS1</button>
+                        <button class="sm-entity-btn tss2"  data-entity="TSS2" onclick="setTlEntity('TSS2')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#16a34a;"></i>TSS2</button>
+                        <button class="sm-entity-btn tss3"  data-entity="TSS3" onclick="setTlEntity('TSS3')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#d97706;"></i>TSS3</button>
+                    </span>
+                    {% endif %}
+                    <span style="margin-left:auto;font-size:10px;font-weight:700;color:#6366f1;display:flex;align-items:center;gap:5px;white-space:nowrap;"><i class="ph ph-info" style="font-size:12px;"></i>Scroll Up => Zoom in . Move right and Left</span>
+                </div>
+                <div id="smGrid" class="sm-grid"></div>
+            </div>
+
+            <!-- By List panel -->
+            <div class="hist-panel" id="panelBylist">
+                {% if current_user.has_warmup_lists_admin_permission %}
+                <div class="sm-toolbar" style="margin-bottom:14px;padding:10px 14px;">
+                    <span class="sm-toolbar-label"><i class="ph ph-buildings"></i>Filter Entity</span>
+                    <button class="sm-entity-btn active" data-entity="all"  onclick="setBylistEntity('all')"><i class="ph ph-globe-simple" style="font-size:11px;margin-right:3px;"></i>All</button>
+                    <button class="sm-entity-btn tss1"  data-entity="TSS1" onclick="setBylistEntity('TSS1')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#2563eb;"></i>TSS1</button>
+                    <button class="sm-entity-btn tss2"  data-entity="TSS2" onclick="setBylistEntity('TSS2')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#16a34a;"></i>TSS2</button>
+                    <button class="sm-entity-btn tss3"  data-entity="TSS3" onclick="setBylistEntity('TSS3')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#d97706;"></i>TSS3</button>
+                </div>
+                {% endif %}
+                <div class="hist-chart-wrap">
+                    <div class="hist-chart-title">
+                        <i class="ph ph-chart-bar"></i> Total Sent by List
+                        <span class="hist-chart-sub">cumulative across all drops</span>
+                    </div>
+                    <div style="position:relative;height:320px;">
+                        <canvas id="chartByList"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribution panel -->
+            <div class="hist-panel" id="panelDistrib">
+                {% if current_user.has_warmup_lists_admin_permission %}
+                <div class="sm-toolbar" style="margin-bottom:14px;padding:10px 14px;">
+                    <span class="sm-toolbar-label"><i class="ph ph-buildings"></i>Filter Entity</span>
+                    <button class="sm-entity-btn active" data-entity="all"  onclick="setDistribEntity('all')"><i class="ph ph-globe-simple" style="font-size:11px;margin-right:3px;"></i>All</button>
+                    <button class="sm-entity-btn tss1"  data-entity="TSS1" onclick="setDistribEntity('TSS1')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#2563eb;"></i>TSS1</button>
+                    <button class="sm-entity-btn tss2"  data-entity="TSS2" onclick="setDistribEntity('TSS2')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#16a34a;"></i>TSS2</button>
+                    <button class="sm-entity-btn tss3"  data-entity="TSS3" onclick="setDistribEntity('TSS3')"><i class="ph ph-hexagon" style="font-size:11px;margin-right:3px;color:#d97706;"></i>TSS3</button>
+                </div>
+                {% endif %}
+                <div class="hist-two-col">
+                    <div class="hist-chart-wrap">
+                        <div class="hist-chart-title">
+                            <i class="ph ph-chart-pie-slice"></i> Share of Sends
+                            <span class="hist-chart-sub">% of total per list</span>
+                        </div>
+                        <div style="position:relative;height:280px;">
+                            <canvas id="chartDonut"></canvas>
+                        </div>
+                    </div>
+                    <div class="hist-chart-wrap">
+                        <div class="hist-chart-title">
+                            <i class="ph ph-stack"></i> Drop Count per List
+                            <span class="hist-chart-sub">number of individual drops</span>
+                        </div>
+                        <div style="position:relative;height:280px;">
+                            <canvas id="chartDropCount"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drops Table panel -->
+            <div class="hist-panel" id="panelDrops">
+                <!-- Entity filter bar -->
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fafbfd;border:1px solid #e8ecf4;border-radius:14px 14px 0 0;border-bottom:none;flex-wrap:wrap;">
+                    <i class="ph ph-funnel-simple" style="font-size:15px;color:#6366f1;"></i>
+                    {% if current_user.has_warmup_lists_admin_permission %}
+                    <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Filter by Entity</span>
+                    <select id="dropsEntityFilter" onchange="onDropsEntityChange()"
+                        style="padding:5px 28px 5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#1e293b;background:#fff url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 8px center;background-size:12px;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer;font-family:inherit;font-weight:600;">
+                        <option value="">All Entities</option>
+                        <option value="TSS1">TSS1</option>
+                        <option value="TSS2">TSS2</option>
+                        <option value="TSS3">TSS3</option>
+                    </select>
+                    <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-left:1.5px solid #e2e8f0;padding-left:10px;">List Name</span>
+                    {% else %}
+                    <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">List Name</span>
+                    {% endif %}
+                    <select id="dropsListFilter" onchange="filterDropsTable()"
+                        style="padding:5px 28px 5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#1e293b;background:#fff url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 8px center;background-size:12px;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer;font-family:inherit;font-weight:600;max-width:220px;">
+                        <option value="">All Lists</option>
+                    </select>
+                    <span id="dropsFilterCount" style="font-size:12px;color:#94a3b8;margin-left:4px;"></span>
+                </div>
+                <div class="hist-table-wrap" style="border-radius:0 0 14px 14px;border-top:none;">
+                    <table class="hist-table">
+                        <thead>
+                            <tr>
+                                <th style="width:44px;">#</th>
+                                <th>List Name</th>
+                                <th style="text-align:right;">Sent</th>
+                                <th>Date</th>
+                                <th style="text-align:right;">Time</th>
+                                <th>Mailer</th>
+                                <th>Type</th>
+                                <th style="width:48px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dropsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /hist-body -->
+    </div><!-- /hist-modal -->
+</div><!-- /hist-overlay -->
+
+<!-- ── Add Record Modal ── -->
+<div class="modal-overlay" id="addRecordModal">
+    <div class="hist-modal" style="max-width:420px;height:auto;border-radius:20px;">
+        <div class="hist-header" style="border-radius:20px 20px 0 0;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;">
+                    <i class="ph ph-plus-circle" style="font-size:18px;color:#fff;"></i>
+                </div>
+                <div>
+                    <div style="font-size:15px;font-weight:800;color:#fff;">Add Sent Record</div>
+                    <div id="addRecordListName" style="font-size:11px;color:rgba(255,255,255,.7);margin-top:1px;"></div>
+                </div>
+            </div>
+            <button class="hist-close" onclick="closeAddRecordModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <div style="padding:24px;">
+            <label style="display:block;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Number of Sents to Add</label>
+            <input type="number" id="addRecordAmount" min="1" step="1" placeholder="NUMBRE SENTS PER DROP"
+                   style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;font-weight:700;color:#1e293b;outline:none;font-family:inherit;transition:border-color .15s;"
+                   onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"
+                   onkeydown="if(event.key==='Enter')submitAddRecord()"/>
+            <p style="font-size:12px;color:#94a3b8;margin-top:8px;"><i class="ph ph-info" style="vertical-align:-2px;margin-right:3px;"></i>Pleas Add the Total Numbre Sents - It must be a whole number greater than 0.</p>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="closeAddRecordModal()" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:12px;background:#fff;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
+                <button onclick="submitAddRecord()" id="addRecordSaveBtn" style="flex:2;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <i class="ph ph-plus-circle"></i> Add Record
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Toast container ── -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────
+let _allLists     = [];   // all lists returned by the server
+let _isAdmin      = false;
+let _isTssw       = false;
+let _userEntity   = '';
+let _editMode     = null;
+let _deleteTarget = null;
+let _hasAddRecord = false;
+
+// ── Boot — DOMContentLoaded is wired at bottom after fetchLists is defined ──
+
+['editModal','delModal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) closeModals();
+    });
+});
+document.getElementById('msgModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMsgModal();
+});
+
+// ── API helper ────────────────────────────────────────
+async function api(url, method='GET', body=null) {
+    const opts = { method, headers: {'Content-Type':'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(url, opts);
+    return r.json();
+}
+
+// ── Entity filter ─────────────────────────────────────
+function extractEntity(listName) {
+    // "TSS1 - DATA SEEDS" → "TSS1"
+    const m = listName.match(/^([^\s-]+)/);
+    return m ? m[1].toUpperCase() : listName.toUpperCase();
+}
+
+function buildEntityFilter() {
+    const sel = document.getElementById('entitySelect');
+    const entities = [...new Set(_allLists.map(l => extractEntity(l.name)))].sort();
+    // Clear existing options except ALL
+    sel.innerHTML = '<option value="ALL">ALL</option>';
+    entities.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e;
+        opt.textContent = e;
+        sel.appendChild(opt);
+    });
+}
+
+function getFilteredLists() {
+    if (!_isTssw) return _allLists;
+    const sel = document.getElementById('entitySelect');
+    const val = sel ? sel.value : 'ALL';
+    if (val === 'ALL') return _allLists;
+    return _allLists.filter(l => extractEntity(l.name) === val);
+}
+
+function applyEntityFilter() {
+    const filtered = getFilteredLists();
+    renderStats(filtered);
+    renderLists(filtered);
+
+    // Update filter count label
+    if (_isTssw) {
+        const sel = document.getElementById('entitySelect');
+        const val = sel ? sel.value : 'ALL';
+        const countEl = document.getElementById('filterCount');
+        if (val === 'ALL') {
+            countEl.textContent = `${filtered.length} list${filtered.length !== 1 ? 's' : ''}`;
+        } else {
+            countEl.textContent = `${filtered.length} list${filtered.length !== 1 ? 's' : ''} for ${val}`;
+        }
+        // Update section title
+        document.getElementById('sectionTitle').textContent = val === 'ALL' ? 'All Lists' : `${val} Lists`;
+    }
+}
+
+// ── Render stats ──────────────────────────────────────
+function renderStats(lists) {
+    const total     = lists.length;
+    const remaining = lists.reduce((s,l) => s + l.remaining, 0);
+    const used      = lists.reduce((s,l) => s + l.used, 0);
+    document.getElementById('statTotal').textContent     = total;
+    document.getElementById('statRemaining').textContent = remaining.toLocaleString();
+    document.getElementById('statUsed').textContent      = used.toLocaleString();
+}
+
+// ── Render list cards ─────────────────────────────────
+function renderLists(lists) {
+    const grid = document.getElementById('listsGrid');
+    if (!lists.length) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <i class="ph ph-fire-simple"></i>
+                <h3>No warmup lists</h3>
+                <p>${_isAdmin ? 'Click "Add List" to create your first warmup list' : 'No lists available for your account'}</p>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = lists.map(l => {
+        const pct     = l.total > 0 ? Math.min(100, Math.round((l.used / l.total) * 100)) : 0;
+        const remain  = l.remaining;
+        const isEmpty = remain <= 0;
+        const remainPill = isEmpty
+            ? `<span class="pill pill-empty"><i class="ph ph-x-circle"></i> Empty</span>`
+            : `<span class="pill pill-remain"><i class="ph ph-arrow-right"></i> ${remain.toLocaleString()} remain</span>`;
+
+        const addRecordBtn = _hasAddRecord ? `
+            <button class="btn-icon" title="Add Sent Record" onclick="openAddRecordModal(${esc(JSON.stringify(l.name))})" style="color:#6366f1;border-color:#c7d2fe;background:#f0f0ff;">
+                <i class="ph ph-plus-circle"></i>
+            </button>` : '';
+
+        const adminActions = (_isAdmin || _hasAddRecord) ? `
+            <div class="list-actions">
+                ${addRecordBtn}
+                ${_isAdmin ? `
+                <button class="btn-icon" title="Edit" onclick="openEditModal(${esc(JSON.stringify(l.name))})">
+                    <i class="ph ph-pencil-simple"></i>
+                </button>
+                <button class="btn-icon danger" title="Delete" onclick="openDeleteModal(${esc(JSON.stringify(l.name))})">
+                    <i class="ph ph-trash"></i>
+                </button>` : ''}
+            </div>` : '';
+
+        return `
+        <div class="list-card">
+            <div class="list-card-left">
+                <div class="list-badge"><i class="ph ph-envelope"></i></div>
+                <div class="list-info">
+                    <div class="list-name" title="${esc(l.name)}">${esc(l.name)}</div>
+                    <div class="list-meta">
+                        <span class="pill pill-total"><i class="ph ph-stack"></i> ${l.total.toLocaleString()} total</span>
+                        <span class="pill pill-used"><i class="ph ph-paper-plane-right"></i> ${l.used.toLocaleString()} sent</span>
+                        ${remainPill}
+                    </div>
+                    <div class="progress-wrap">
+                        <div class="progress-bar" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            </div>
+            ${adminActions}
+        </div>`;
+    }).join('');
+}
+
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Add modal ─────────────────────────────────────────
+function openAddModal() {
+    _editMode = null;
+    document.getElementById('editModalTitle').textContent = 'Add Warmup List';
+    document.getElementById('editModalSub').textContent   = 'Fill in the details below';
+    document.getElementById('fieldName').value  = '';
+    document.getElementById('fieldTotal').value = '';
+    document.getElementById('editSaveBtn').disabled = false;
+    document.getElementById('editModal').classList.add('open');
+    setTimeout(() => document.getElementById('fieldName').focus(), 150);
+}
+
+// ── Edit modal ────────────────────────────────────────
+function openEditModal(name) {
+    const list = _allLists.find(l => l.name === name);
+    if (!list) return;
+    _editMode = name;
+    document.getElementById('editModalTitle').textContent = 'Edit List';
+    document.getElementById('editModalSub').textContent   = 'Update the list details';
+    document.getElementById('fieldName').value  = list.name;
+    document.getElementById('fieldTotal').value = list.total;
+    document.getElementById('editSaveBtn').disabled = false;
+    document.getElementById('editModal').classList.add('open');
+    setTimeout(() => document.getElementById('fieldName').focus(), 150);
+}
+
+// ── Save ──────────────────────────────────────────────
+async function saveList() {
+    const name  = document.getElementById('fieldName').value.trim();
+    const total = parseInt(document.getElementById('fieldTotal').value, 10);
+    if (!name)                         return showToast('List name is required', 'err');
+    if (isNaN(total) || total < 0)     return showToast('Total must be a non-negative number', 'err');
+
+    const btn = document.getElementById('editSaveBtn');
+    btn.disabled = true;
+
+    let data, ok;
+    try {
+        if (_editMode === null) {
+            data = await api('/api/warmup-lists', 'POST', { name, total });
+        } else {
+            data = await api('/api/warmup-lists/' + encodeURIComponent(_editMode), 'PUT', { name, total });
+        }
+        ok = data.success;
+    } catch(e) { ok = false; }
+
+    btn.disabled = false;
+    if (ok) {
+        closeModals();
+        showToast(_editMode === null ? 'List added successfully' : 'List updated', 'ok');
+        await fetchLists();
+    } else {
+        showToast(data?.error || 'Failed to save', 'err');
+    }
+}
+
+// ── Delete ────────────────────────────────────────────
+function openDeleteModal(name) {
+    _deleteTarget = name;
+    document.getElementById('delName').textContent = name;
+    document.getElementById('delModal').classList.add('open');
+}
+
+async function confirmDelete() {
+    if (!_deleteTarget) return;
+    let data;
+    try {
+        data = await api('/api/warmup-lists/' + encodeURIComponent(_deleteTarget), 'DELETE');
+    } catch(e) { data = {}; }
+
+    if (data.success) {
+        closeModals();
+        showToast('List deleted', 'ok');
+        await fetchLists();
+    } else {
+        showToast(data?.error || 'Failed to delete', 'err');
+    }
+}
+
+// ── Modals ────────────────────────────────────────────
+function closeModals() {
+    document.getElementById('editModal').classList.remove('open');
+    document.getElementById('delModal').classList.remove('open');
+    _editMode = null;
+    _deleteTarget = null;
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModals(); closeMsgModal(); closeAddRecordModal(); }
+    if (e.key === 'Enter' && document.getElementById('editModal').classList.contains('open')) {
+        saveList();
+    }
+});
+
+// ── Add Record Modal ───────────────────────────────────
+let _addRecordTarget = null;
+
+function openAddRecordModal(name) {
+    _addRecordTarget = name;
+    document.getElementById('addRecordListName').textContent = name;
+    document.getElementById('addRecordAmount').value = '';
+    document.getElementById('addRecordSaveBtn').disabled = false;
+    document.getElementById('addRecordModal').classList.add('open');
+    setTimeout(() => document.getElementById('addRecordAmount').focus(), 150);
+}
+
+function closeAddRecordModal() {
+    document.getElementById('addRecordModal').classList.remove('open');
+    _addRecordTarget = null;
+}
+
+async function submitAddRecord() {
+    if (!_addRecordTarget) return;
+    const amountRaw = document.getElementById('addRecordAmount').value.trim();
+    const amount = parseInt(amountRaw, 10);
+    if (!amountRaw || isNaN(amount) || amount <= 0) {
+        showToast('Please enter a valid number greater than 0.', 'err');
+        return;
+    }
+    const btn = document.getElementById('addRecordSaveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner"></i> Saving…';
+    try {
+        const res  = await api(`/api/warmup-lists/${encodeURIComponent(_addRecordTarget)}/add-record`, 'POST', { amount });
+        if (res.error) {
+            showToast(res.error, 'err');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ph ph-plus-circle"></i> Add Record';
+            return;
+        }
+        showToast(`Added ${amount.toLocaleString()} to ${_addRecordTarget}`, 'ok');
+        closeAddRecordModal();
+        // Reload lists to reflect updated tracker
+        await fetchLists();
+    } catch(e) {
+        showToast('Failed to save record.', 'err');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ph ph-plus-circle"></i> Add Record';
+    }
+}
+
+// ── Latest Message Modal ──────────────────────────────
+async function openMessageModal() {
+    const modal = document.getElementById('msgModal');
+    const ta    = document.getElementById('msgTextarea');
+    ta.value = '';
+    updateMsgHint();
+    modal.classList.add('open');
+    setTimeout(() => ta.focus(), 150);
+    try {
+        const res = await api('/api/warmup-lists/latest-message');
+        ta.value = res.content || '';
+        updateMsgHint();
+    } catch(e) {
+        showToast('Could not load message', 'err');
+    }
+}
+
+function closeMsgModal() {
+    document.getElementById('msgModal').classList.remove('open');
+}
+
+function updateMsgHint() {
+    const len  = document.getElementById('msgTextarea').value.length;
+    const hint = document.getElementById('msgCharHint');
+    hint.textContent = len > 0 ? `${len.toLocaleString()} character${len !== 1 ? 's' : ''}` : '\u00a0';
+}
+
+async function saveMessage() {
+    const content = document.getElementById('msgTextarea').value;
+    const btn     = document.getElementById('msgSaveBtn');
+    btn.disabled  = true;
+    try {
+        const data = await api('/api/warmup-lists/latest-message', 'POST', { content });
+        if (data.success) {
+            closeMsgModal();
+            showToast('Message saved', 'ok');
+        } else {
+            showToast(data.error || 'Failed to save', 'err');
+        }
+    } catch(e) {
+        showToast('Failed to save', 'err');
+    }
+    btn.disabled = false;
+}
+
+// ── Toast ─────────────────────────────────────────────
+function showToast(msg, type='ok') {
+    const wrap = document.getElementById('toastWrap');
+    const icon = type === 'ok' ? 'ph-check-circle' : 'ph-x-circle';
+    const div  = document.createElement('div');
+    div.className = `toast ${type}`;
+    div.innerHTML = `<i class="ph ${icon}"></i><span>${msg}</span>`;
+    wrap.appendChild(div);
+    setTimeout(() => div.remove(), 3500);
+}
+
+// ════════════════════════════════════════════════════
+//  HISTORY CHARTS
+// ════════════════════════════════════════════════════
+let _histData     = [];
+let _histFiltered = [];
+let _activeTab    = 'timeline';
+let _histLoaded   = false;
+
+// Chart instances — one per canvas (timeline uses _smCharts array)
+const _charts = { bylist: null, donut: null, dropcount: null };
+
+// Explicit tab → element ID map (avoids capitalisation bugs)
+const TAB_MAP = {
+    timeline: { tabId: 'tabTimeline', panelId: 'panelTimeline' },
+    bylist:   { tabId: 'tabBylist',   panelId: 'panelBylist'   },
+    distrib:  { tabId: 'tabDistrib',  panelId: 'panelDistrib'  },
+    drops:    { tabId: 'tabDrops',    panelId: 'panelDrops'    },
+};
+
+// Colour palette
+const PALETTE = [
+    '#4f46e5', // Indigo-600 (Primary)
+    '#0ea5e9', // Sky-500
+    '#10b981', // Emerald-500
+    '#f59e0b', // Amber-500
+    '#8b5cf6', // Violet-500
+    '#ec4899', // Pink-500
+    '#06b6d4', // Cyan-500
+    '#f97316', // Orange-500
+    '#14b8a6', // Teal-500
+    '#f43f5e', // Rose-500
+];
+function clr(i)  { return PALETTE[i % PALETTE.length]; }
+function clra(i,a) {
+    const h = clr(i);
+    return `rgba(${parseInt(h.slice(1,3),16)},${parseInt(h.slice(3,5),16)},${parseInt(h.slice(5,7),16)},${a})`;
+}
+function fmtNum(n) {
+    if (n >= 1_000_000) return (n/1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return (n/1_000).toFixed(1) + 'k';
+    return n.toLocaleString();
+}
+
+// Global Chart.js defaults for a modern Flowbite look
+if (window.Chart) {
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(17, 24, 39, 0.96)'; // Slate-900
+    Chart.defaults.plugins.tooltip.titleColor = '#f9fafb'; // Gray-50
+    Chart.defaults.plugins.tooltip.bodyColor = '#e5e7eb'; // Gray-200
+    Chart.defaults.plugins.tooltip.titleFont = { size: 12, weight: '600', family: 'Inter, system-ui, sans-serif' };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 12, family: 'Inter, system-ui, sans-serif' };
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.borderColor = '#374151'; // Slate-700
+    Chart.defaults.plugins.tooltip.boxWidth = 8;
+    Chart.defaults.plugins.tooltip.boxHeight = 8;
+    Chart.defaults.plugins.tooltip.boxPadding = 4;
+    Chart.defaults.plugins.tooltip.usePointStyle = true;
+}
+
+// ── Open / Close ──────────────────────────────────
+function openHistoryModal() {
+    document.getElementById('histOverlay').classList.add('open');
+    // Default date = today, time From = 09:00, time To = 23:59
+    if (!document.getElementById('hDateFrom').value) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('hDateFrom').value = today;
+        document.getElementById('hDateTo').value   = today;
+        document.getElementById('hTimeFrom').value = '09:00';
+        document.getElementById('hTimeTo').value   = '23:59';
+    }
+    // Also initialize timeline date range to today
+    if (!document.getElementById('tlDateFrom').value) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('tlDateFrom').value = today;
+        document.getElementById('tlDateTo').value = today;
+    }
+    if (!_histLoaded) loadHistory();
+}
+function closeHistoryModal() {
+    document.getElementById('histOverlay').classList.remove('open');
+}
+document.getElementById('histOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeHistoryModal();
+});
+
+// ── Load from server ─────────────────────────────
+async function loadHistory() {
+    showHistLoading(true);
+    try {
+        const res  = await fetch('/api/warmup-history');
+        const data = await res.json();
+        if (data.error) { showToast(data.error, 'err'); showHistLoading(false); return; }
+        _histData   = data.history || [];
+        _histLoaded = true;
+        // Apply date filter (today is pre-set) instead of showing raw all-time data
+        const df = document.getElementById('hDateFrom').value;
+        const dt = document.getElementById('hDateTo').value;
+        if (df || dt) {
+            applyHistoryFilter();
+        } else {
+            _histFiltered = _histData;
+            renderHistory();
+        }
+    } catch(e) {
+        showToast('Failed to load history', 'err');
+        showHistLoading(false);
+    }
+}
+
+function showHistLoading(on) {
+    document.getElementById('histLoading').style.display  = on ? '' : 'none';
+    document.getElementById('histSummary').style.display  = on ? 'none' : 'grid';
+}
+
+// ── Sync time inputs (kept for compatibility, no-op now) ──
+function syncTimeCols() {}
+
+// ── Apply / Reset filter ──────────────────────────
+function applyHistoryFilter() {
+    const df = document.getElementById('hDateFrom').value;
+    const dt = document.getElementById('hDateTo').value;
+    const tf = document.getElementById('hTimeFrom').value;
+    const tt = document.getElementById('hTimeTo').value;
+
+    _histFiltered = _histData.filter(h => {
+        if (df && h.date < df) return false;
+        if (dt && h.date > dt) return false;
+        if (df && h.date === df && tf && h.time < tf) return false;
+        if (dt && h.date === dt && tt && h.time > tt) return false;
+        return true;
+    });
+    renderHistory();
+}
+
+function resetHistoryFilter() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('hDateFrom').value = today;
+    document.getElementById('hDateTo').value   = today;
+    document.getElementById('hTimeFrom').value = '09:00';
+    document.getElementById('hTimeTo').value   = '23:59';
+    applyHistoryFilter();
+}
+
+// ── Main render ───────────────────────────────────
+function renderHistory() {
+    showHistLoading(false);
+    const h = _histFiltered;
+
+    // Update badge
+    const badge = document.getElementById('histBadge');
+    badge.style.display = '';
+    badge.textContent = h.length + ' drop' + (h.length !== 1 ? 's' : '');
+
+    if (!h.length) {
+        updateSummary(0, 0, 0);
+        drawEmpty();
+        return;
+    }
+
+    const lists = [...new Set(h.map(x => x.list_name))].sort();
+    const totalSent = h.reduce((s,x) => s + x.number_sent, 0);
+    updateSummary(h.length, totalSent, lists.length);
+
+    // Draw only the currently-active tab immediately
+    drawTab(_activeTab, h, lists);
+}
+
+function updateSummary(drops, sent, lists) {
+    document.getElementById('hStatDrops').textContent = drops.toLocaleString();
+    document.getElementById('hStatSent').textContent  = fmtNum(sent);
+    document.getElementById('hStatLists').textContent = lists;
+}
+
+function drawEmpty() {
+    // Destroy small-multiples charts
+    _smCharts.forEach(c => c.destroy()); _smCharts = [];
+    // Destroy other charts
+    Object.keys(_charts).forEach(k => { if (_charts[k]) { _charts[k].destroy(); _charts[k] = null; } });
+    // Show empty state in active panel
+    const panelId = TAB_MAP[_activeTab].panelId;
+    const panel   = document.getElementById(panelId);
+    if (_activeTab === 'timeline') {
+        document.getElementById('smGrid').innerHTML = `<div class="hist-empty" style="grid-column:1/-1;padding:60px 20px;">
+            <i class="ph ph-chart-line-down"></i>
+            <h3>No drops in this range</h3>
+            <p>Try a wider date range or reset the filter</p>
+        </div>`;
+    } else {
+        panel.innerHTML = `<div class="hist-empty">
+            <i class="ph ph-chart-line-down"></i>
+            <h3>No drops in this range</h3>
+            <p>Try a wider date range or reset the filter</p>
+        </div>`;
+    }
+}
+
+// ── Tab switch ────────────────────────────────────
+function switchTab(tab) {
+    _activeTab = tab;
+    Object.entries(TAB_MAP).forEach(([t, ids]) => {
+        document.getElementById(ids.tabId).classList.toggle('active', t === tab);
+        document.getElementById(ids.panelId).classList.toggle('active', t === tab);
+    });
+    if (_histFiltered.length) {
+        const lists = [...new Set(_histFiltered.map(x => x.list_name))].sort();
+        drawTab(tab, _histFiltered, lists);
+    }
+}
+
+// ── Draw dispatcher ───────────────────────────────
+function drawTab(tab, h, lists) {
+    if (tab === 'timeline') drawTimeline(h, lists);
+    else if (tab === 'bylist')  drawByList(h, lists);
+    else if (tab === 'distrib') drawDistrib(h, lists);
+    else if (tab === 'drops')   drawDropsTable(h);
+}
+
+// ── Small-multiples Timeline ──────────────────────
+let _smCharts  = [];       // Chart instance per card
+let _tlEntity  = 'all';   // active entity filter
+let _bylistEntity = 'all'; // active entity filter for bylist
+let _distribEntity = 'all'; // active entity filter for distribution
+let _smH       = [];
+let _smLists   = [];
+
+// Format ms timestamp → "HH:MM" or "DD/MM HH:MM"
+function _fmtTs(ms, rangeMs) {
+    const d  = new Date(ms);
+    const hh = d.getHours().toString().padStart(2,'0');
+    const mm = d.getMinutes().toString().padStart(2,'0');
+    if (rangeMs > 86_400_000) {
+        const day = d.getDate().toString().padStart(2,'0');
+        const mon = (d.getMonth()+1).toString().padStart(2,'0');
+        return `${day}/${mon} ${hh}:${mm}`;
+    }
+    return `${hh}:${mm}`;
+}
+
+// Entry point called by tab switch / data load
+function drawTimeline(h, lists) {
+    _smH    = h;
+    _smLists = lists;
+    _buildSmallMultiples();
+}
+
+// Entity filter button handler (called from HTML onclick)
+function setTlEntity(entity) {
+    _tlEntity = entity;
+    document.querySelectorAll('#panelTimeline .sm-entity-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.entity === entity)
+    );
+    _buildSmallMultiples();
+}
+
+function setBylistEntity(entity) {
+    _bylistEntity = entity;
+    document.querySelectorAll('#panelBylist .sm-entity-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.entity === entity)
+    );
+    drawByList(_histFiltered, [...new Set(_histFiltered.map(x => x.list_name))].sort());
+}
+
+function setDistribEntity(entity) {
+    _distribEntity = entity;
+    document.querySelectorAll('#panelDistrib .sm-entity-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.entity === entity)
+    );
+    drawDistrib(_histFiltered, [...new Set(_histFiltered.map(x => x.list_name))].sort());
+}
+
+// Timeline date range filter handler
+function updateTimelineDateRange() {
+    const df = document.getElementById('tlDateFrom').value;
+    const dt = document.getElementById('tlDateTo').value;
+    
+    if (!df || !dt) return;
+    
+    // Filter history data by date range
+    const filtered = _histData.filter(h => {
+        if (df && h.date < df) return false;
+        if (dt && h.date > dt) return false;
+        return true;
+    });
+    
+    // Update the small multiples with filtered data
+    _smH = filtered;
+    _smLists = [...new Set(filtered.map(x => x.list_name))].sort();
+    _buildSmallMultiples();
+}
+
+// Build (or rebuild) all small-multiple charts
+function _buildSmallMultiples() {
+    _smCharts.forEach(c => c.destroy());
+    _smCharts = [];
+
+    const h     = _smH;
+    let   lists = [..._smLists];
+
+    // Entity filter — match list names starting with the entity prefix
+    if (_tlEntity !== 'all') {
+        lists = lists.filter(lst => lst.toUpperCase().startsWith(_tlEntity));
+    }
+
+    const grid = document.getElementById('smGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (!lists.length || !h.length) {
+        grid.innerHTML = `<div class="hist-empty" style="grid-column:1/-1;padding:60px 20px;">
+            <i class="ph ph-chart-line-down"></i>
+            <h3>No lists for this selection</h3>
+            <p>Try a different entity or widen the date range</p>
+        </div>`;
+        return;
+    }
+
+    // ── Shared X domain (same for every card) ──────────────────
+    const allTs  = h.map(x => new Date(x.datetime).getTime());
+    const xMin0  = Math.min(...allTs);
+    const xMax0  = Math.max(...allTs);
+    const xPad   = (xMax0 - xMin0) * 0.04 || 120_000;
+    const xMin   = xMin0 - xPad;
+    const xMax   = xMax0 + xPad;
+    const xRange = xMax - xMin;
+
+    // ── Shared Y max removed, now independent per card ─────────
+
+    // ── One card per list ──────────────────────────────────────
+    lists.forEach((lst, i) => {
+        const color = clr(i);
+
+        const pts = h
+            .filter(x => x.list_name === lst)
+            .sort((a, b) => a.datetime.localeCompare(b.datetime))
+            .map(x => ({ x: new Date(x.datetime).getTime(), y: x.number_sent, raw: x }));
+
+        const totalSent = pts.reduce((s, p) => s + p.y, 0);
+        const maxSent   = pts.length ? Math.max(...pts.map(p => p.y)) : 0;
+        const avgSent   = pts.length ? Math.round(totalSent / pts.length) : 0;
+        const ptR       = pts.length <= 15 ? 4 : pts.length <= 40 ? 3 : pts.length <= 80 ? 2 : 1.5;
+
+        // Independent Y scale for this specific card
+        const yMax = Math.ceil((maxSent || 1) * 1.15);
+
+        // Card element
+        const card = document.createElement('div');
+        card.className = 'sm-card';
+        card.style.borderTopColor = color;
+        card.innerHTML = `
+            <div class="sm-card-header">
+                <div class="sm-card-name">
+                    <div class="sm-card-dot" style="background:${color};box-shadow:0 0 0 3px ${color}22;"></div>
+                    ${lst}
+                </div>
+                <div class="sm-card-stats">
+                    <div class="sm-card-stat" title="Total sent">
+                        <i class="ph ph-paper-plane-right" style="color:${color};"></i>
+                        <b>${fmtNum(totalSent)}</b>
+                    </div>
+                    <div class="sm-card-stat" title="Peak drop">
+                        <i class="ph ph-arrow-up" style="color:#f59e0b;"></i>
+                        <b>${fmtNum(maxSent)}</b>
+                    </div>
+                    <div class="sm-card-stat" title="Avg per drop">
+                        <i class="ph ph-equals" style="color:#6366f1;"></i>
+                        <b>${fmtNum(avgSent)}</b>
+                    </div>
+                    <div class="sm-card-stat" title="Drop count">
+                        <i class="ph ph-stack" style="color:#64748b;"></i>
+                        <b>${pts.length}</b>
+                    </div>
+                </div>
+            </div>
+            <div class="sm-card-canvas-wrap"><canvas id="smCanvas_${i}"></canvas></div>
+        `;
+        grid.appendChild(card);
+
+        // Chart
+        const canvas = document.getElementById(`smCanvas_${i}`);
+        const ctx    = canvas.getContext('2d');
+        const grad   = ctx.createLinearGradient(0, 0, 0, 110);
+        grad.addColorStop(0, clra(i, .30));
+        grad.addColorStop(1, clra(i, 0.02));
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    data: pts,
+                    borderColor: color,
+                    backgroundColor: grad,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: color,
+                    pointBorderWidth: 3,
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: color,
+                    pointHoverBorderWidth: 3,
+                    tension: .42,
+                    fill: true,
+                    spanGaps: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 280 },
+                interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+                plugins: {
+                    legend: { display: false },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true, modifierKey: 'ctrl' },
+                            pinch: { enabled: true },
+                            mode: 'x',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        }
+                    },
+                    tooltip: {
+                        borderColor: color,
+                        callbacks: {
+                            title: items => {
+                                const raw = items[0]?.raw?.raw;
+                                return raw ? `${raw.date}  ${raw.time}` : '';
+                            },
+                            label: c => `  ${c.parsed.y.toLocaleString()} sent`,
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: xMin,
+                        max: xMax,
+                        ticks: {
+                            maxTicksLimit: 4,
+                            maxRotation: 0,
+                            font: { size: 10, family: 'Inter', weight: '500' }, color: '#94a3b8',
+                            callback: val => _fmtTs(val, xRange),
+                        },
+                        grid: { color: '#f1f5f9', borderDash: [4, 4], drawTicks: false },
+                        border: { display: false },
+                    },
+                    y: {
+                        min: 0,
+                        max: yMax,
+                        ticks: {
+                            maxTicksLimit: 4,
+                            callback: v => fmtNum(v),
+                            font: { size: 10, family: 'Inter', weight: '500' }, color: '#94a3b8',
+                        },
+                        grid: { color: '#f1f5f9', borderDash: [4, 4], drawTicks: false },
+                        border: { display: false },
+                    }
+                }
+            }
+        });
+
+        _smCharts.push(chart);
+    });
+}
+
+// ── By List chart ─────────────────────────────────
+function drawByList(h, lists) {
+    if (_charts.bylist) { _charts.bylist.destroy(); _charts.bylist = null; }
+    
+    // Apply entity filter
+    if (_bylistEntity !== 'all') {
+        lists = lists.filter(lst => lst.toUpperCase().startsWith(_bylistEntity));
+    }
+    
+    const ctx  = document.getElementById('chartByList').getContext('2d');
+    const totals = lists.map(lst => h.filter(x => x.list_name === lst).reduce((s,x) => s + x.number_sent, 0));
+
+    // Dynamic gradient per bar
+    const backgroundColors = lists.map((_, i) => {
+        const g = ctx.createLinearGradient(0, 0, 0, 300);
+        g.addColorStop(0, clra(i, 0.85));
+        g.addColorStop(1, clra(i, 0.15));
+        return g;
+    });
+    const hoverBackgroundColors = lists.map((_, i) => {
+        const g = ctx.createLinearGradient(0, 0, 0, 300);
+        g.addColorStop(0, clra(i, 1.0));
+        g.addColorStop(1, clra(i, 0.3));
+        return g;
+    });
+    const borderColors = lists.map((_, i) => clr(i));
+
+    _charts.bylist = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: lists,
+            datasets: [{
+                label: 'Total Sent',
+                data: totals,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 2,
+                borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: 'bottom',
+                hoverBackgroundColor: hoverBackgroundColors,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `  ${ctx.parsed.y.toLocaleString()} emails sent`,
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { font: { size: 11, family: 'Inter', weight: '500' }, color: '#64748b' },
+                    grid: { display: false },
+                    border: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: v => fmtNum(v), font: { size: 11, family: 'Inter', weight: '500' }, color: '#94a3b8' },
+                    grid: { color: '#f1f5f9', borderDash: [4, 4], drawTicks: false },
+                    border: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// ── Distribution charts ───────────────────────────
+function drawDistrib(h, lists) {
+    // Apply entity filter
+    if (_distribEntity !== 'all') {
+        lists = lists.filter(lst => lst.toUpperCase().startsWith(_distribEntity));
+    }
+    
+    // Donut
+    if (_charts.donut) { _charts.donut.destroy(); _charts.donut = null; }
+    const totals = lists.map(lst => h.filter(x => x.list_name === lst).reduce((s,x) => s + x.number_sent, 0));
+    _charts.donut = new Chart(document.getElementById('chartDonut'), {
+        type: 'doughnut',
+        data: {
+            labels: lists,
+            datasets: [{
+                data: totals,
+                backgroundColor: lists.map((_,i) => clra(i, .85)),
+                borderColor: '#fff',
+                borderWidth: 3,
+                spacing: 4,
+                hoverOffset: 10,
+                hoverBorderColor: lists.map((_,i) => clr(i)),
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '78%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 8, boxHeight: 8, borderRadius: 4, useBorderRadius: true, font: { size: 11, family: 'Inter', weight: '500' }, color: '#64748b', padding: 14 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const sum = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                            const pct = sum > 0 ? ((ctx.parsed / sum)*100).toFixed(1) : 0;
+                            return `  ${ctx.parsed.toLocaleString()} sent (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        },
+        plugins: [{
+            id: 'centerText',
+            afterDraw(chart) {
+                const { ctx, chartArea: { left, right, top, bottom, width, height } } = chart;
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+
+                // Label
+                ctx.font = '500 12px Inter, system-ui, sans-serif';
+                ctx.fillStyle = '#64748b'; // Gray-500
+                ctx.fillText('Total Sent', centerX, centerY - 10);
+
+                // Value
+                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                ctx.font = '800 20px Inter, system-ui, sans-serif';
+                ctx.fillStyle = '#1e293b'; // Slate-800
+                ctx.fillText(fmtNum(total), centerX, centerY + 12);
+                ctx.restore();
+            }
+        }]
+    });
+
+    // Drop count — horizontal bar
+    if (_charts.dropcount) { _charts.dropcount.destroy(); _charts.dropcount = null; }
+    const counts = lists.map(lst => h.filter(x => x.list_name === lst).length);
+    const countCtx = document.getElementById('chartDropCount').getContext('2d');
+    
+    // Horizontal gradients
+    const backgroundColors = lists.map((_, i) => {
+        const g = countCtx.createLinearGradient(0, 0, 300, 0);
+        g.addColorStop(0, clra(i, 0.85));
+        g.addColorStop(1, clra(i, 0.15));
+        return g;
+    });
+    const hoverBackgroundColors = lists.map((_, i) => {
+        const g = countCtx.createLinearGradient(0, 0, 300, 0);
+        g.addColorStop(0, clra(i, 1.0));
+        g.addColorStop(1, clra(i, 0.3));
+        return g;
+    });
+    const borderColors = lists.map((_, i) => clr(i));
+
+    _charts.dropcount = new Chart(countCtx, {
+        type: 'bar',
+        data: {
+            labels: lists,
+            datasets: [{
+                label: 'Drops',
+                data: counts,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 2,
+                borderRadius: { topLeft: 0, topRight: 6, bottomLeft: 0, bottomRight: 6 },
+                borderSkipped: 'left',
+                hoverBackgroundColor: hoverBackgroundColors,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `  ${ctx.parsed.x} drop${ctx.parsed.x !== 1 ? 's' : ''}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { size: 11, family: 'Inter', weight: '500' }, color: '#94a3b8' },
+                    grid: { color: '#f1f5f9', borderDash: [4, 4], drawTicks: false },
+                    border: { display: false }
+                },
+                y: {
+                    ticks: { font: { size: 11, family: 'Inter', weight: '500' }, color: '#64748b' },
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// ── Drops table ───────────────────────────────────
+let _dropsAllRows = [];
+
+function drawDropsTable(h) {
+    _dropsAllRows = [...h].sort((a,b) => b.datetime.localeCompare(a.datetime));
+    const sel = document.getElementById('dropsEntityFilter');
+    if (sel) sel.value = '';
+    const cnt = document.getElementById('dropsFilterCount');
+    if (cnt) cnt.textContent = '';
+    updateDropsListOptions('');
+    _renderDropsRows(_dropsAllRows);
+}
+
+function _extractDropsEntity(listName) {
+    const m = listName.match(/^(TSS\w+?)(?:\s|$|-)/);
+    return m ? m[1] : null;
+}
+
+function updateDropsListOptions(entity) {
+    const listSel = document.getElementById('dropsListFilter');
+    if (!listSel) return;
+    const prev = listSel.value;
+    // Collect unique list names matching the current entity
+    const names = [...new Set(
+        _dropsAllRows
+            .filter(r => !entity || _extractDropsEntity(r.list_name) === entity)
+            .map(r => r.list_name)
+    )].sort();
+    listSel.innerHTML = '<option value="">All Lists</option>' +
+        names.map(n => `<option value="${esc(n)}"${n === prev ? ' selected' : ''}>${esc(n)}</option>`).join('');
+    // If the previously selected list is no longer available, reset it
+    if (prev && !names.includes(prev)) listSel.value = '';
+}
+
+function onDropsEntityChange() {
+    const sel    = document.getElementById('dropsEntityFilter');
+    const entity = sel ? sel.value : '';
+    updateDropsListOptions(entity);
+    filterDropsTable();
+}
+
+function filterDropsTable() {
+    const entitySel = document.getElementById('dropsEntityFilter');
+    const entity    = entitySel ? entitySel.value : '';
+    const listName  = document.getElementById('dropsListFilter').value;
+    let rows = _dropsAllRows;
+    if (entity) {
+        rows = rows.filter(r => _extractDropsEntity(r.list_name) === entity);
+    }
+    if (listName) {
+        rows = rows.filter(r => r.list_name === listName);
+    }
+    const cnt = document.getElementById('dropsFilterCount');
+    const isFiltered = entity || listName;
+    cnt.textContent = isFiltered ? `${rows.length} of ${_dropsAllRows.length} drops` : '';
+    _renderDropsRows(rows);
+
+    // Update summary cards to reflect the current filters
+    const totalSent   = rows.reduce((s, r) => s + r.number_sent, 0);
+    const uniqueLists = new Set(rows.map(r => r.list_name)).size;
+    updateSummary(rows.length, totalSent, uniqueLists);
+}
+
+function _renderDropsRows(rows) {
+    if (!rows.length) {
+        document.getElementById('dropsTableBody').innerHTML =
+            `<tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">No drops found for this entity</td></tr>`;
+        return;
+    }
+    const totalSent = rows.reduce((s, r) => s + r.number_sent, 0);
+    const dataRows = rows.map((row, i) => {
+        const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${clr(i % PALETTE.length)};margin-right:6px;flex-shrink:0;"></span>`;
+        const displayName = row.added_by_name || row.added_by;
+        const addedBy = displayName
+            ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#f0f0ff;color:#6366f1;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;"><i class="ph ph-user" style="font-size:11px;"></i>${esc(displayName)}</span>`
+            : `<span style="color:#cbd5e1;font-size:11px;">—</span>`;
+        const rowType = row.type || 'Extension';
+        const isManual = rowType === 'Manual';
+        const typeBadge = `<span style="display:inline-flex;align-items:center;gap:4px;background:${isManual ? '#f0fdf4' : '#eff6ff'};color:${isManual ? '#16a34a' : '#2563eb'};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">
+            <i class="ph ${isManual ? 'ph-pencil-simple' : 'ph-puzzle-piece'}" style="font-size:11px;"></i>${esc(rowType)}</span>`;
+        const delPayload = esc(JSON.stringify({list_name: row.list_name, number_sent: row.number_sent, datetime: row.datetime}));
+        const delBtn = _isAdmin ? `<button onclick="deleteHistoryRow(this, ${delPayload})"
+            title="Delete this record"
+            style="width:28px;height:28px;border:1.5px solid #fca5a5;border-radius:7px;background:#fff5f5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s,border-color .12s;flex-shrink:0;"
+            onmouseover="this.style.background='#fee2e2';this.style.borderColor='#ef4444';"
+            onmouseout="this.style.background='#fff5f5';this.style.borderColor='#fca5a5';">
+            <i class="ph ph-trash" style="font-size:13px;color:#ef4444;"></i>
+        </button>` : '';
+        return `<tr>
+            <td style="color:#94a3b8;font-size:12px;font-weight:600;">${i+1}</td>
+            <td><span style="display:inline-flex;align-items:center;">${dot}<span style="font-weight:600;color:#1e293b;">${esc(row.list_name)}</span></span></td>
+            <td style="text-align:right;font-weight:800;color:#6366f1;font-size:13px;">${row.number_sent.toLocaleString()}</td>
+            <td style="color:#64748b;font-size:12px;">${esc(row.date)}</td>
+            <td style="text-align:right;color:#64748b;font-size:12px;font-family:monospace;">${esc(row.time)}</td>
+            <td>${addedBy}</td>
+            <td>${typeBadge}</td>
+            <td style="text-align:center;">${delBtn}</td>
+        </tr>`;
+    }).join('');
+    const totalRow = `<tr style="background:linear-gradient(90deg,#f5f3ff,#ede9fe);border-top:2px solid #c4b5fd;">
+        <td style="color:#6d28d9;font-size:12px;font-weight:800;"></td>
+        <td style="font-weight:800;color:#6d28d9;font-size:12.5px;letter-spacing:.02em;"><i class="ph ph-sigma" style="margin-right:5px;"></i>TOTAL</td>
+        <td style="text-align:right;font-weight:900;color:#6d28d9;font-size:14px;">${totalSent.toLocaleString()}</td>
+        <td colspan="5"></td>
+    </tr>`;
+    document.getElementById('dropsTableBody').innerHTML = dataRows + totalRow;
+}
+
+async function deleteHistoryRow(btn, payload) {
+    if (!confirm('Delete this record? This will also subtract the sent count from the tracker.')) return;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-circle-notch ph-spin" style="font-size:13px;color:#ef4444;"></i>';
+    try {
+        const res  = await fetch('/api/warmup-history/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.error) { showToast(data.error, 'err'); btn.disabled = false; btn.innerHTML = '<i class="ph ph-trash" style="font-size:13px;color:#ef4444;"></i>'; return; }
+        showToast('Record deleted', 'ok');
+        // Remove from in-memory data and re-render
+        const idx = _dropsAllRows.findIndex(r => r.list_name === payload.list_name && r.number_sent === payload.number_sent && r.datetime === payload.datetime);
+        if (idx !== -1) _dropsAllRows.splice(idx, 1);
+        // Also remove from _histData and _histFiltered
+        [_histData, _histFiltered].forEach(arr => {
+            const i2 = arr.findIndex(r => r.list_name === payload.list_name && r.number_sent === payload.number_sent && r.datetime === payload.datetime);
+            if (i2 !== -1) arr.splice(i2, 1);
+        });
+        filterDropsTable();
+    } catch(e) {
+        showToast('Failed to delete record', 'err');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ph ph-trash" style="font-size:13px;color:#ef4444;"></i>';
+    }
+}
+
+// ── Fetch & render (single definition) ────────────────
+async function fetchLists() {
+    try {
+        const data   = await api('/api/warmup-lists');
+        _allLists    = data.lists || [];
+        _isAdmin     = !!data.is_admin;
+        _isTssw      = !!data.is_tssw;
+        _userEntity  = data.user_entity || '';
+
+        _hasAddRecord = !!data.has_add_record;
+
+        document.getElementById('btnLatestMessage').style.display = _isAdmin ? '' : 'none';
+        document.getElementById('btnAddList').style.display       = _isAdmin ? '' : 'none';
+        document.getElementById('btnHistory').style.display       = data.has_history ? '' : 'none';
+
+        if (_isTssw) {
+            buildEntityFilter();
+            document.getElementById('entityFilterBar').style.display = '';
+        }
+        applyEntityFilter();
+    } catch(e) {
+        document.getElementById('listsGrid').innerHTML = `
+            <div class="empty-state">
+                <i class="ph ph-warning-circle"></i>
+                <h3>Failed to load lists</h3>
+                <p>Please refresh the page</p>
+            </div>`;
+    }
+}
+document.addEventListener('DOMContentLoaded', fetchLists);
+</script>
+</body>
+</html>

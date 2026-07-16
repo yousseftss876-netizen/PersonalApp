@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS - Find News</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .user-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .email-row {
+            transition: all 0.2s ease;
+        }
+        .email-row:hover {
+            background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+            transform: translateX(4px);
+        }
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+        .folder-badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .folder-primary {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+        .folder-promotions {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+        .folder-social {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            color: #9d174d;
+        }
+        .folder-updates {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+        .folder-forums {
+            background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
+            color: #6b21a8;
+        }
+        .account-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        .account-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .account-card.selected {
+            background: linear-gradient(135deg, #dbeafe 0%, #e9d5ff 100%);
+            border-color: #8b5cf6;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .toast {
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .auto-refresh-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .manage-account-row {
+            transition: all 0.2s ease;
+        }
+        .manage-account-row:hover {
+            background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%);
+            transform: translateX(4px);
+        }
+        .modal-overlay {
+            backdrop-filter: blur(4px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        .input-modern {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .input-modern:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        .entity-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    {% set page_title = "Find News" %}
+    {% set page_icon = "ph-newspaper" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        {% if can_manage_news %}
+        <div class="mb-4 flex justify-end">
+            <button onclick="openManageModal()" class="btn-primary text-white px-4 py-2 rounded-xl flex items-center space-x-2 shadow-lg">
+                <i class="fas fa-cog"></i>
+                <span>Manage Accounts</span>
+            </button>
+        </div>
+        {% endif %}
+        <div class="flex gap-6">
+            <div class="w-80 flex-shrink-0">
+                <div class="glass-card rounded-2xl shadow-xl p-5">
+                    <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mr-3 shadow">
+                            <i class="fas fa-envelope text-white text-sm"></i>
+                        </div>
+                        News Accounts
+                    </h3>
+                    
+                    {% if accounts %}
+                        <div class="space-y-3" id="accounts-list">
+                            {% for key, account in accounts.items() %}
+                                <div class="account-card border-2 border-gray-200 rounded-xl p-4 cursor-pointer" 
+                                     data-account="{{ key }}"
+                                     onclick="selectAccount('{{ key }}')">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg
+                                            {% if account.entity == 'TSS1' %}bg-gradient-to-br from-blue-400 to-blue-600
+                                            {% elif account.entity == 'TSS2' %}bg-gradient-to-br from-green-400 to-green-600
+                                            {% elif account.entity == 'TSS3' %}bg-gradient-to-br from-yellow-400 to-amber-500
+                                            {% elif account.entity == 'TSSF' %}bg-gradient-to-br from-orange-400 to-orange-600
+                                            {% elif account.entity == 'TSSW' %}bg-gradient-to-br from-red-400 to-red-600
+                                            {% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %}">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="font-bold text-gray-800">{{ account.entity }}</span>
+                                                <span class="entity-badge bg-gray-200 text-gray-600 rounded-full">News</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 truncate mt-1">{{ account.email }}</div>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12 text-gray-500">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-inbox text-3xl text-gray-400"></i>
+                            </div>
+                            <p class="font-medium">No news accounts available</p>
+                            {% if can_manage_news %}
+                            <button onclick="openManageModal()" class="mt-4 text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center justify-center mx-auto">
+                                <i class="fas fa-plus mr-2"></i>Add Account
+                            </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex-1">
+                <div id="welcome-screen" class="glass-card rounded-2xl shadow-xl p-12 text-center">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-newspaper text-4xl text-orange-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">Select a News Account</h2>
+                    <p class="text-gray-500 max-w-md mx-auto">Choose an account from the left panel to view the latest inbox emails with source copying capability</p>
+                </div>
+
+                <div id="emails-section" class="hidden">
+                    <div class="glass-card rounded-2xl shadow-xl overflow-hidden">
+                        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex justify-between items-center">
+                            <div class="flex items-center space-x-3">
+                                <h4 class="font-bold text-white text-lg" id="account-title">Emails</h4>
+                                <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm" id="email-count">0 emails</span>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div id="auto-refresh-status" class="flex items-center text-sm text-white/90">
+                                    <span class="auto-refresh-indicator w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                    Auto-refresh active
+                                </div>
+                                <button onclick="refreshEmails()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="emails-loading" class="hidden py-16 text-center bg-gray-50">
+                            <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-spinner loading-spinner text-purple-500 text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 font-medium">Loading emails...</p>
+                        </div>
+
+                        <div id="emails-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                        </div>
+
+                        <div id="no-emails" class="hidden py-16 text-center bg-gray-50">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-inbox text-3xl text-gray-400"></i>
+                            </div>
+                            <p class="text-gray-500 font-medium">No emails found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-3 rounded-xl shadow-2xl hidden toast flex items-center space-x-2">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Source copied!</span>
+    </div>
+
+    <div id="source-modal" class="modal-overlay fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="glass-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] m-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-white text-lg flex items-center">
+                    <i class="fas fa-code mr-3"></i>
+                    Email Source
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <button onclick="copySourceFromModal()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy All</span>
+                    </button>
+                    <button onclick="closeModal()" class="text-white/80 hover:text-white transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 overflow-auto max-h-[calc(85vh-80px)] bg-gray-50">
+                <pre id="source-content" class="text-xs bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto whitespace-pre-wrap font-mono"></pre>
+            </div>
+        </div>
+    </div>
+
+    {% if can_manage_news %}
+    <div id="manage-modal" class="modal-overlay fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="glass-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] m-4 flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex justify-between items-center flex-shrink-0">
+                <h3 class="font-bold text-white text-lg flex items-center">
+                    <i class="fas fa-cog mr-3"></i>
+                    Manage News Accounts
+                </h3>
+                <button onclick="closeManageModal()" class="text-white/80 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mr-3 shadow-lg">
+                            <i class="fas fa-plus text-white"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg">Add New Account</h4>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                        <div class="space-y-4">
+                            {% if user_entity == 'TSSW' %}
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-building mr-2 text-purple-500"></i>Entity
+                                </label>
+                                <select id="add-entity" class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                                    {% for entity in entities %}
+                                    <option value="{{ entity }}">{{ entity }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% else %}
+                            <input type="hidden" id="add-entity" value="{{ user_entity }}">
+                            {% endif %}
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-envelope mr-2 text-blue-500"></i>Gmail Address
+                                </label>
+                                <input type="email" id="add-email" placeholder="example@gmail.com" 
+                                       class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-key mr-2 text-amber-500"></i>App Password
+                                </label>
+                                <input type="text" id="add-password" placeholder="xxxx xxxx xxxx xxxx"
+                                       class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                            </div>
+                            <button onclick="addAccount()" class="btn-success w-full text-white px-6 py-3 rounded-xl font-semibold shadow-lg flex items-center justify-center space-x-2">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add Account</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center mr-3 shadow-lg">
+                            <i class="fas fa-list text-white"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg">Existing Accounts</h4>
+                    </div>
+                    <div id="manage-accounts-list" class="space-y-3 bg-gray-50 rounded-xl p-4 border border-gray-200 max-h-64 overflow-y-auto">
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-spinner loading-spinner text-2xl"></i>
+                            <p class="mt-2">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="glass-card rounded-2xl shadow-2xl max-w-md w-full m-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-white text-lg flex items-center">
+                    <i class="fas fa-edit mr-3"></i>
+                    Edit Account
+                </h3>
+                <button onclick="closeEditModal()" class="text-white/80 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <input type="hidden" id="edit-old-entity">
+                <input type="hidden" id="edit-old-email">
+                <div class="space-y-4">
+                    {% if user_entity == 'TSSW' %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-building mr-2 text-purple-500"></i>Entity
+                        </label>
+                        <select id="edit-entity" class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                            {% for entity in entities %}
+                            <option value="{{ entity }}">{{ entity }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <input type="hidden" id="edit-entity" value="{{ user_entity }}">
+                    {% endif %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-blue-500"></i>Gmail Address
+                        </label>
+                        <input type="email" id="edit-email" 
+                               class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-key mr-2 text-amber-500"></i>App Password
+                        </label>
+                        <input type="text" id="edit-password"
+                               class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none bg-white">
+                    </div>
+                    <button onclick="saveEditAccount()" class="btn-primary w-full text-white px-6 py-3 rounded-xl font-semibold shadow-lg flex items-center justify-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save Changes</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        let selectedAccount = null;
+        let eventSource = null;
+        let currentEmails = [];
+        const canManageNews = {{ 'true' if can_manage_news else 'false' }};
+        const userEntity = '{{ user_entity }}';
+
+        function selectAccount(accountKey) {
+            document.querySelectorAll('.account-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-account="${accountKey}"]`).classList.add('selected');
+            
+            selectedAccount = accountKey;
+            
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('emails-section').classList.remove('hidden');
+            
+            const accountCard = document.querySelector(`[data-account="${accountKey}"]`);
+            const entityName = accountCard.querySelector('.font-bold').textContent;
+            const emailAddr = accountCard.querySelector('.truncate').textContent;
+            document.getElementById('account-title').textContent = `${entityName} - ${emailAddr}`;
+            
+            startEventStream(accountKey);
+            fetchEmails(accountKey);
+        }
+
+        function startEventStream(accountKey) {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource(`/news_events/${accountKey}`);
+            
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.emails && !data.heartbeat) {
+                        updateEmailsList(data.emails);
+                    }
+                } catch (e) {
+                    console.error('Error parsing SSE data:', e);
+                }
+            };
+
+            eventSource.onerror = function() {
+                document.getElementById('auto-refresh-status').innerHTML = 
+                    '<span class="text-red-300"><i class="fas fa-exclamation-circle mr-1"></i>Connection lost</span>';
+                setTimeout(() => {
+                    if (selectedAccount) {
+                        startEventStream(selectedAccount);
+                    }
+                }, 5000);
+            };
+
+            eventSource.onopen = function() {
+                document.getElementById('auto-refresh-status').innerHTML = 
+                    '<span class="auto-refresh-indicator w-2 h-2 bg-green-400 rounded-full mr-2"></span>Auto-refresh active';
+            };
+        }
+
+        async function fetchEmails(accountKey) {
+            document.getElementById('emails-loading').classList.remove('hidden');
+            document.getElementById('emails-list').classList.add('hidden');
+            document.getElementById('no-emails').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/news_emails/${accountKey}`);
+                const data = await response.json();
+                
+                document.getElementById('emails-loading').classList.add('hidden');
+                
+                if (data.success && data.emails) {
+                    updateEmailsList(data.emails);
+                } else {
+                    document.getElementById('no-emails').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching emails:', error);
+                document.getElementById('emails-loading').classList.add('hidden');
+                document.getElementById('no-emails').classList.remove('hidden');
+            }
+        }
+
+        function refreshEmails() {
+            if (selectedAccount) {
+                fetchEmails(selectedAccount);
+            }
+        }
+
+        function updateEmailsList(emails) {
+            currentEmails = emails;
+            const container = document.getElementById('emails-list');
+            const noEmails = document.getElementById('no-emails');
+            
+            document.getElementById('email-count').textContent = `${emails.length} emails`;
+            
+            if (!emails || emails.length === 0) {
+                container.classList.add('hidden');
+                noEmails.classList.remove('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            noEmails.classList.add('hidden');
+            
+            container.innerHTML = emails.map((email, index) => `
+                <div class="email-row px-6 py-4 flex items-center justify-between bg-white">
+                    <div class="flex-1 min-w-0 mr-4">
+                        <div class="flex items-center space-x-3 mb-1">
+                            <span class="font-semibold text-gray-800">${escapeHtml(email.from_name)}</span>
+                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">@${escapeHtml(email.from_domain)}</span>
+                            <span class="folder-badge folder-${(email.folder || 'primary').toLowerCase()}">${escapeHtml(email.folder || 'Primary')}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 truncate">${escapeHtml(email.subject)}</div>
+                        <div class="text-xs text-gray-400 mt-1 flex items-center">
+                            <i class="fas fa-clock mr-1"></i>${escapeHtml(email.date)}
+                        </div>
+                    </div>
+                    <button onclick="copySource('${email.uid}')" 
+                            class="copy-btn bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap shadow-lg transition-all flex items-center space-x-2">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Source</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    textarea.style.top = '0';
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    return success;
+                }
+            } catch (err) {
+                console.error('Clipboard copy failed:', err);
+                return false;
+            }
+        }
+        
+        async function copySource(uid) {
+            if (!selectedAccount) return;
+            
+            try {
+                const btn = event.target.closest('button');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner loading-spinner"></i>';
+                btn.disabled = true;
+
+                const response = await fetch(`/api/email_source/${selectedAccount}/${uid}`);
+                const data = await response.json();
+                
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+
+                if (data.success && data.source) {
+                    const success = await copyToClipboard(data.source);
+                    if (success) {
+                        showToast('Source copied to clipboard!');
+                    } else {
+                        showToast('Failed to copy to clipboard', true);
+                    }
+                } else {
+                    showToast('Failed to get email source', true);
+                }
+            } catch (error) {
+                console.error('Error copying source:', error);
+                showToast('Error copying source', true);
+            }
+        }
+
+        async function viewSource(uid) {
+            if (!selectedAccount) return;
+            
+            try {
+                const response = await fetch(`/api/email_source/${selectedAccount}/${uid}`);
+                const data = await response.json();
+                
+                if (data.success && data.source) {
+                    document.getElementById('source-content').textContent = data.source;
+                    document.getElementById('source-modal').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error viewing source:', error);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('source-modal').classList.add('hidden');
+        }
+
+        async function copySourceFromModal() {
+            const source = document.getElementById('source-content').textContent;
+            const success = await copyToClipboard(source);
+            if (success) {
+                showToast('Source copied to clipboard!');
+            } else {
+                showToast('Failed to copy to clipboard', true);
+            }
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (isError) {
+                toast.className = 'fixed top-16 right-6 bg-gradient-to-r from-red-500 to-rose-500 text-white px-5 py-3 rounded-xl shadow-2xl toast flex items-center space-x-2 z-[1000]';
+            } else {
+                toast.className = 'fixed top-16 right-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-3 rounded-xl shadow-2xl toast flex items-center space-x-2 z-[1000]';
+            }
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.getElementById('source-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                if (canManageNews) {
+                    closeManageModal();
+                    closeEditModal();
+                }
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+
+        function openManageModal() {
+            if (!canManageNews) return;
+            document.getElementById('manage-modal').classList.remove('hidden');
+            loadManageAccounts();
+        }
+
+        function closeManageModal() {
+            const modal = document.getElementById('manage-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function loadManageAccounts() {
+            if (!canManageNews) return;
+            const container = document.getElementById('manage-accounts-list');
+            container.innerHTML = '<div class="text-center py-6 text-gray-500"><i class="fas fa-spinner loading-spinner text-2xl"></i><p class="mt-2">Loading...</p></div>';
+            
+            try {
+                const response = await fetch('/api/news_accounts');
+                const data = await response.json();
+                
+                if (data.success && data.accounts) {
+                    if (data.accounts.length === 0) {
+                        container.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-inbox text-3xl mb-2"></i><p>No accounts found</p></div>';
+                    } else {
+                        container.innerHTML = data.accounts.map(account => `
+                            <div class="manage-account-row bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-lg
+                                        ${account.entity === 'TSS1' ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 
+                                          account.entity === 'TSS2' ? 'bg-gradient-to-br from-green-400 to-green-600' : 
+                                          account.entity === 'TSS3' ? 'bg-gradient-to-br from-yellow-400 to-amber-500' : 
+                                          account.entity === 'TSSF' ? 'bg-gradient-to-br from-orange-400 to-orange-600' : 
+                                          account.entity === 'TSSW' ? 'bg-gradient-to-br from-red-400 to-red-600' : 'bg-gradient-to-br from-gray-400 to-gray-600'}">
+                                        ${account.entity.charAt(account.entity.length - 1)}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">${escapeHtml(account.entity)}</div>
+                                        <div class="text-xs text-gray-500">${escapeHtml(account.email)}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="openEditModal('${escapeHtml(account.entity)}', '${escapeHtml(account.email)}', '${escapeHtml(account.app_password)}')" 
+                                            class="w-10 h-10 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-600 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteAccount('${escapeHtml(account.entity)}', '${escapeHtml(account.email)}')" 
+                                            class="w-10 h-10 rounded-xl bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    container.innerHTML = '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p>Error loading accounts</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p>Error loading accounts</p></div>';
+            }
+        }
+
+        async function addAccount() {
+            if (!canManageNews) return;
+            const entity = document.getElementById('add-entity').value;
+            const email = document.getElementById('add-email').value.trim();
+            const password = document.getElementById('add-password').value.trim();
+            
+            if (!email || !password) {
+                showToast('Please fill in all fields', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/news_accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entity, email, app_password: password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Account added successfully!');
+                    document.getElementById('add-email').value = '';
+                    document.getElementById('add-password').value = '';
+                    loadManageAccounts();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.error || 'Failed to add account', true);
+                }
+            } catch (error) {
+                console.error('Error adding account:', error);
+                showToast('Error adding account', true);
+            }
+        }
+
+        function openEditModal(entity, email, password) {
+            if (!canManageNews) return;
+            document.getElementById('edit-old-entity').value = entity;
+            document.getElementById('edit-old-email').value = email;
+            document.getElementById('edit-entity').value = entity;
+            document.getElementById('edit-email').value = email;
+            document.getElementById('edit-password').value = password;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('edit-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function saveEditAccount() {
+            if (!canManageNews) return;
+            const oldEntity = document.getElementById('edit-old-entity').value;
+            const oldEmail = document.getElementById('edit-old-email').value;
+            const entity = document.getElementById('edit-entity').value;
+            const email = document.getElementById('edit-email').value.trim();
+            const password = document.getElementById('edit-password').value.trim();
+            
+            if (!email || !password) {
+                showToast('Please fill in all fields', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/news_accounts', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        old_entity: oldEntity,
+                        old_email: oldEmail,
+                        entity, 
+                        email, 
+                        app_password: password 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Account updated successfully!');
+                    closeEditModal();
+                    loadManageAccounts();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.error || 'Failed to update account', true);
+                }
+            } catch (error) {
+                console.error('Error updating account:', error);
+                showToast('Error updating account', true);
+            }
+        }
+
+        async function deleteAccount(entity, email) {
+            if (!canManageNews) return;
+            if (!confirm(`Are you sure you want to delete ${email}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/news_accounts', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entity, email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Account deleted successfully!');
+                    loadManageAccounts();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.error || 'Failed to delete account', true);
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                showToast('Error deleting account', true);
+            }
+        }
+
+        // Attach functions to window for global accessibility from onclick handlers
+        window.openManageModal = openManageModal;
+        window.closeManageModal = closeManageModal;
+        window.loadManageAccounts = loadManageAccounts;
+        window.addAccount = addAccount;
+        window.openEditModal = openEditModal;
+        window.closeEditModal = closeEditModal;
+        window.saveEditAccount = saveEditAccount;
+        window.deleteAccount = deleteAccount;
+        window.selectAccount = selectAccount;
+        window.copySource = copySource;
+        window.refreshEmails = refreshEmails;
+        window.closeModal = closeModal;
+        window.copySourceFromModal = copySourceFromModal;
+
+        if (canManageNews) {
+            document.getElementById('manage-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeManageModal();
+                }
+            });
+
+            document.getElementById('edit-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEditModal();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

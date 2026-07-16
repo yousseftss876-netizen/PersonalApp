@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubDomain Finder - TSS Services</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        .glass-card {
+            background: rgba(255,255,255,0.93);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+
+        .process-card {
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            transition: box-shadow .2s;
+        }
+        .process-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .process-card.deleted-card { background: #fffbeb; border-color: #fde68a; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+        }
+        .status-running      { background: #dcfce7; color: #166534; }
+        .status-paused       { background: #fef9c3; color: #854d0e; }
+        .status-completed    { background: #dbeafe; color: #1e40af; }
+        .status-stopped      { background: #fee2e2; color: #991b1b; }
+        .status-starting     { background: #f3e8ff; color: #6b21a8; }
+        .status-stopping     { background: #ffedd5; color: #9a3412; }
+        .status-interrupted  { background: #fef3c7; color: #92400e; }
+
+        .progress-bar-bg { background: #e2e8f0; border-radius: 999px; height: 6px; }
+        .progress-bar    { border-radius: 999px; height: 6px; transition: width .5s ease; }
+
+        .domain-result-row { border-bottom: 1px solid #f1f5f9; }
+        .domain-result-row:last-child { border-bottom: none; }
+
+        .sub-tag {
+            display: inline-block;
+            background: #f1f5f9; color: #334155;
+            padding: 1px 8px; border-radius: 6px;
+            font-size: 11.5px; font-family: 'Courier New', monospace;
+            margin: 2px;
+        }
+
+        textarea { resize: vertical; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff; border: none; border-radius: 9px;
+            padding: 10px 22px; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: opacity .2s;
+            display: inline-flex; align-items: center; gap: 7px;
+        }
+        .btn-primary:hover { opacity: .88; }
+        .btn-primary:disabled { opacity: .42; cursor: not-allowed; }
+
+        .btn-sm {
+            padding: 5px 12px; font-size: 12px; border-radius: 7px;
+            font-weight: 600; cursor: pointer; transition: opacity .18s;
+            display: inline-flex; align-items: center; gap: 5px; border: none;
+        }
+        .btn-sm:disabled { opacity: .38; cursor: not-allowed; }
+        .btn-danger    { background: #fee2e2; color: #dc2626; }
+        .btn-danger-hard { background: #dc2626; color: #fff; }
+        .btn-pause     { background: #fef9c3; color: #92400e; }
+        .btn-resume    { background: #dcfce7; color: #166534; }
+        .btn-stop      { background: #ffedd5; color: #c2410c; }
+        .btn-csv       { background: #dbeafe; color: #1d4ed8; }
+        .btn-ghost     { background: #f1f5f9; color: #475569; }
+        .btn-sm:hover  { opacity: .78; }
+
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,.35);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast {
+            position: fixed; top: 72px; right: 20px; z-index: 9999;
+            padding: 10px 18px; border-radius: 10px; font-size: 13px;
+            font-weight: 600; color: #fff; display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,.15);
+            animation: slideIn .25s ease;
+        }
+        @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        details > summary { list-style: none; cursor: pointer; user-select: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        .new-process-panel {
+            border: 2px dashed #bae6fd;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+
+        .domain-counter {
+            font-size: 11px; font-weight: 600; color: #0369a1;
+            background: #e0f2fe; border-radius: 999px;
+            padding: 2px 10px; display: inline-block;
+        }
+
+        .section-tab {
+            padding: 7px 16px; border-radius: 8px; font-size: 13px;
+            font-weight: 600; cursor: pointer; border: none;
+            transition: all .2s;
+        }
+        .section-tab.active { background: #8b5cf6; color: #fff; }
+        .section-tab:not(.active) { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+        .section-tab:not(.active):hover { background: rgba(255,255,255,0.25); }
+
+        .user-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #ede9fe; color: #6d28d9;
+            padding: 2px 8px; border-radius: 999px;
+            font-size: 11px; font-weight: 700;
+        }
+        .archived-banner {
+            background: #fef3c7; color: #92400e;
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 11px; font-weight: 600;
+        }
+/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "SubDomain Finder" %}
+    {% set page_icon = "ph-planet" %}
+    {% include '_header.html' %}
+
+    <div id="toast" class="toast"></div>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+
+        <!-- ═══ NEW PROCESS PANEL ═══ -->
+        <div class="new-process-panel p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+                    <i class="ph ph-plus text-white text-base"></i>
+                </div>
+                <h2 class="text-base font-bold text-sky-900">New Process</h2>
+                {% if sf_max_processes > 1 %}
+                <span class="text-xs text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full">Up to {{ sf_max_processes }} concurrent</span>
+                {% endif %}
+                {% if sf_max_domains > 0 %}
+                <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Max {{ sf_max_domains }} domains/process</span>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-sky-800 mb-1">Process Name <span class="font-normal text-sky-500">(optional)</span></label>
+                        <input id="processName" type="text" placeholder="e.g. Q2 Scan, Client Audit..."
+                            class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-sky-400 focus:outline-none">
+                    </div>
+                    <div class="flex-1 flex flex-col justify-end">
+                        {% if sf_max_processes == 0 %}
+                        <button id="startBtn" class="btn-primary w-full justify-center opacity-50 cursor-not-allowed" disabled title="You are not allowed to launch processes">
+                            <i class="ph ph-lock"></i> Launching Disabled
+                        </button>
+                        <p class="text-xs text-red-500 mt-2 text-center">
+                            <i class="ph ph-warning"></i> Your account has no process slots. Contact your administrator.
+                        </p>
+                        {% else %}
+                        <button id="startBtn" class="btn-primary w-full justify-center" onclick="startProcess()">
+                            <i class="ph ph-rocket-launch"></i> Launch Process
+                        </button>
+                        <p class="text-xs text-sky-600 mt-2 text-center">
+                            <i class="ph ph-info"></i> Each process runs its own independent set of domains
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-semibold text-sky-800">Domains for this process <span class="text-sky-500 font-normal">(one per line)</span></label>
+                        <span id="newProcDomainCount" class="domain-counter">0 domains</span>
+                    </div>
+                    <textarea id="newProcDomains" rows="6"
+                        class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm font-mono bg-white focus:ring-2 focus:ring-sky-400 focus:outline-none"
+                        placeholder="example.com&#10;domain.net&#10;another.org&#10;..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ MY PROCESS LIST ═══ -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    <i class="ph ph-list-checks text-slate-400"></i> Your Processes
+                </h2>
+                <button onclick="loadProcesses()" class="btn-sm btn-ghost text-xs">
+                    <i class="ph ph-arrows-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div id="processList">
+                <div class="text-center py-12 text-slate-400">
+                    <i class="ph ph-hourglass" style="font-size:36px"></i>
+                    <p class="mt-2 text-sm">Loading processes...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+    const SF_MAX_DOMAINS = {{ sf_max_domains }};
+    const SF_MAX_PROCESSES = {{ sf_max_processes }};
+
+    let pollTimer = null;
+
+    // ── Toast ──────────────────────────────────────────────
+    function showToast(msg, type='success') {
+        const t = document.getElementById('toast');
+        t.style.background = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+        t.textContent = msg;
+        t.style.display = 'block';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    // ── Domain counter ─────────────────────────────────────
+    document.getElementById('newProcDomains').addEventListener('input', function() {
+        const n = this.value.split('\n').filter(l => l.trim()).length;
+        document.getElementById('newProcDomainCount').textContent = n + ' domain' + (n !== 1 ? 's' : '');
+    });
+
+    // ── Init ───────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const r = await fetch('/api/subdomain-finder/processes');
+            const d = await r.json();
+            const procs = d.processes || [];
+            renderProcesses(procs);
+            if (hasActiveProcesses(procs)) startPolling();
+        } catch(e) { /* silent */ }
+    });
+
+    // ── Start process ──────────────────────────────────────
+    async function startProcess() {
+        if (SF_MAX_PROCESSES === 0) {
+            showToast('You are not allowed to launch processes. Contact your administrator.', 'error');
+            return;
+        }
+        const name = document.getElementById('processName').value.trim();
+        const rawDomains = document.getElementById('newProcDomains').value;
+        const domains = rawDomains.split('\n').map(l => l.trim()).filter(l => l);
+
+        if (domains.length === 0) {
+            showToast('Please enter at least one domain.', 'error');
+            return;
+        }
+        if (SF_MAX_DOMAINS > 0 && domains.length > SF_MAX_DOMAINS) {
+            showToast(`Too many domains. Limit is ${SF_MAX_DOMAINS} per process.`, 'error');
+            return;
+        }
+
+        const btn = document.getElementById('startBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Launching...';
+
+        try {
+            const r = await fetch('/api/subdomain-finder/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, domains})
+            });
+            const d = await r.json();
+            if (d.error) { showToast(d.error, 'error'); }
+            else {
+                showToast('Process launched!');
+                document.getElementById('processName').value = '';
+                document.getElementById('newProcDomains').value = '';
+                document.getElementById('newProcDomainCount').textContent = '0 domains';
+                loadProcesses();
+                if (!pollTimer) startPolling();
+            }
+        } catch(e) { showToast('Failed to start', 'error'); }
+        finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ph ph-rocket-launch"></i> Launch Process';
+        }
+    }
+
+    // ── Process list ───────────────────────────────────────
+    async function loadProcesses() {
+        try {
+            const r = await fetch('/api/subdomain-finder/processes');
+            const d = await r.json();
+            renderProcesses(d.processes || []);
+        } catch(e) { /* silent */ }
+    }
+
+    function hasActiveProcesses(processes) {
+        return processes.some(p => p.status === 'running' || p.status === 'starting');
+    }
+
+    function startPolling() {
+        clearInterval(pollTimer);
+        pollTimer = setInterval(async () => {
+            try {
+                const r = await fetch('/api/subdomain-finder/processes');
+                const d = await r.json();
+                const procs = d.processes || [];
+                renderProcesses(procs);
+                if (!hasActiveProcesses(procs)) {
+                    clearInterval(pollTimer);
+                    pollTimer = null;
+                }
+            } catch(e) { /* silent */ }
+        }, 4000);
+    }
+
+    function renderProcesses(processes) {
+        const container = document.getElementById('processList');
+        if (!processes.length) {
+            container.innerHTML = `<div class="text-center py-12 text-slate-400">
+                <i class="ph ph-planet" style="font-size:42px"></i>
+                <p class="mt-2 text-sm font-medium">No processes yet</p>
+                <p class="text-xs mt-1">Enter your domains above and click <strong>Launch Process</strong></p>
+            </div>`;
+            return;
+        }
+
+        const openKeys = new Set();
+        container.querySelectorAll('details[data-key]').forEach(el => {
+            if (el.open) openKeys.add(el.getAttribute('data-key'));
+        });
+
+        container.innerHTML = processes.map(p => renderProcessCard(p)).join('');
+
+        container.querySelectorAll('details[data-key]').forEach(el => {
+            if (openKeys.has(el.getAttribute('data-key'))) el.open = true;
+        });
+    }
+
+    function statusBadge(status) {
+        const map = {
+            running:      ['status-running',      'ph-pulse',          'Running'],
+            paused:       ['status-paused',        'ph-pause-circle',   'Paused'],
+            completed:    ['status-completed',     'ph-check-circle',   'Completed'],
+            stopped:      ['status-stopped',       'ph-stop-circle',    'Stopped'],
+            starting:     ['status-starting',      'ph-clock',          'Starting'],
+            stopping:     ['status-stopping',      'ph-hourglass',      'Stopping'],
+            interrupted:  ['status-interrupted',   'ph-warning-circle', 'Interrupted'],
+        };
+        const [cls, icon, label] = map[status] || ['status-starting', 'ph-question', status];
+        return `<span class="status-badge ${cls}"><i class="ph ${icon}"></i>${label}</span>`;
+    }
+
+    function progressPct(proc) {
+        if (!proc.total) return 0;
+        return Math.round((proc.progress / proc.total) * 100);
+    }
+
+    function totalSubdomains(proc) {
+        let n = 0;
+        for (const subs of Object.values(proc.results || {})) n += subs.length;
+        return n;
+    }
+
+    function renderProcessCard(proc) {
+        const pct = progressPct(proc);
+        const totalSubs = totalSubdomains(proc);
+        const isActive = ['running','paused','starting','stopping'].includes(proc.status);
+        const isInterrupted = proc.status === 'interrupted';
+        const canPause   = proc.status === 'running';
+        const canResume  = (proc.status === 'paused' || isInterrupted);
+        const canStop    = ['running','paused'].includes(proc.status);
+        const canDelete  = !['running','paused','starting'].includes(proc.status);
+        const isDeleted  = proc.deleted;
+
+        const barColor = proc.status === 'completed'   ? '#0ea5e9' :
+                         proc.status === 'paused'      ? '#f59e0b' :
+                         proc.status === 'stopped'     ? '#ef4444' :
+                         proc.status === 'interrupted' ? '#f59e0b' : '#0ea5e9';
+
+        const domains = proc.domains || [];
+        const results = proc.results || {};
+
+        const domainsRows = domains.map(d => {
+            const subs = results[d] || [];
+            const done = d in results;
+            const subCount = subs.length;
+            return `<div class="domain-result-row py-2 px-4">
+                <div class="flex items-center justify-between flex-wrap gap-1">
+                    <div class="flex items-center gap-2">
+                        ${done
+                            ? `<i class="ph ph-check-circle text-green-500 text-sm"></i>`
+                            : (isActive
+                                ? `<i class="ph ph-clock text-amber-400 text-sm"></i>`
+                                : `<i class="ph ph-minus-circle text-slate-300 text-sm"></i>`)}
+                        <span class="text-sm font-mono font-medium text-slate-700">${escHtml(d)}</span>
+                    </div>
+                    <span class="text-xs ${subCount > 0 ? 'text-sky-600 font-semibold' : 'text-slate-400'}">
+                        ${subCount} subdomain${subCount !== 1 ? 's' : ''}
+                    </span>
+                </div>
+            </div>`;
+        }).join('');
+
+        const cardClass = isDeleted ? 'process-card mb-4 deleted-card' : 'process-card mb-4';
+
+        return `<div class="${cardClass}">
+            <div class="flex items-center justify-between flex-wrap gap-3 px-4 py-3 border-b border-gray-100">
+                <div class="flex items-center gap-3 flex-wrap">
+                    ${statusBadge(proc.status)}
+                    ${isDeleted ? `<span class="archived-banner"><i class="ph ph-archive"></i> Archived</span>` : ''}
+                    <span class="font-bold text-slate-800 text-sm">${escHtml(proc.name)}</span>
+                    <span class="text-xs text-slate-400">${proc.started_at}</span>
+                    ${proc.finished_at ? `<span class="text-xs text-slate-400">→ ${proc.finished_at}</span>` : ''}
+                    ${isInterrupted ? `<span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full"><i class="ph ph-warning"></i> App restarted — resume to continue</span>` : ''}
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">${totalSubs} subdomains</span>
+                    <span class="text-xs text-slate-400">${proc.progress}/${proc.total} domains</span>
+                    ${canPause  ? `<button class="btn-sm btn-pause"  onclick="pauseProcess('${proc.key}')"><i class="ph ph-pause"></i>Pause</button>` : ''}
+                    ${canResume ? `<button class="btn-sm btn-resume" onclick="resumeProcess('${proc.key}')"><i class="ph ph-play"></i>Resume</button>` : ''}
+                    ${canStop   ? `<button class="btn-sm btn-stop"   onclick="stopProcess('${proc.key}')"><i class="ph ph-stop"></i>Stop</button>` : ''}
+                    <button class="btn-sm btn-csv" onclick="downloadCsv('${proc.key}','${escAttr(proc.name)}')" ${totalSubs === 0 ? 'disabled' : ''}>
+                        <i class="ph ph-download-simple"></i>CSV
+                    </button>
+                    ${canDelete ? `<button class="btn-sm btn-danger" onclick="deleteProcess('${proc.key}')"><i class="ph ph-trash"></i>Delete</button>` : ''}
+                </div>
+            </div>
+
+            <div class="px-4 py-2">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar" style="width:${pct}%;background:${barColor}"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 mt-0.5">
+                    <span>${proc.progress} of ${proc.total} domains scanned</span>
+                    <span>${pct}%</span>
+                </div>
+            </div>
+
+            <details data-key="${proc.key}" ${isActive || domains.length <= 6 ? 'open' : ''}>
+                <summary class="px-4 py-2 text-xs font-semibold text-sky-600 hover:text-sky-800 flex items-center gap-1 border-t border-gray-50">
+                    <i class="ph ph-caret-right"></i>
+                    Domain results (${domains.length} domain${domains.length !== 1 ? 's' : ''})
+                </summary>
+                <div class="max-h-72 overflow-y-auto border-t border-gray-100">
+                    ${domainsRows || '<div class="px-4 py-3 text-sm text-slate-400">No domains.</div>'}
+                </div>
+            </details>
+        </div>`;
+    }
+
+    // ── Process actions (user) ─────────────────────────────
+    async function pauseProcess(key) {
+        const r = await fetch('/api/subdomain-finder/pause', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key})
+        });
+        const d = await r.json();
+        if (d.error) showToast(d.error, 'error');
+        else { showToast('Process paused', 'warn'); loadProcesses(); }
+    }
+    window.pauseProcess = pauseProcess;
+
+    async function resumeProcess(key) {
+        const r = await fetch('/api/subdomain-finder/resume', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key})
+        });
+        const d = await r.json();
+        if (d.error) showToast(d.error, 'error');
+        else { showToast('Process resumed'); loadProcesses(); if (!pollTimer) startPolling(); }
+    }
+    window.resumeProcess = resumeProcess;
+
+    async function stopProcess(key) {
+        if (!confirm('Stop this process? Progress so far will be saved.')) return;
+        const r = await fetch('/api/subdomain-finder/stop', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key})
+        });
+        const d = await r.json();
+        if (d.error) showToast(d.error, 'error');
+        else { showToast('Process stopped', 'warn'); loadProcesses(); }
+    }
+    window.stopProcess = stopProcess;
+
+    async function deleteProcess(key) {
+        if (!confirm('Remove this process from your view? Admins can still see it in the archive.')) return;
+        const r = await fetch('/api/subdomain-finder/delete', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key})
+        });
+        const d = await r.json();
+        if (d.error) showToast(d.error, 'error');
+        else { showToast('Removed from your view'); loadProcesses(); }
+    }
+    window.deleteProcess = deleteProcess;
+
+    function downloadCsv(key, name) {
+        const a = document.createElement('a');
+        a.href = `/api/subdomain-finder/csv/${key}`;
+        a.download = `subdomains_${name}_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    window.downloadCsv = downloadCsv;
+
+    // ── Utilities ──────────────────────────────────────────
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+        return String(s).replace(/'/g,"\\'").replace(/"/g,'\\"');
+    }
+    </script>
+</body>
+</html>

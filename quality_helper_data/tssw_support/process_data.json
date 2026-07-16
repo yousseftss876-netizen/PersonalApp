@@ -1,0 +1,26 @@
+{
+  "status": "completed",
+  "created_at": "2026-02-06T14:09:19.482347",
+  "keywords_used": [
+    "car insurance",
+    "dog pet",
+    "cute cat"
+  ],
+  "total_requested": 3,
+  "total_fetched": 1,
+  "subjects": [
+    "When a brand realized it needed a coffee delivery service"
+  ],
+  "images": [
+    {
+      "filename": "When_a_brand_realized_it_needed_a_coffee_delivery_service.jpg",
+      "url": "https://i.pinimg.com/originals/18/4b/97/184b973611e8456b4d6e384795047123.jpg",
+      "keyword": "cute cat",
+      "subject": "When a brand realized it needed a coffee delivery service",
+      "size_kb": 127
+    }
+  ],
+  "image_links": [
+    "When_a_brand_realized_it_needed_a_coffee_delivery_service.jpg"
+  ]
+}

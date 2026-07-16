@@ -1,0 +1,16 @@
+[
+  {
+    "key": "omar_eloutmani_20260218_143732",
+    "gmail_email": "daenerys.targaryen.west@gmail.com",
+    "folder_label": "[Gmail]/Important",
+    "mode_label": "Full Email Source",
+    "range_from": 1,
+    "range_to": 10,
+    "status": "completed",
+    "email_count": 10,
+    "output_file": "emails_20260218_143732.txt",
+    "started_at": "2026-02-18 14:37:32",
+    "finished_at": "2026-02-18 14:37:45",
+    "error": null
+  }
+]

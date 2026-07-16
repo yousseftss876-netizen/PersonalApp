@@ -1,0 +1,149 @@
+I bet even if your traffic dropped more than 10% we can grow your
+revenue.
+
+Just check out the math.
+
+Most companies focus on traffic, but very rarely do they optimize
+for conversions.
+
+A 1% conversion lift is worth more than 10% of your traffic.
+
+Quick math: Going from a 2% to 3% conversion rate = 50% more
+conversions.
+
+No extra traffic needed.
+
+That's why the smartest teams right now aren't obsessing over
+traffic numbers.
+
+They're optimizing conversion rates, building AI visibility, and
+meeting customers on platforms where they already spend time.
+
+Next Tuesday, I'm walking through the complete playbook:
+
+​How to Grow When Your Organic Traffic is Declining (
+https://e22d5796.click.convertkit-mail4.com/75ur3d8946i8h6q3k6nb9uwrrmr66bnh0n8g/reh8hohm4e988wb2/aHR0cHM6Ly9hZHZhbmNlZC5ucGRpZ2l0YWwuY29tL2hvdy10by1ncm93LXdoZW4teW91ci1vcmdhbmljLXRyYWZmaWMtaXMtZGVjbGluaW5nLWxpdmUtd2ViaW5hci8_Y2YtZW1haWw9ZmF0Y3V0Lm5ldCU0MGdtYWlsLmNvbSZjZi1mbmFtZT0mY2YtbGFzdC1jYW1wYWlnbi1zb3VyY2U9VVMlMjAtJTIwTWt0JTIwQ2FtcGFpZ25zJTIwLSUyME1RTCUyMC0lMjBMaXZlJTIwV2ViaW5hciUyMC0lMjBIb3clMjB0byUyMEdyb3clMjBXaGVuJTIwWW91ciUyME9yZ2FuaWMlMjBUcmFmZmljJmNmLWxuYW1lPSZjZi11cmw9JnV0bV9jYW1wYWlnbj11cy1ta3QtY2FtcGFpZ25zLW1xbC1saXZlLXdlYmluYXItaG93LXRvLWdyb3ctd2hlbi15b3VyLW9yZ2FuaWMtdHJhZmZpYyZ1dG1fY29udGVudD1tYXJrZXRpbmctdHJlbmRzJnV0bV9tZWRpdW09ZW1haWwmdXRtX3NvdXJjZT1jb252ZXJ0a2l0LWxpc3QmdXRtX3Rlcm09Y2stZmVicnVhcnktMTItMjY=
+)​
+
+Tuesday, February 17 at 8 a.m. PST
+
+What we'll cover:
+
+* The new metrics that matter (citations > clicks)
+* High-impact CRO strategies for 2026
+* Social commerce tactics (TikTok Shop grew 407% last year)
+* Paid ad hacks: retargeting delivers 4-5x ROAS vs. cold traffic
+* A 30-day action plan you can start immediately
+
+🗓️ Register now to get the live link and replay access. (
+https://e22d5796.click.convertkit-mail4.com/75ur3d8946i8h6q3k6nb9uwrrmr66bnh0n8g/reh8hohm4e988wb2/aHR0cHM6Ly9hZHZhbmNlZC5ucGRpZ2l0YWwuY29tL2hvdy10by1ncm93LXdoZW4teW91ci1vcmdhbmljLXRyYWZmaWMtaXMtZGVjbGluaW5nLWxpdmUtd2ViaW5hci8_Y2YtZW1haWw9ZmF0Y3V0Lm5ldCU0MGdtYWlsLmNvbSZjZi1mbmFtZT0mY2YtbGFzdC1jYW1wYWlnbi1zb3VyY2U9VVMlMjAtJTIwTWt0JTIwQ2FtcGFpZ25zJTIwLSUyME1RTCUyMC0lMjBMaXZlJTIwV2ViaW5hciUyMC0lMjBIb3clMjB0byUyMEdyb3clMjBXaGVuJTIwWW91ciUyME9yZ2FuaWMlMjBUcmFmZmljJmNmLWxuYW1lPSZjZi11cmw9JnV0bV9jYW1wYWlnbj11cy1ta3QtY2FtcGFpZ25zLW1xbC1saXZlLXdlYmluYXItaG93LXRvLWdyb3ctd2hlbi15b3VyLW9yZ2FuaWMtdHJhZmZpYyZ1dG1fY29udGVudD1tYXJrZXRpbmctdHJlbmRzJnV0bV9tZWRpdW09ZW1haWwmdXRtX3NvdXJjZT1jb252ZXJ0a2l0LWxpc3QmdXRtX3Rlcm09Y2stZmVicnVhcnktMTItMjY=
+)​
+
+Cheers,
+
+Neil Patel
+
+​
+
+PS: If your traffic is dropping and you just want my team to fix
+it for you, schedule a call. (
+https://e22d5796.click.convertkit-mail4.com/75ur3d8946i8h6q3k6nb9uwrrmr66bnh0n8g/08hwh9h2vk088zcl/aHR0cHM6Ly9ucGRpZ2l0YWwuY29tL2NvbnN1bHRpbmcvP2NmLWVtYWlsPWZhdGN1dC5uZXQlNDBnbWFpbC5jb20mY2YtZm5hbWU9JmNmLWxhc3QtY2FtcGFpZ24tc291cmNlPVVTJTIwLSUyME1rdCUyMENhbXBhaWducyUyMC0lMjBNUUwlMjAtJTIwTGl2ZSUyMFdlYmluYXIlMjAtJTIwSG93JTIwdG8lMjBHcm93JTIwV2hlbiUyMFlvdXIlMjBPcmdhbmljJTIwVHJhZmZpYyZjZi1sbmFtZT0mY2YtdXJsPSZ1dG1fY2FtcGFpZ249dXMtbWt0LWNhbXBhaWducy1tcWwtbGl2ZS13ZWJpbmFyLWhvdy10by1ncm93LXdoZW4teW91ci1vcmdhbmljLXRyYWZmaWMmdXRtX2NvbnRlbnQ9bWFya2V0aW5nLXRyZW5kcy1wcy1uZXctY29uc3VsdGluZyZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9zb3VyY2U9Y29udmVydGtpdC1saXN0JnV0bV90ZXJtPWNrLWZlYnJ1YXJ5LTEyLTI2
+)​
+
+​
+​
+
+Unsubscribe (
+https://e22d5796.unsubscribe.convertkit-mail4.com/75ur3d8946i8h6q3k6nb9uwrrmr66bnh0n8g
+) | Update your profile (
+https://preferences.convertkit-mail4.com/75ur3d8946i8h6q3k6nb9uwrrmr66bnh0n8g
+) | 9710 River Trader St, Las Vegas, Nevada 89178
+__SEP__
+The most expensive mistake you can make in marketing is guessing.
+
+When you guess wrong, you waste budget and time. There is a
+better way. You can simply look at the data.
+
+As you know, AnswerThePublic aggregates insights across Search,
+Social, Shopping, and AI to show you what your market is
+searching for.
+
+With our latest releases, you can translate SERP data (
+https://e22d5796.click.convertkit-mail4.com/gkukw30xpqh5hlr60o4urh8eele99cmh29r3/x0hph6heoz6pq4i5/aHR0cHM6Ly9hbnN3ZXJ0aGVwdWJsaWMuY29tL3ByaWNpbmc_dXRtX2NhbXBhaWduPXVzLW1rdC1jYW1wYWlnbnMtbXFsLXZhbGVudGluZXMtdG9vbHMtZW1haWwtbmVpbC1jayZ1dG1fY29udGVudD10b29scy1wcm9tb3Rpb25hbCZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9zb3VyY2U9Y29udmVydGtpdC1saXN0JnV0bV90ZXJtPWNrLWZlYnJ1YXJ5LTE0LTI2
+) into content that actually ranks.
+
+(
+https://e22d5796.click.convertkit-mail4.com/gkukw30xpqh5hlr60o4urh8eele99cmh29r3/x0hph6heoz6pq4i5/aHR0cHM6Ly9hbnN3ZXJ0aGVwdWJsaWMuY29tL3ByaWNpbmc_dXRtX2NhbXBhaWduPXVzLW1rdC1jYW1wYWlnbnMtbXFsLXZhbGVudGluZXMtdG9vbHMtZW1haWwtbmVpbC1jayZ1dG1fY29udGVudD10b29scy1wcm9tb3Rpb25hbCZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9zb3VyY2U9Y29udmVydGtpdC1saXN0JnV0bV90ZXJtPWNrLWZlYnJ1YXJ5LTE0LTI2
+)
+When you upgrade to a Yearly Plan right now, I will give you 4
+months of access for free.
+
+​See what your audience wants right now (
+https://e22d5796.click.convertkit-mail4.com/gkukw30xpqh5hlr60o4urh8eele99cmh29r3/x0hph6heoz6pq4i5/aHR0cHM6Ly9hbnN3ZXJ0aGVwdWJsaWMuY29tL3ByaWNpbmc_dXRtX2NhbXBhaWduPXVzLW1rdC1jYW1wYWlnbnMtbXFsLXZhbGVudGluZXMtdG9vbHMtZW1haWwtbmVpbC1jayZ1dG1fY29udGVudD10b29scy1wcm9tb3Rpb25hbCZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9zb3VyY2U9Y29udmVydGtpdC1saXN0JnV0bV90ZXJtPWNrLWZlYnJ1YXJ5LTE0LTI2
+) (Offer closes Feb 18th)
+
+Cheers,
+Neil Patel
+
+P.S. Not sure where to start with your new data? Hit reply and my
+team will help you strategize.
+
+Unsubscribe (
+https://e22d5796.unsubscribe.convertkit-mail4.com/gkukw30xpqh5hlr60o4urh8eele99cmh29r3
+) | Update your profile (
+https://preferences.convertkit-mail4.com/gkukw30xpqh5hlr60o4urh8eele99cmh29r3
+) | 9710 River Trader St, Las Vegas, Nevada 89178
+__SEP__
+View this post on the web at https://pomp.substack.com/p/my-10-takeaways-from-bitcoin-investor
+
+Today’s letter is brought to you by MoonPay [ https://substack.com/redirect/3a22f684-b694-409d-b365-45abbd5c471d?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]!
+Join over 30 million users who trust MoonPay as their universal crypto account.
+We make it easy to buy and sell crypto in over 180 countries [ https://substack.com/redirect/3a22f684-b694-409d-b365-45abbd5c471d?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ], with no-to-low fees and all your favourite payment methods like Venmo, PayPal, Apple Pay, card and more.
+MoonPay [ https://substack.com/redirect/3a22f684-b694-409d-b365-45abbd5c471d?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] is the only account you need in the DeFi ecosystem. Trade, stake and build your portfolio all in one place.
+Start now and get zero MoonPay fees on your first transaction.
+To investors,
+I hosted Bitcoin Investor Week in New York City last week. Thousands of investors attended to hear from more than 45 speakers or meet new people at the various side events and happy hours. Conversations ranged from understanding the recent drawdown in bitcoin’s price to underwriting the odds of deflation to unpacking the convergence of artificial intelligence and bitcoin.
+Here are the major takeaways that I had from the week:
+Bitcoin investors have been here before — many investors have previously held bitcoin through numerous drawdowns of 50% or more, so there was a lack of panic that was noticeable throughout the event. Multiple members of the media explicitly called this out to me as well. This lack of panic gives me the idea that odds are higher that the current bear market will be shallower and shorter than historical comparisons. 
+Institutions have arrived — past bitcoin conferences were filled with promises of institutions on the way. The conversation this year was centered around the progress that institutions have made in bitcoin, including the highly successful launch of the Bitcoin ETFs, the various public companies that hold bitcoin on their balance sheet, the accelerated adoption of digital credit, the fast growth of stablecoins, the current initiatives in tokenization, and the requirement that each legacy financial organization have a bitcoin or crypto strategy.
+Bitcoin and artificial intelligence are on a collision course — it was nearly impossible to have a conversation with a professional investor or an entrepreneur without both technologies coming up. It is obvious that bitcoin and AI are the future of finance. There was plenty of speculation on how AI agents will transact or store value, so naturally bitcoin and stablecoins were the popular answers. 
+Deflation is a big risk — my personal view is that deflationary pressure from tariffs, deportations, artificial intelligence and robotics are swallowing the US economy. I asked many speakers or attendees whether they agreed and the majority of answers were aligned with my view. There are some outstanding concerns about the economic data or the government’s continued money printing, but overall people seemed satisfied that high inflation was not going to be a problem in the short-term.
+Financial advisors are holding or adding bitcoin to portfolios — Bitwise CIO Matt Hougan explained that a recent survey showed that 99% of financial advisors who already had client assets in bitcoin were either “holding” or “adding” based on the recent price drawdown. That data suggests the RIA channel is convinced of the long-term return potential of the asset, which creates sticky capital from their clients.
+Institutions holding Bitcoin ETFs are not selling — Blackrock’s Robert Mitchnick explained that majority of the institutions holding Bitcoin ETFs have been holding their exposure during the bitcoin drawdown. He sees continued demand from Blackrock clients and believes there is considerable more room for growth in the ETF allocations.
+Stablecoins are not going away — multiple speakers explained that stablecoin growth has been impressive, but the more important data point is how ingrained stablecoins are becoming in legacy institutions’ strategies. It feels like stablecoins are the third crypto product to find true product-market fit after bitcoin and crypto exchanges. 
+No one wants to call “bottom” yet — the price of bitcoin may be down 50%, yet there were not many takers when I asked various folks to claim the market had bottomed. People are cautious because it seems the past scars of previous bear markets has forced them to prepare for an even more significant drop in price. 
+All eyes are on the Strategic Bitcoin Reserve — the consensus feeling about the SBR is happiness that it was put together, but disappointment that the government has not purchased more bitcoin. If the market needs a new catalyst to rally higher, purchases for the SBR could be a simple way to ignite the end of the bear market.
+Nothing stops this train — there was not a single person I spoke with at the conference who believes the US government can balance the budget, stop printing money, or lower the national debt. The widespread belief is that assets that benefit from debasement (bitcoin/gold/real estate/etc) will do very well over the next decade, especially as the current administration runs the economy hot and drives economic growth.
+I really enjoyed putting together Bitcoin Investor Week. We will be posting many of the on-stage interviews on our main YouTube channel [ https://substack.com/redirect/18c73b90-2df6-4ce7-ac67-7f7c85108fb9?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]. You can watch my conversations with Dan Ives [ https://substack.com/redirect/c57abf01-313f-4c6d-894f-2d5c3f79d84e?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] and Jordi Visser [ https://substack.com/redirect/e6a25fc4-105b-4c4b-8b38-91011ba6f7d5?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] already. If you subscribe to the channel [ https://substack.com/redirect/18c73b90-2df6-4ce7-ac67-7f7c85108fb9?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ], you will get updated on each conversation we release for the next two weeks or so.
+Hope you all have a great start to your week. I will talk to you next time.
+- Anthony J. Pompliano
+Founder & CEO, Professional Capital Management
+The Bitcoin Rotation No One Sees Coming [ https://substack.com/redirect/3892f8ca-5964-4868-8733-46fd1224d742?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]
+Jordi Visser is a veteran macro investor with 30+ years of experience and the author of the VisserLabs Substack. This conversation was recorded at Bitcoin Investor Week in New York. 
+In this episode, we break down why software stocks are losing their moats, how AI is driving deflation, and why capital is rotating toward scarce assets. We explore hyperscalers, data centers, AI agents, and why bitcoin may emerge as the only true growth asset in a world of abundant intelligence.
+Podcast Sponsors
+Arch Public [ https://substack.com/redirect/351864f4-0c41-43f2-a2a6-1d28b9a7bcd8?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Arch Public’s cutting-edge algorithm tools ignite profits, harnessing razor-sharp data analytics to nail perfect entries, exits, and risk management. Turn volatility into opportunity and do it hands free with Arch Public. (Oh, and yes, try us out for FREE too!)
+Figure [ https://substack.com/redirect/a5c907be-5807-4c2d-88bc-d7ad7ce1e376?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] – Enter to win $25k USDC with Democratized Prime while earning ~9% APY! They also have the lowest industry interest rates at 8.91% with 12 month terms! Take out a Bitcoin Backed Loan today and buy more Bitcoin. Check out Figure [ https://substack.com/redirect/4c64a23f-c532-4aea-9a28-8e178c7c7d31?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]! Figure Lending LLC dba Figure. Equal Opportunity Lender. NMLS 1717824. Terms and conditions apply.
+Award-winning Fountain Life [ https://substack.com/redirect/03205c2b-a6f4-4623-8ac3-ef6ddd218e75?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Energy supercharged. Memory sharper. Life extended. Ready for the best investment you’ll ever make? Schedule a life-changing call at www.FountainLife.com [ https://substack.com/redirect/03205c2b-a6f4-4623-8ac3-ef6ddd218e75?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]
+Bitget [ https://substack.com/redirect/e49e5a0e-6ee6-4b58-90b7-f6d5edc673a0?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Bitget [ https://substack.com/redirect/e49e5a0e-6ee6-4b58-90b7-f6d5edc673a0?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] is the world’s largest Universal Exchange (UEX) [ https://substack.com/redirect/ff061483-4a46-4d29-a4ca-ec42016868e0?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ], serving over 125 million users with access to over 2M+ crypto tokens, and TradFi markets such as 100+ tokenized stocks, ETFs, commodities, FX and precious metal like Gold.
+Gemini [ https://substack.com/redirect/c49df233-7501-443f-982b-1961efe7f2e2?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Earn crypto rewards on every purchase with the new Gemini Credit Card [ https://substack.com/redirect/c49df233-7501-443f-982b-1961efe7f2e2?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ].
+Abra [ https://substack.com/redirect/9d73e02b-2ea5-456a-b2b4-070cb26316e0?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - This podcast is sponsored by Abra. Abra is the secure way to access crypto and crypto based yield and loan products through a separately managed account. To create an account, click here [ https://substack.com/redirect/a47c20c8-a56f-40ad-81c4-81928fb196ac?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] for individuals and here [ https://substack.com/redirect/e579601d-ebcf-4157-a73d-769c68d9b2d9?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] for entities.
+BitcoinIRA [ https://substack.com/redirect/ed3784b8-7f1c-41c4-bfc9-aced48804f61?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Buy, sell, and swap 75+ cryptocurrencies in your retirement account. Pay less taxes. Earn up to $1,000 in rewards [ https://substack.com/redirect/ed3784b8-7f1c-41c4-bfc9-aced48804f61?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ].
+Simple Mining [ https://substack.com/redirect/3207cf46-5830-4dee-b55e-7337b6803e11?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] offers a premium white-glove Bitcoin mining service. Want to grow your Bitcoin stack? Visit https://www.simplemining.io/
+Summ [ https://substack.com/redirect/f4756620-d34b-4fdf-a2f0-f8b6c4d21ee3?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] – (formerly Crypto Tax Calculator) generates accurate IRS-ready tax reports that help maximize deductions and pay the least tax possible. With support for 3,500+ exchanges, wallets, and protocols, Summ makes crypto taxes simple. Visit Summ.com [ https://substack.com/redirect/f4756620-d34b-4fdf-a2f0-f8b6c4d21ee3?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] and get 20% off with code POMP20.
+Bitlayer [ https://substack.com/redirect/5b2f3838-0594-4d5e-9f3a-1bab86d104ad?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ] - Bitlayer is powering Bitcoin beyond just a store of value, making Bitcoin DeFi a reality while staying true to its core principles of security and decentralization. Learn more about Bitlayer at https://x.com/BitlayerLabs [ https://substack.com/redirect/5b2f3838-0594-4d5e-9f3a-1bab86d104ad?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]
+🚨READER NOTE: If you want to sponsor The Pomp Letter, you can fill out this form [ https://substack.com/redirect/0762b5f6-1dcf-4f64-94b7-f826c353e5e9?j=eyJ1IjoiM2hhNmhxIn0.fGjLyd93AVW2aVkcEYUIldVPqY9OipuTNb2QRZyO0uU ]and someone from our team will get in touch with you.
+You are receiving The Pomp Letter because you either signed up or you attended one of the events that I spoke at. Feel free to unsubscribe if you aren’t finding this valuable. Nothing in this email is intended to serve as financial advice. Do your own research.
+
+Unsubscribe https://substack.com/redirect/2/eyJlIjoiaHR0cHM6Ly9wb21wLnN1YnN0YWNrLmNvbS9hY3Rpb24vZGlzYWJsZV9lbWFpbD90b2tlbj1leUoxYzJWeVgybGtJam95TVRBME1qWTVOelFzSW5CdmMzUmZhV1FpT2pFNE9EQTNPVFF4TVN3aWFXRjBJam94TnpjeE1qVTRORGM0TENKbGVIQWlPakU0TURJM09UUTBOemdzSW1semN5STZJbkIxWWkweE16Z3pJaXdpYzNWaUlqb2laR2x6WVdKc1pWOWxiV0ZwYkNKOS5IaFRObDIzSy1CNGtPR3lDeHI5dHV5MTRNRGdwUWFsQmpUZjRmT3huLXRBIiwicCI6MTg4MDc5NDExLCJzIjoxMzgzLCJmIjp0cnVlLCJ1IjoyMTA0MjY5NzQsImlhdCI6MTc3MTI1ODQ3OCwiZXhwIjoyMDg2ODM0NDc4LCJpc3MiOiJwdWItMCIsInN1YiI6ImxpbmstcmVkaXJlY3QifQ.H_ABixeX4W9_Q3n106EWQMLCLZkB_2D4piIusW04mtI?
+__SEP__
+<div style="font-size:14px;line-height:20px;color:#171a22"><h1 class="desktop-only" style="margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;text-align:left;font-weight:700;font-size:32px;line-height:37px">Site Audit</h1><h1 class="mobile-only" style="margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;text-align:left;font-weight:700;font-size:22px;line-height:26px;display:none">Site Audit</h1><table class="desktop-only" style="border-collapse:collapse;border-spacing:0;padding:0;width:100%" width="100%"><tbody><tr><td height="24" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:24px;line-height:24px;border-collapse:collapse" align="left">&nbsp;</td></tr></tbody></table><table class="mobile-only" style="border-collapse:collapse;border-spacing:0;padding:0;display:none;width:100%" width="100%"><tbody><tr><td height="16" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:16px;line-height:16px;border-collapse:collapse" align="left">&nbsp;</td></tr></tbody></table><div style="font-size:14px;line-height:20px;color:#171a22"><div><span style="color:#575c66">Project:</span> <a class="link" href="https://www.semrush.com/siteaudit/campaign/23279079/review/overview?utm_source=tech_delivery&utm_medium=site_audit&utm_campaign=site_audit_tech&utm_content=failed_to_complete&utm_term=go_to_project" style="font-weight:400;line-height:normal;margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;text-align:left;-webkit-text-decoration-line:underline;text-decoration-line:underline;color:#0082e6">cleveroutlay.com</a></div><div><span style="color:#575c66">Website URL:</span> <a class="link-suppress" name="domain" style="font-weight:400;line-height:normal;margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;text-align:left;color:#171a22;text-decoration:none">cleveroutlay.com</a></div><div><span style="color:#575c66">Date:</span> Feb 16, 2026 (14:52:34) <a class="link" href="https://www.semrush.com/siteaudit/?wizard=23279079&saWizardField=scheduleDay&utm_source=tech_delivery&utm_medium=site_audit&utm_campaign=site_audit_tech&utm_content=failed_to_complete&utm_term=edit_scheduling" style="font-weight:400;line-height:normal;margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;text-align:left;-webkit-text-decoration-line:underline;text-decoration-line:underline;color:#0082e6">Edit Schedule</a></div></div><table class="desktop-only" style="border-collapse:collapse;border-spacing:0;padding:0;width:100%" width="100%"><tbody><tr><td height="24" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:24px;line-height:24px;border-collapse:collapse" align="left">&nbsp;</td></tr></tbody></table><table class="mobile-only" style="border-collapse:collapse;border-spacing:0;padding:0;display:none;width:100%" width="100%"><tbody><tr><td height="16" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:16px;line-height:16px;border-collapse:collapse" align="left">&nbsp;</td></tr></tbody></table><div style="border-radius:10px;padding:20px 24px;color:#171a22;max-width:100%;box-sizing:border-box;background-color:#fee8eb"><table style="border-collapse:collapse;border-spacing:0;padding:0"><tbody><tr><td style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;width:40px;padding:10px 0 0 10px;vertical-align:top;border-collapse:collapse" width="40" align="left" valign="top"><img src="https://www.semrush.com/siteaudit/static/img/email/icon-delta-warning-red.png" width="22" height="auto" style="height:auto;line-height:100%;outline:0;text-decoration:none;border:0"></td><td style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;border-collapse:collapse" align="left"><span style="font-weight:700;font-size:16px;line-height:24px">Failed To Complete Site Audit</span><table style="border-collapse:collapse;border-spacing:0;padding:0;width:100%" width="100%"><tbody><tr><td height="8" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:8px;line-height:8px;border-collapse:collapse" align="left">&nbsp;</td></tr></tbody></table><span>We couldn’t complete the site audit you ran on Feb 16, 2026 because of a crawl error. </span> </td></tr><tr><td style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;margin:0;padding:0;mso-line-height-rule:exactly;font-size:14px;line-height:14px;border-collapse:collapse" align="left">&nbsp;</td></tr><tr><td colspan="2" style="font-family:Helvetica,Arial,sans-serif;text-align:left;word-wrap:break-word;font-weight:400;-webkit-hyphens:auto;hyphens:auto;border-collapse:collapse" align="left"><a href="https://www.semrush.com/siteaudit/campaign/23279079/review/?utm_source=tech_delivery&utm_medium=site_audit&utm_campaign=site_audit_tech&utm_content=failed_to_complete&utm_term=go_to_project" class="warning__button" style="font-weight:400;margin:0;font-family:Helvetica,Arial,sans-serif;border:1px solid transparent;border-radius:6px;box-sizing:border-box;display:inline-block;font-size:16px;line-height:24px;padding:13px 24px;text-align:center;text-decoration:none;background-color:#f71939;color:#fff;margin-left:49px">Go to Site Audit</a></td></tr></tbody></table></div> </div>
+
+
+If you do not wish to receive these emails in the future, please click <a href="https://www.semrush.com/messaging/unsubscribe?token=eyJhbGciOiJQUzI1NiIsImtpZCI6IjEwMTM5ODIxNjMxMjUyODQ4MDQ4IiwidHlwIjoiSldUIn0.eyJpc3MiOiJoZXJtZXMiLCJleHAiOjE3NzkwMjk1NTQsImlhdCI6MTc3MTI1MzU1NCwidiI6MiwidSI6MTgyMzgxODQsInMiOjUyLCJhIjoiMDE5YzY2ZjAtNWQ5MC03ZWZhLTg4NTctYjA4OTgyNmQ4NjBlIiwiciI6NDg5NDY5N30.GxvS2XWd0Rkf1YMuDGvi4UuGDDbx7Z-vp_5ss2Tl2_21gj2TmWl7fgP70nYfByzk-ALSYGto1MNbF4sNgffpNPdoJLjwA0VRxT1ZpkUfloQP_jx2oQY4o4z7Fi6obzsqbA6zrdlMQwiT73zIWmGwgHvy_kNZt4yE_vnRZdx5d_0ExIae_TN2HYJ4m3IyushiR8llnQJAzN2SE0ZdILr001VtA1ZPFksTzFctnxg-TO46DLdXl_orMkKTd7Wx25OwLXcHpgLsJetsrF9QOT01ey__8exTVdqohVK-SEcIhcdVv1NVDNG_bTBNJn8DoTM2oXXdnc-HZc4gCdKfYepuGw?utm_source=tech_delivery&amp;utm_medium=all_tools&amp;utm_campaign=layout_2021&amp;utm_content=unsubscribe">here</a>.
+
+If you have any other questions or concerns, do not hesitate to reach out to us. See our contact details – https://www.semrush.com/company/contacts/
+
+We hope you enjoy using Semrush!
+Sincerely,
+The Semrush Team.

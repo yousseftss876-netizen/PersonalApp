@@ -1,0 +1,54 @@
+[
+  {
+    "status": "completed",
+    "created_at": "2026-02-05T13:45:28.057478",
+    "successful_registrations": 2,
+    "failed_registrations": 3,
+    "success_rate": 40.0,
+    "total_domains_processed": 5,
+    "email_used": "yousseftss876@gmail.com",
+    "id": "a5e6fc7f-74a3-45ab-b023-1452957def26"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-03T14:36:31.473261",
+    "successful_registrations": 6,
+    "failed_registrations": 22,
+    "success_rate": 21.4,
+    "total_domains_processed": 28,
+    "email_used": "waynelucero78@gmail.com",
+    "id": "c6a7b901-1dfd-4aa6-b046-ea8ee7ce881b"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-03T14:34:54.556096",
+    "successful_registrations": 2,
+    "failed_registrations": 16,
+    "success_rate": 11.1,
+    "total_domains_processed": 18,
+    "email_used": "waynelucero78@gmail.com",
+    "id": "90be9296-a9ed-420d-824e-79574b499aa0"
+  },
+  {
+    "status": "stopped",
+    "created_at": "2026-02-01T18:29:25.201355",
+    "successful_registrations": 2,
+    "failed_registrations": 4,
+    "success_rate": 33.3,
+    "total_domains_processed": 6,
+    "email_used": "waynelucero78@gmail.com",
+    "invalid_domains": 0,
+    "id": "81670ec6-8bf6-4215-915d-01cc7c59d9b3"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-01T18:29:07.246517",
+    "successful_registrations": 3,
+    "failed_registrations": 21,
+    "success_rate": 12.5,
+    "total_domains_processed": 24,
+    "email_used": "waynelucero78@gmail.com",
+    "invalid_domains": 6,
+    "id": "e88d7a8e-a4bb-47d9-b227-8aa66151f5fa"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "key": "AdilBenmoussa_20260419_140559",
+    "gmail_email": "tss3.news3@gmail.com",
+    "folder_label": "[Gmail]/Important",
+    "mode_label": "Full Email Source",
+    "range_from": 1,
+    "range_to": 50,
+    "status": "completed",
+    "email_count": 50,
+    "output_file": "emails_20260419_140559.txt",
+    "started_at": "2026-04-19 14:05:59",
+    "finished_at": "2026-04-19 14:06:36",
+    "error": null
+  }
+]

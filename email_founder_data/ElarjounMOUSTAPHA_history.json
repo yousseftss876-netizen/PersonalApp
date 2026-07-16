@@ -1,0 +1,16 @@
+[
+  {
+    "key": "ElarjounMOUSTAPHA_20260406_153821",
+    "gmail_email": "islam36349@gmail.com",
+    "folder_label": "[Gmail]/Important",
+    "mode_label": "Full Email Source",
+    "range_from": 1,
+    "range_to": 100,
+    "status": "completed",
+    "email_count": 100,
+    "output_file": "emails_20260406_153821.txt",
+    "started_at": "2026-04-06 15:38:21",
+    "finished_at": "2026-04-06 15:38:53",
+    "error": null
+  }
+]

@@ -1,0 +1,97 @@
+# User Extraction Accounts
+# Format: username,email@gmail.com,app_password
+# Each user can only see and manage their own accounts
+
+
+
+
+y.ouiguemane,huawei.phonebox@gmail.com,gzbh iirt mwds ljig
+redouan,huawei.phonebox@gmail.com,gzbh iirt mwds ljig
+y.ouiguemane,jurfbyheh41@gmail.com,eaux dnsw uxhk ksyb
+oussama_almorabet,rmcmillanangela@gmail.com,itsgpsvgiibgslyk
+oussama_almorabet,testpaujouaftestall@gmail.com,leptspbtdhejvjkl
+oussama_almorabet,dracarys.areogon@gmail.com,tueo mjgd logk gtwa
+omar_eloutmani,testallteamc1@gmail.com,oxax ndca qvuf ebbm
+omar_eloutmani,daenerys.targaryen.west@gmail.com,vxox jksa megw fpdc
+omar_eloutmani,dracarys.areogon@gmail.com,tueo mjgd logk gtwa
+omar_eloutmani,rmcmillanangela@gmail.com,itsg psvg iibg slyk
+
+Adnan,testafter.adbou2503@gmail.com,zevjnandymqsctbo
+Adnan,tssctestall@gmail.com,fayacwygexlngzmc
+Adnan,wilamartjhon@gmail.com,npreljhfzdrcsdfr
+Adnan,all.biadodo@gmail.com,wsdayypeexmkorvh
+ElarjounMOUSTAPHA,taffa3161@gmail.com,bkhn jcbl bmkp htqu
+AdilBenmoussa,lwyngwern8x@gmail.com,jpjh pofg hjik xktt
+AdilBenmoussa,yvensjeane45@gmail.com,cxud nlfh qzaq coqn
+Elkhatib,chaimaeelkhatib.mailer@gmail.com,yzya rtqq iplb hjes
+oussama_almorabet,lauriasweet7@gmail.com,trbgydpwvvajvmaj
+faissal_tss3,info.userdeck@gmail.com,qfgk emsm lsxt ajtq
+faissal_tss3,franckririfana@gmail.com,xxmc oawg rgfu oafd
+faissal_tss3,test.all.new.v1@gmail.com,sniz ontl xybq mbxg
+faissal_tss3,newsletterssubscriber2022@gmail.com,qdth rcja nivw fhat
+faissal_tss3,ttonefit@gmail.com,ismd czcw wssz omhm
+redouan,kiorljz923@gmail.com,rxdl htnh mxua xqxo
+faissal_tss3,mariareddy28@gmail.com,ahfh bkxu idos tcza
+AdilBenmoussa,flebop55@gmail.com,vguj czqn jyxc sjur
+AdilBenmoussa,chippysnikksmf@gmail.com,jmva imoj nsms cwkj
+AdilBenmoussa,n1an2ao52@gmail.com,ishj qmso eeig qvtk
+ElHarrasRHIMOU,royalharosx@gmail.com,ukkz hufp qvyg uipl
+Rabab_Loumrani,katarinarestova4@gmail.com,tnrjunuusmycfali
+a.saber,jackfreedman008@gmail.com,qlxgmrjhgrciqfux
+h.mohamed,elhajjamahmed167@gmail.com,tbzyimsjyumgpccp
+b.mohamed,testmail00081@gmail.com,nabulnoehcqpmgsi
+b.houssam,houssambendrisstests@gmail.com,menipgqzezahnbqo
+b.mohamed,twsttest201@gmail.com,tadwtnvuoscwuqml
+e.dahab,josephnatania80@gmail.com,dulr gafi hmfe olhm
+
+a.soumaya,lauragomiz1326@gmail.com,rjlhbalchlakronk
+s.nada,yanikyamur7@gmail.com,arxkbixhxaixtxoh
+r.aya,arrdamhajar@gmail.com,ixbfktvqzjbgskri
+b.mohamed,varenelio2@gmail.com,pmjgfyddktuenkof
+b.houssam,georgeantoni8877@gmail.com,kxryhyycjlaeaptv
+h.mohamed,tomyeledez@gmail.com,afuuzzcgmocblzyt
+s.nada,darksamm65@gmail.com,nadanadalolo
+s.nada,darksamm65@gmail.com,oqgvnxkkiqvxvbbi
+e.dahab,lorra.jones12@gmail.com,onem skve mabl obwg
+
+er.douae,kaojwawje@gmail.com,occm gxsv rsys wsvs
+b.houssam,jamaldemarcusthethird3@gmail.com,lcavggvtmfrhodgc
+a.soumaya,normanalice0126@gmail.com,cjinhmrsgvhfrmxh
+b.houssam,jasminefererro@gmail.com,scuqdkcwtfcdogae
+Adnan,allcheck.bringit@gmail.com,eylndslvlmncqmoy
+
+a.saber,worldselenite@gmail.com,ddvafeiudhpoufzi
+abdelali,tssctestall@gmail.com,iwcj qhug yokp bkwp
+abdelali,wilamartjhon@gmail.com,obbu xxwe jvdf cmwq
+GHOUFRAN_HACHLAF,dracarys.areogon@gmail.com,tueo mjgd logk gtwa
+GHOUFRAN_HACHLAF,rmcmillanangela@gmail.com,itsgpsvgiibgslyk
+ElarjounMOUSTAPHA,chippysnikksmf@gmail.com,jmva imoj nsms cwkj
+ElarjounMOUSTAPHA,flebop55@gmail.com,vguj czqn jyxc sjur
+AdilBenmoussa,briksthea@gmail.com,spoo mefj zmtq zxln
+h.mohamed,fosternoah32@gmail.com,dqmuunnzggppsddj
+AdilBenmoussa,fontenotvmm@gmail.com,rjjb uumr qwmj sowt
+Ahmimed_Alae,carmatayson@gmail.com,vxbvekgqaatmispg
+Ahmimed_Alae,fernandecooper286@gmail.com,yoqkolizyifmttwp
+ElarjounMOUSTAPHA,n1an2ao52@gmail.com,ishj qmso eeig qvtk
+AdilBenmoussa,ludwigap4@gmail.com,vpnw ebvu gheo npmw
+b.houssam,mathewodway@gmail.com,jaoypbvjnadxpsnz
+b.houssam,alexandersanti665@gmail.com,rmkipyjefpoyiumz
+b.houssam,joshgarno55@gmail.com,lnyckypbbeqhfeqr
+GHOUFRAN_HACHLAF,mellophne93@gmail.com,veoo zkpn cosk srit
+h.mohamed,conerjerry5@gmail.com,cfzj nwfu lbwv qjtw
+ElarjounMOUSTAPHA,deigarl81@gmail.com,ndav vdwz finr fyrg
+GHOUFRAN_HACHLAF,rimorrffgfgh@gmail.com,ltms zxrs nomz whqi
+abdelali,testafter.adbou2503@gmail.com,zevj nand ymqs ctbo
+ElarjounMOUSTAPHA,sitramyy@gmail.com,pjcv jvio vpeo pskg
+Ahmimed_Alae,dracarys.areogon@gmail.com,tueomjgdlogkgtwa
+abdelali,allcheck.bringit@gmail.com,eyln dslv lmnc qmoy
+abdelali,iranganidammika5@gmail.com,hqjj serw zufp qnxe
+GHOUFRAN_HACHLAF,kipappettesatpx@gmail.com,znos jsrq xram ezzw
+
+Khaoula.Oughanem,info.userdeck@gmail.com,qfgk emsm lsxt ajtq
+Khaoula.Oughanem,franckririfana@gmail.com,xxmc oawg rgfu oafd
+faissal_tss3,a0982479064@gmail.com,mkyy pyme tqrq shiu
+
+Khaoula.Oughanem,a0982479064@gmail.com,mkyy pyme tqrq shiu
+AdilBenmoussa,dusanarq@gmail.com,iamzouoeubmsbsgg
+faissal_tss3,test.all.new.v1@gmail.com,sniz ontl xybq mbxg

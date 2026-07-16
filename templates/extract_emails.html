@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS Extract Emails - Service</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .user-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .extract-form {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .results-table {
+            /* Vertical scroll handled by inner scroll container */
+        }
+
+        .results-scroll {
+            max-height: calc(100vh - 320px);
+            min-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .results-scroll table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .results-scroll td,
+        .results-scroll th {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+        }
+
+        .results-scroll thead th {
+            position: sticky;
+            top: 0;
+            background: #f9fafb;
+            z-index: 10;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .status-pass {
+            color: #059669;
+            background-color: #d1fae5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-fail {
+            color: #dc2626;
+            background-color: #fee2e2;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-unknown {
+            color: #d97706;
+            background-color: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-neutral {
+            color: #6b7280;
+            background-color: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .email-type-inbox {
+            color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        
+        .email-type-spam {
+            color: #dc2626;
+            background-color: #fee2e2;
+        }
+        
+        .email-category {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        /* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    <!-- Header -->
+    {% set page_title = "TSS Extract Emails" %}
+    {% set page_icon = "ph-magnifying-glass" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Service Description -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Email Extraction & Analysis</h2>
+            <p class="text-gray-600 max-w-3xl mx-auto">
+                Extract emails from any Gmail account and analyze their security properties including SPF, DKIM status, 
+                sender IP addresses, and categorization. Use filters to target specific emails.
+            </p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-6 p-4 rounded-lg {% if category == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif category == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-triangle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Extraction Form -->
+        <div class="extract-form bg-white rounded-lg shadow-md p-8 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-cog mr-2 text-green-600"></i>
+                    Email Extraction Settings
+                </h3>
+                <button type="button" onclick="openManageExtractionModal()" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 shadow-lg transition-all">
+                    <i class="fas fa-cog"></i>
+                    <span>Manage Accounts</span>
+                </button>
+            </div>
+            
+            <form id="extractForm" method="POST">
+                <!-- Saved Accounts Dropdown for all users with Extract Emails permission -->
+                <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block">
+                        <i class="fas fa-bookmark mr-2 text-purple-600"></i>
+                        Quick Select - Saved Extraction Accounts
+                    </label>
+                    <select id="savedAccountSelect" onchange="fillFromSavedAccount()" class="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white">
+                        <option value="">-- Select a saved account or enter manually below --</option>
+                    </select>
+                    <p class="text-xs text-purple-600 mt-1">Select a saved account to auto-fill the credentials below</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Email Address -->
+                    <div class="flex flex-col">
+                        <label for="email_address" class="text-sm font-semibold text-gray-700 mb-2 required">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Email Address *
+                        </label>
+                        <input 
+                            type="email" 
+                            name="email_address" 
+                            id="email_address" 
+                            required
+                            placeholder="example@gmail.com"
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Gmail account to extract emails from</p>
+                    </div>
+
+                    <!-- App Password -->
+                    <div class="flex flex-col">
+                        <label for="app_password" class="text-sm font-semibold text-gray-700 mb-2 required">
+                            <i class="fas fa-key mr-2"></i>
+                            App Password *
+                        </label>
+                        <input 
+                            type="password" 
+                            name="app_password" 
+                            id="app_password" 
+                            required
+                            placeholder="xxxx xxxx xxxx xxxx"
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Gmail App Password (not regular password)</p>
+                    </div>
+                </div>
+
+                <!-- Folder Selection -->
+                <div class="mt-6">
+                    <label class="text-sm font-semibold text-gray-700 mb-3 block">
+                        <i class="fas fa-folder mr-2"></i>
+                        Email Folders
+                    </label>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input 
+                                type="radio" 
+                                name="folder_selection" 
+                                id="folder_all" 
+                                value="all" 
+                                checked
+                                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                            >
+                            <label for="folder_all" class="ml-2 text-sm text-gray-700">
+                                All Folders (Inbox + Spam)
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input 
+                                type="radio" 
+                                name="folder_selection" 
+                                id="folder_inbox" 
+                                value="inbox"
+                                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                            >
+                            <label for="folder_inbox" class="ml-2 text-sm text-gray-700">
+                                Inbox Only
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input 
+                                type="radio" 
+                                name="folder_selection" 
+                                id="folder_spam" 
+                                value="spam"
+                                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                            >
+                            <label for="folder_spam" class="ml-2 text-sm text-gray-700">
+                                Spam Only
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Limit Options -->
+                <div class="mt-6">
+                    <label class="text-sm font-semibold text-gray-700 mb-3 block">
+                        <i class="fas fa-list-ol mr-2"></i>
+                        Email Limit
+                    </label>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input 
+                                type="radio" 
+                                name="email_limit" 
+                                id="limit_all" 
+                                value="all" 
+                                checked
+                                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                            >
+                            <label for="limit_all" class="ml-2 text-sm text-gray-700">
+                                Get All Emails (No Limit)
+                            </label>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input 
+                                type="radio" 
+                                name="email_limit" 
+                                id="limit_custom" 
+                                value="limited"
+                                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                            >
+                            <label for="limit_custom" class="text-sm text-gray-700">Limited Emails:</label>
+                            <input 
+                                type="number" 
+                                name="custom_limit" 
+                                id="custom_limit" 
+                                min="1" 
+ 
+                                value="50"
+                                placeholder="50"
+                                disabled
+                                class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            >
+                            <span class="text-xs text-gray-500">(No limit)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extract Button -->
+                <div class="mt-8 text-center">
+                    <button 
+                        type="submit" 
+                        id="extractBtn"
+                        class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-105"
+                    >
+                        <i class="fas fa-search mr-2"></i>
+                        Extract Emails
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden text-center py-12">
+            <div class="loading-spinner inline-block w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mb-4"></div>
+            <p class="text-gray-600 text-lg">Extracting and analyzing emails...</p>
+            <p class="text-gray-500 text-sm">This may take a few moments</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <!-- Results Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-table mr-2 text-green-600"></i>
+                    Extraction Results
+                </h3>
+                <div class="flex space-x-4">
+                    <span id="resultsCount" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold"></span>
+                    <span id="filteredCount" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold hidden"></span>
+                    <button 
+                        id="exportBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors duration-200"
+                    >
+                        <i class="fas fa-download mr-2"></i>
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Filters -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-filter mr-2"></i>
+                    Dashboard Filters
+                </h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <label for="filter_domain" class="text-xs font-semibold text-gray-600 mb-1">From Domain</label>
+                        <input 
+                            type="text" 
+                            id="filter_domain" 
+                            placeholder="example.com"
+                            class="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="filter_subject" class="text-xs font-semibold text-gray-600 mb-1">Subject</label>
+                        <input 
+                            type="text" 
+                            id="filter_subject" 
+                            placeholder="Subject keywords..."
+                            class="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="results-table bg-white rounded-lg shadow-md">
+                <div class="results-scroll w-full">
+                    <table class="w-full">
+                        <colgroup>
+                            <col style="width: 11%;">
+                            <col style="width: 7%;">
+                            <col style="width: 7%;">
+                            <col style="width: 7%;">
+                            <col style="width: 13%;">
+                            <col style="width: 13%;">
+                            <col style="width: 20%;">
+                            <col style="width: 8%;">
+                            <col style="width: 14%;">
+                        </colgroup>
+                        <thead class="bg-gray-50 border-b border-gray-200">
+    <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex items-center justify-between">
+                <span>IP Address</span>
+                <button 
+                    id="copyIpBtn"
+                    class="ml-1 bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 rounded text-xs transition-colors"
+                    title="Copy all IP addresses"
+                >
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex flex-col items-start gap-1">
+                <span class="whitespace-nowrap">SPF</span>
+                <select id="spfFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
+                    <option value="All">All</option>
+                    <option value="PASS">PASS</option>
+                    <option value="NEUTRAL">NEUTRAL</option>
+                    <option value="UNKNOWN">UNKNOWN</option>
+                </select>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex flex-col items-start gap-1">
+                <span class="whitespace-nowrap">DKIM</span>
+                <select id="dkimFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
+                    <option value="All">All</option>
+                    <option value="PASS">PASS</option>
+                    <option value="NEUTRAL">NEUTRAL</option>
+                    <option value="UNKNOWN">UNKNOWN</option>
+                </select>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex flex-col items-start gap-1">
+                <span class="whitespace-nowrap">DMARC</span>
+                <select id="dmarcFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
+                    <option value="All">All</option>
+                    <option value="PASS">PASS</option>
+                    <option value="NEUTRAL">NEUTRAL</option>
+                    <option value="UNKNOWN">UNKNOWN</option>
+                </select>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex items-center justify-between">
+                <span>From Domain</span>
+                <button
+                    id="copyFromDomainBtn"
+                    class="ml-1 bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 rounded text-xs transition-colors"
+                    title="Copy all From Domains"
+                >
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex items-center justify-between">
+                <span>Return-Path</span>
+                <button
+                    id="copyReturnPathBtn"
+                    class="ml-1 bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 rounded text-xs transition-colors"
+                    title="Copy all Return-Path domains"
+                >
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex items-center justify-between">
+                <span>Subject</span>
+                <button
+                    id="copySubjectBtn"
+                    class="ml-1 bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 rounded text-xs transition-colors"
+                    title="Copy all Subjects"
+                >
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div class="flex flex-col items-start gap-1">
+                <span class="whitespace-nowrap">Type</span>
+                <select id="typeFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
+                    <option value="All">All</option>
+                    <option value="Inbox">INBOX</option>
+                    <option value="Spam">SPAM</option>
+                </select>
+            </div>
+        </th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Date
+        </th>
+    </tr>
+</thead>
+                        <tbody id="resultsTableBody" class="divide-y divide-gray-200">
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extractedData = [];
+        let filteredData = [];
+
+        // Handle radio button changes for email limit
+        document.querySelectorAll('input[name="email_limit"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const customLimitInput = document.getElementById('custom_limit');
+                if (this.value === 'limited') {
+                    customLimitInput.disabled = false;
+                    customLimitInput.focus();
+                } else {
+                    customLimitInput.disabled = true;
+                }
+            });
+        });
+
+        document.getElementById('extractForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const extractBtn = document.getElementById('extractBtn');
+            const loadingState = document.getElementById('loadingState');
+            const resultsSection = document.getElementById('resultsSection');
+
+            extractBtn.disabled = true;
+            extractBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Extracting...';
+            loadingState.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            try {
+                // Start the task in background — returns immediately with task_id
+                const startResp = await fetch('{{ url_for("extract_emails") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const startResult = await startResp.json();
+
+                if (!startResult.success) {
+                    alert('Error: ' + startResult.error);
+                    return;
+                }
+
+                // Poll until done
+                const taskId = startResult.task_id;
+                let done = false;
+                while (!done) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    const pollResp = await fetch(`/api/extract_emails/status/${encodeURIComponent(taskId)}`);
+                    const pollResult = await pollResp.json();
+
+                    if (pollResult.status === 'done') {
+                        done = true;
+                        extractedData = pollResult.data;
+                        filteredData = [...pollResult.data];
+                        displayResults(filteredData);
+                        updateCounts();
+                        resultsSection.classList.remove('hidden');
+                    } else if (pollResult.status === 'error') {
+                        done = true;
+                        alert('Error: ' + (pollResult.error || 'Unknown error'));
+                    }
+                    // status === 'running' → keep polling
+                }
+            } catch (error) {
+                alert('Error extracting emails: ' + error.message);
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Extract Emails';
+                loadingState.classList.add('hidden');
+            }
+        });
+
+        function displayResults(data) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+            
+            // OPTIMIZATION: Use DocumentFragment for faster DOM manipulation
+            const fragment = document.createDocumentFragment();
+            
+            // OPTIMIZATION: Progressive loading - show first 15 emails immediately, then load rest
+            const initialLoad = data.slice(0, 15);
+            const remainingData = data.slice(15);
+            
+            // Load first 15 emails immediately
+            initialLoad.forEach(email => {
+                const row = createEmailRow(email);
+                fragment.appendChild(row);
+            });
+            
+            tbody.appendChild(fragment);
+            
+            // Load remaining emails progressively to avoid blocking UI
+            if (remainingData.length > 0) {
+                setTimeout(() => {
+                    const remainingFragment = document.createDocumentFragment();
+                    remainingData.forEach(email => {
+                        const row = createEmailRow(email);
+                        remainingFragment.appendChild(row);
+                    });
+                    tbody.appendChild(remainingFragment);
+                }, 100); // Small delay to ensure UI responsiveness
+            }
+        }
+        
+        function createEmailRow(email) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="px-3 py-2 text-sm text-gray-900 truncate" title="${email.ip_address || 'N/A'}">${email.ip_address || 'N/A'}</td>
+                <td class="px-3 py-2 text-sm">
+                    <span class="status-${email.spf_status.toLowerCase()}">${email.spf_status}</span>
+                </td>
+                <td class="px-3 py-2 text-sm">
+                    <span class="status-${email.dkim_status.toLowerCase()}">${email.dkim_status}</span>
+                </td>
+                <td class="px-3 py-2 text-sm">
+                    <span class="status-${email.dmarc_status.toLowerCase()}">${email.dmarc_status}</span>
+                </td>
+                <td class="px-3 py-2 text-sm text-gray-900 truncate" title="${email.from_domain || 'N/A'}">${email.from_domain || 'N/A'}</td>
+                <td class="px-3 py-2 text-sm text-gray-900 truncate" title="${email.return_path || 'N/A'}">${email.return_path || 'N/A'}</td>
+                <td class="px-3 py-2 text-sm text-gray-900 truncate" title="${email.subject}">${truncateText(email.subject, 80)}</td>
+                <td class="px-3 py-2 text-sm">
+                    <span class="email-category email-type-${email.email_type.toLowerCase()}">${email.email_type}</span>
+                    ${email.category ? `<br><span class="email-category" style="background-color: #f3f4f6; color: #6b7280;">${email.category}</span>` : ''}
+                </td>
+                <td class="px-3 py-2 text-xs text-gray-500 truncate" title="${email.date}">${email.date}</td>
+            `;
+            
+            return row;
+        }
+
+        function updateCounts() {
+            document.getElementById('resultsCount').textContent = `${extractedData.length} total emails`;
+            const filteredCountEl = document.getElementById('filteredCount');
+            if (filteredData.length !== extractedData.length) {
+                filteredCountEl.textContent = `${filteredData.length} shown`;
+                filteredCountEl.classList.remove('hidden');
+            } else {
+                filteredCountEl.classList.add('hidden');
+            }
+        }
+
+        function applyFilters() {
+            const domainFilter = document.getElementById('filter_domain').value.toLowerCase().trim();
+            const subjectFilter = document.getElementById('filter_subject').value.toLowerCase().trim();
+            const spfFilter = document.getElementById('spfFilter').value;
+            const dkimFilter = document.getElementById('dkimFilter').value;
+            const dmarcFilter = document.getElementById('dmarcFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            filteredData = extractedData.filter(email => {
+                // Domain filter
+                if (domainFilter && !email.from_domain.toLowerCase().includes(domainFilter)) {
+                    return false;
+                }
+                
+                // Subject filter
+                if (subjectFilter && !email.subject.toLowerCase().includes(subjectFilter)) {
+                    return false;
+                }
+                
+                // SPF filter
+                if (spfFilter !== 'All' && email.spf_status !== spfFilter) {
+                    return false;
+                }
+                
+                // DKIM filter
+                if (dkimFilter !== 'All' && email.dkim_status !== dkimFilter) {
+                    return false;
+                }
+                
+                // DMARC filter
+                if (dmarcFilter !== 'All' && email.dmarc_status !== dmarcFilter) {
+                    return false;
+                }
+                
+                // Type filter
+                if (typeFilter !== 'All' && email.email_type !== typeFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+
+            displayResults(filteredData);
+            updateCounts();
+        }
+
+        // Add event listeners for all filters
+        document.getElementById('filter_domain').addEventListener('input', applyFilters);
+        document.getElementById('filter_subject').addEventListener('input', applyFilters);
+        document.getElementById('spfFilter').addEventListener('change', applyFilters);
+        document.getElementById('dkimFilter').addEventListener('change', applyFilters);
+        document.getElementById('dmarcFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+
+        // Copy IP addresses functionality - robust solution for web environments
+        document.getElementById('copyIpBtn').addEventListener('click', function() {
+            const ipAddresses = filteredData
+                .map(email => email.ip_address)
+                .filter(ip => ip && ip !== 'N/A')
+                .join('\n');
+            
+            if (ipAddresses) {
+                // Try modern clipboard API first, fallback to textarea method
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(ipAddresses).then(() => {
+                        showCopySuccess(this);
+                    }).catch(() => {
+                        fallbackCopyToClipboard(ipAddresses, this);
+                    });
+                } else {
+                    fallbackCopyToClipboard(ipAddresses, this);
+                }
+            } else {
+                alert('No IP addresses to copy');
+            }
+        });
+
+        function copyColumnValues(btn, getter, emptyMsg) {
+            const values = filteredData
+                .map(getter)
+                .filter(v => v && v !== 'N/A')
+                .join('\n');
+
+            if (!values) {
+                alert(emptyMsg);
+                return;
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(values).then(() => {
+                    showCopySuccess(btn);
+                }).catch(() => {
+                    fallbackCopyToClipboard(values, btn);
+                });
+            } else {
+                fallbackCopyToClipboard(values, btn);
+            }
+        }
+
+        document.getElementById('copyFromDomainBtn').addEventListener('click', function() {
+            copyColumnValues(this, e => e.from_domain, 'No From Domains to copy');
+        });
+
+        document.getElementById('copyReturnPathBtn').addEventListener('click', function() {
+            copyColumnValues(this, e => e.return_path, 'No Return-Path domains to copy');
+        });
+
+        document.getElementById('copySubjectBtn').addEventListener('click', function() {
+            copyColumnValues(this, e => e.subject, 'No Subjects to copy');
+        });
+
+        function showCopySuccess(btn) {
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            btn.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+                btn.classList.remove('bg-green-500');
+                btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }, 2000);
+        }
+
+        function fallbackCopyToClipboard(text, btn) {
+            // Create temporary textarea for fallback copy
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess(btn);
+                } else {
+                    // Last resort - show modal with text to manually copy
+                    showCopyModal(text);
+                }
+            } catch (err) {
+                showCopyModal(text);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function showCopyModal(text) {
+            // Create modal for manual copying
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                    <h3 class="text-lg font-semibold mb-4">Copy IP Addresses</h3>
+                    <p class="text-sm text-gray-600 mb-3">Select and copy the IP addresses below:</p>
+                    <textarea readonly class="w-full h-32 p-3 border border-gray-300 rounded text-sm font-mono" onclick="this.select()">${text}</textarea>
+                    <div class="flex justify-end mt-4">
+                        <button onclick="this.closest('.fixed').remove()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            exportToCSV(filteredData); // Export filtered data
+        });
+
+        function exportToCSV(data) {
+            if (data.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['IP Address', 'SPF Status', 'DKIM Status', 'DMARC Status', 'From Domain', 'Return-Path', 'Subject', 'Email Type', 'Category', 'Date'];
+            const csvContent = [
+                headers.join(','),
+                ...data.map(email => [
+                    email.ip_address || '',
+                    email.spf_status || '',
+                    email.dkim_status || '',
+                    email.dmarc_status || '',
+                    email.from_domain || '',
+                    email.return_path || '',
+                    `"${(email.subject || '').replace(/"/g, '""')}"`,
+                    email.email_type || '',
+                    email.category || '',
+                    email.date || ''
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `email_extraction_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ==========================================
+        // EXTRACTION ACCOUNTS MANAGEMENT (TSSW Only)
+        // ==========================================
+        let extractionAccounts = [];
+
+        // Load extraction accounts on page load (if TSSW user)
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedAccountSelect = document.getElementById('savedAccountSelect');
+            if (savedAccountSelect) {
+                loadExtractionAccounts();
+            }
+        });
+
+        // Load extraction accounts from API
+        let _isAdminView = false;
+        async function loadExtractionAccounts() {
+            try {
+                const response = await fetch('/api/extraction_accounts');
+                const result = await response.json();
+                
+                if (result.success) {
+                    extractionAccounts = result.accounts;
+                    _isAdminView = result.is_admin || false;
+                    populateAccountsDropdown();
+                    populateAccountsList();
+                }
+            } catch (error) {
+                console.error('Error loading extraction accounts:', error);
+                showExtractionToast('Failed to load saved accounts', 'error');
+            }
+        }
+
+        // Populate the dropdown with saved accounts
+        function populateAccountsDropdown() {
+            const select = document.getElementById('savedAccountSelect');
+            if (!select) return;
+            
+            // Clear existing options except first
+            select.innerHTML = '<option value="">-- Select a saved account or enter manually below --</option>';
+
+            if (_isAdminView) {
+                // Group by owner_name using <optgroup>
+                const groups = {};
+                extractionAccounts.forEach((account, index) => {
+                    const group = account.owner_name || account.username || 'Unknown';
+                    if (!groups[group]) groups[group] = [];
+                    groups[group].push({ account, index });
+                });
+                Object.entries(groups).forEach(([groupName, items]) => {
+                    const og = document.createElement('optgroup');
+                    og.label = groupName;
+                    items.forEach(({ account, index }) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = account.email;
+                        og.appendChild(option);
+                    });
+                    select.appendChild(og);
+                });
+            } else {
+                extractionAccounts.forEach((account, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = account.email;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        // Fill form from selected saved account
+        function fillFromSavedAccount() {
+            const select = document.getElementById('savedAccountSelect');
+            const index = select.value;
+            
+            if (index === '') {
+                document.getElementById('email_address').value = '';
+                document.getElementById('app_password').value = '';
+                return;
+            }
+            
+            const account = extractionAccounts[parseInt(index)];
+            if (account) {
+                document.getElementById('email_address').value = account.email;
+                document.getElementById('app_password').value = account.app_password;
+            }
+        }
+
+        // Open the manage accounts modal
+        function openManageExtractionModal() {
+            document.getElementById('extractionAccountsModal').classList.remove('hidden');
+            loadExtractionAccounts();
+        }
+
+        // Close the manage accounts modal
+        function closeManageExtractionModal() {
+            document.getElementById('extractionAccountsModal').classList.add('hidden');
+            clearAddAccountForm();
+        }
+
+        // Clear the add account form
+        function clearAddAccountForm() {
+            document.getElementById('newAccountEmail').value = '';
+            document.getElementById('newAccountPassword').value = '';
+        }
+
+        // Populate the accounts list in modal
+        function populateAccountsList() {
+            const container = document.getElementById('accountsList');
+            if (!container) return;
+
+            if (extractionAccounts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3"></i>
+                        <p>No extraction accounts saved yet</p>
+                        <p class="text-sm">Add your first account using the form above</p>
+                    </div>
+                `;
+                return;
+            }
+
+            function renderAccountRow(account, index) {
+                return `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-purple-300 transition-colors" data-index="${index}" data-is-legacy="${account.is_legacy || false}">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2 flex-wrap gap-1">
+                            <i class="fas fa-envelope text-purple-600"></i>
+                            <span class="text-gray-800 font-medium break-all">${escapeHtml(account.email)}</span>
+                            ${account.is_legacy ? '<span class="ml-2 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">Legacy</span>' : ''}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>Password: </span>
+                            <span id="pwd-display-${index}" class="font-mono">${'*'.repeat(8)}</span>
+                            <button onclick="togglePasswordVisibility(${index}, '${escapeHtml(account.app_password)}')" class="ml-2 text-purple-600 hover:text-purple-800">
+                                <i id="pwd-icon-${index}" class="fas fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <button onclick="openEditExtractionModal(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-sm transition-colors">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteExtractionAccount(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }
+
+            if (_isAdminView) {
+                // Group accounts by owner_name
+                const groups = {};
+                const groupOrder = [];
+                extractionAccounts.forEach((account, index) => {
+                    const gname = account.owner_name || account.username || 'Unknown';
+                    if (!groups[gname]) { groups[gname] = []; groupOrder.push(gname); }
+                    groups[gname].push({ account, index });
+                });
+
+                let html = '';
+                groupOrder.forEach(gname => {
+                    html += `
+                    <div class="mb-4">
+                        <div class="flex items-center gap-2 mb-2 px-1">
+                            <i class="fas fa-user text-indigo-400 text-xs"></i>
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">${escapeHtml(gname)}</span>
+                            <span class="ml-auto text-xs text-gray-400">${groups[gname].length} account${groups[gname].length !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="space-y-2 pl-1">
+                            ${groups[gname].map(({ account, index }) => renderAccountRow(account, index)).join('')}
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<div class="space-y-3">' +
+                    extractionAccounts.map((account, index) => renderAccountRow(account, index)).join('') +
+                    '</div>';
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Toggle password visibility in accounts list
+        let passwordVisibility = {};
+        function togglePasswordVisibility(index, password) {
+            const display = document.getElementById(`pwd-display-${index}`);
+            const icon = document.getElementById(`pwd-icon-${index}`);
+            
+            if (passwordVisibility[index]) {
+                display.textContent = '********';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                passwordVisibility[index] = false;
+            } else {
+                display.textContent = password;
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                passwordVisibility[index] = true;
+            }
+        }
+
+        // Toggle password visibility for new account form
+        function toggleNewPasswordVisibility() {
+            const input = document.getElementById('newAccountPassword');
+            const icon = document.getElementById('newPwdIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Toggle password visibility for edit account form
+        function toggleEditPasswordVisibility() {
+            const input = document.getElementById('editAccountPassword');
+            const icon = document.getElementById('editPwdIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Add new extraction account
+        async function addExtractionAccount() {
+            const email = document.getElementById('newAccountEmail').value.trim();
+            const app_password = document.getElementById('newAccountPassword').value.trim();
+            
+            if (!email || !app_password) {
+                showExtractionToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/extraction_accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, app_password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showExtractionToast('Account added successfully', 'success');
+                    clearAddAccountForm();
+                    loadExtractionAccounts();
+                } else {
+                    showExtractionToast(result.error || 'Failed to add account', 'error');
+                }
+            } catch (error) {
+                showExtractionToast('Error adding account', 'error');
+                console.error(error);
+            }
+        }
+
+        // Open edit modal for an account
+        function openEditExtractionModal(index) {
+            const account = extractionAccounts[index];
+            if (!account) return;
+            
+            document.getElementById('editAccountIndex').value = index;
+            document.getElementById('editAccountOldEmail').value = account.email;
+            document.getElementById('editAccountEmail').value = account.email;
+            document.getElementById('editAccountPassword').value = account.app_password;
+            
+            document.getElementById('editExtractionModal').classList.remove('hidden');
+        }
+
+        // Close edit modal
+        function closeEditExtractionModal() {
+            document.getElementById('editExtractionModal').classList.add('hidden');
+        }
+
+        // Save edited account
+        async function saveEditExtractionAccount() {
+            const index = document.getElementById('editAccountIndex').value;
+            const old_email = document.getElementById('editAccountOldEmail').value;
+            const email = document.getElementById('editAccountEmail').value.trim();
+            const app_password = document.getElementById('editAccountPassword').value.trim();
+            const account = extractionAccounts[index];
+            const is_legacy = account ? (account.is_legacy || false) : false;
+            
+            if (!email || !app_password) {
+                showExtractionToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/extraction_accounts', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_email, email, app_password, is_legacy })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showExtractionToast('Account updated successfully', 'success');
+                    closeEditExtractionModal();
+                    loadExtractionAccounts();
+                } else {
+                    showExtractionToast(result.error || 'Failed to update account', 'error');
+                }
+            } catch (error) {
+                showExtractionToast('Error updating account', 'error');
+                console.error(error);
+            }
+        }
+
+        // Delete extraction account
+        async function deleteExtractionAccount(index) {
+            const account = extractionAccounts[index];
+            if (!account) return;
+            
+            if (!confirm(`Are you sure you want to delete the account ${account.email}?`)) {
+                return;
+            }
+            
+            const is_legacy = account.is_legacy || false;
+            
+            try {
+                const response = await fetch('/api/extraction_accounts', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: account.email, is_legacy })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showExtractionToast('Account deleted successfully', 'success');
+                    loadExtractionAccounts();
+                } else {
+                    showExtractionToast(result.error || 'Failed to delete account', 'error');
+                }
+            } catch (error) {
+                showExtractionToast('Error deleting account', 'error');
+                console.error(error);
+            }
+        }
+
+        // Show toast notification
+        function showExtractionToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+
+    <!-- Manage Extraction Accounts Modal -->
+    <div id="extractionAccountsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-cog mr-2"></i>
+                        Manage Extraction Accounts
+                    </h3>
+                    <button onclick="closeManageExtractionModal()" class="text-white hover:text-gray-200 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p class="text-purple-100 text-sm mt-1">Add, edit or remove Gmail accounts for email extraction</p>
+            </div>
+            
+            <!-- Add New Account Form -->
+            <div class="p-6 border-b border-gray-200 bg-gray-50">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-plus-circle mr-2 text-green-600"></i>
+                    Add New Account
+                </h4>
+                <div class="grid md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-600 block mb-1">Gmail Address</label>
+                        <input type="email" id="newAccountEmail" placeholder="email@gmail.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 block mb-1">App Password</label>
+                        <div class="relative">
+                            <input type="password" id="newAccountPassword" placeholder="xxxx xxxx xxxx xxxx" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm">
+                            <button type="button" onclick="toggleNewPasswordVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-600">
+                                <i id="newPwdIcon" class="fas fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button onclick="addExtractionAccount()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Account
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Accounts List -->
+            <div class="p-6 overflow-y-auto max-h-[40vh]">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-list mr-2 text-purple-600"></i>
+                    Saved Accounts
+                </h4>
+                <div id="accountsList" class="space-y-3">
+                    <!-- Accounts will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div class="flex justify-end">
+                    <button onclick="closeManageExtractionModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Account Modal -->
+    <div id="editExtractionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <input type="hidden" id="editAccountIndex">
+            <input type="hidden" id="editAccountOldEmail">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-t-xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold flex items-center">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Account
+                    </h3>
+                    <button onclick="closeEditExtractionModal()" class="text-white hover:text-gray-200 text-xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-700 block mb-1">Gmail Address</label>
+                    <input type="email" id="editAccountEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-700 block mb-1">App Password</label>
+                    <div class="relative">
+                        <input type="password" id="editAccountPassword" class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button type="button" onclick="toggleEditPasswordVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600">
+                            <i id="editPwdIcon" class="fas fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-xl border-t border-gray-200">
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeEditExtractionModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="saveEditExtractionAccount()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

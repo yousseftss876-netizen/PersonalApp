@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - TSS Services</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f1f5f9; }
+
+        /* Avatar colors cycle */
+        .av-0 { background: #6366f1; }
+        .av-1 { background: #0ea5e9; }
+        .av-2 { background: #10b981; }
+        .av-3 { background: #f59e0b; }
+        .av-4 { background: #ef4444; }
+        .av-5 { background: #8b5cf6; }
+        .av-6 { background: #ec4899; }
+        .av-7 { background: #14b8a6; }
+
+        /* Permission chip toggle */
+        .perm-chip { transition: all 0.15s; user-select: none; }
+        .perm-chip.active  { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+        .perm-chip:not(.active) { background: #fff; color: #475569; border-color: #cbd5e1; }
+        .perm-chip:hover   { filter: brightness(0.97); transform: translateY(-1px); }
+
+        /* Modal slide-in */
+        .modal-panel { animation: slideUp 0.22s ease; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Row hover */
+        .user-row { transition: background 0.12s; }
+        .user-row:hover { background: #f8fafc; }
+
+        /* Progress bar */
+        .quota-bar { height: 6px; border-radius: 3px; background: #e2e8f0; overflow: hidden; }
+        .quota-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+
+        /* Section heading in modal */
+        .modal-section { border-left: 3px solid; padding-left: 10px; }
+
+        /* Sticky thead */
+        thead th { position: sticky; top: 0; z-index: 1; }
+
+        /* Scrollable table container */
+        .table-wrap { overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 330px); min-height: 200px; }
+
+        /* Action btn */
+        .act-btn { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; font-size:0.78rem; cursor:pointer; border:none; transition:background 0.15s; }
+    /* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+                </style>
+</head>
+<body class="min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "Manage Users" %}
+    {% set page_icon = "ph-users-three" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-6 max-w-[1400px]">
+
+        <!-- ── Stats Row ── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6" id="statsRow">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl flex-shrink-0">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Total Users</p>
+                    <p class="text-2xl font-bold text-slate-800" id="statTotal">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl flex-shrink-0">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Entities</p>
+                    <p class="text-2xl font-bold text-slate-800" id="statEntities">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl flex-shrink-0">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">With Permissions</p>
+                    <p class="text-2xl font-bold text-slate-800" id="statPerms">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 text-xl flex-shrink-0">
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Unlimited Process</p>
+                    <p class="text-2xl font-bold text-slate-800" id="statInfinity">—</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Toolbar ── -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-3 mb-4 flex items-center flex-wrap gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="Search by name, username or entity…"
+                       class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50">
+            </div>
+            <select id="entityFilter" class="py-2 px-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white text-slate-600">
+                <option value="">All Entities</option>
+            </select>
+            <button onclick="openAddModal()"
+                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm ml-auto flex-shrink-0">
+                <i class="fas fa-user-plus"></i> Add User
+            </button>
+        </div>
+
+        <!-- ── Table Card ── -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="table-wrap">
+                <table class="w-full text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">User</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">Entity</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50">Permissions</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">News Proc.</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">EF Limit</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">SF Proc.</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">Domain Quota</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="8" class="py-16 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Loading users…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="tableFooter" class="px-5 py-3 border-t border-slate-100 text-xs text-slate-400 hidden">
+                Showing <span id="footerCount">0</span> users
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ ADD / EDIT MODAL ═══ -->
+    <div id="userModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(15,23,42,0.5);backdrop-filter:blur(3px)">
+        <div class="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3 id="modalTitle" class="text-lg font-bold text-slate-800"></h3>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable body -->
+            <div class="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+                <input type="hidden" id="modalMode" value="add">
+                <input type="hidden" id="modalTargetUsername" value="">
+
+                <!-- Basic info -->
+                <div>
+                    <p class="modal-section border-indigo-400 text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Basic Information</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Entity</label>
+                            <input id="modalEntity" type="text" placeholder="e.g. TSS1, TSSW"
+                                   class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+                            <input id="modalName" type="text" placeholder="Full name"
+                                   class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Username</label>
+                            <input id="modalUsername" type="text" placeholder="Login username"
+                                   class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Password <span id="passHint" class="text-slate-400 font-normal">(leave blank to keep)</span></label>
+                            <input id="modalPassword" type="text" placeholder="Password"
+                                   class="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-slate-50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="modal-section border-amber-400 text-xs font-bold text-slate-500 uppercase tracking-widest">Permissions</p>
+                        <div class="flex gap-2">
+                            <button onclick="setAllPerms(true)" class="text-xs text-indigo-600 hover:underline">Select All</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="setAllPerms(false)" class="text-xs text-slate-400 hover:underline">Clear All</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5" id="permissionsContainer">
+                        {% for perm_key, perm_label in all_permissions %}
+                        <button type="button"
+                                class="perm-chip px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer"
+                                data-perm="{{ perm_key }}" onclick="togglePerm(this)">
+                            {{ perm_label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- News Subscription limits -->
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                    <p class="modal-section border-amber-500 text-xs font-bold text-amber-700 uppercase tracking-widest mb-3">
+                        <i class="fas fa-rss mr-1.5"></i>News Subscription Limits
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Max Concurrent Processes</label>
+                            <input id="modalMaxProcesses" type="number" min="1" max="100" value="1"
+                                   class="w-full border border-amber-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                            <p class="text-xs text-slate-400 mt-1">How many processes they can run at once</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Monthly Domain Quota</label>
+                            <input id="modalDomainQuota" type="number" min="0" value="0"
+                                   class="w-full border border-amber-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                            <p class="text-xs text-slate-400 mt-1">0 = unlimited</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Founder limits -->
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+                    <p class="modal-section border-purple-500 text-xs font-bold text-purple-700 uppercase tracking-widest mb-3">
+                        <i class="fas fa-envelope-open-text mr-1.5"></i>Email Founder Limits
+                    </p>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Max Extractions (History Limit)</label>
+                        <input id="modalEfMaxProcesses" type="number" min="1" max="1000" value="10"
+                               class="w-full border border-purple-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white">
+                        <p class="text-xs text-slate-400 mt-1">User must delete old extractions once they reach this limit</p>
+                    </div>
+                </div>
+
+                <!-- SubDomain Finder limits -->
+                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
+                    <p class="modal-section border-sky-500 text-xs font-bold text-sky-700 uppercase tracking-widest mb-3">
+                        <i class="fas fa-sitemap mr-1.5"></i>SubDomain Finder Limits
+                    </p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Max Concurrent Processes</label>
+                            <input id="modalSfMaxProcesses" type="number" min="0" max="50" value="1"
+                                   class="w-full border border-sky-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
+                            <p class="text-xs text-slate-400 mt-1">0 = cannot launch any process</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Max Domains Per Process</label>
+                            <input id="modalSfMaxDomains" type="number" min="0" value="0"
+                                   class="w-full border border-sky-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
+                            <p class="text-xs text-slate-400 mt-1">0 = unlimited</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Process Stop At</label>
+                            <input id="modalSfStopAt" type="number" min="0" value="0"
+                                   class="w-full border border-sky-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
+                            <p class="text-xs text-slate-400 mt-1">0 = unlimited (stops when collected subdomains reach this count)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domain Founder limits -->
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+                    <p class="modal-section border-emerald-500 text-xs font-bold text-emerald-700 uppercase tracking-widest mb-3">
+                        <i class="fas fa-search-location mr-1.5"></i>Domain Founder Limits
+                    </p>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Max Concurrent Processes</label>
+                        <input id="modalDfMaxProcesses" type="number" min="0" max="50" value="1"
+                               class="w-full border border-emerald-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white">
+                        <p class="text-xs text-slate-400 mt-1">0 = cannot launch any process (overrides unlimited_domain_founder)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 flex-shrink-0 bg-slate-50 rounded-b-2xl">
+                <button onclick="closeModal()"
+                        class="px-5 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button onclick="saveUser()" id="modalSaveBtn"
+                        class="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-sm">
+                    <i class="fas fa-save"></i> Save User
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ DELETE MODAL ═══ -->
+    <div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(15,23,42,0.5);backdrop-filter:blur(3px)">
+        <div class="modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-slash text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Delete User</h3>
+                <p class="text-sm text-slate-500 mb-6" id="deleteMessage">Are you sure you want to delete this user?</p>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()"
+                            class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="confirmDelete()"
+                            class="flex-1 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors">
+                        <i class="fas fa-trash mr-1.5"></i>Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ TOAST ═══ -->
+    <div id="toast" class="hidden fixed bottom-5 right-5 z-[1000] flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-sm font-medium min-w-[220px] border">
+        <i id="toastIcon" class="fas text-lg flex-shrink-0"></i>
+        <span id="toastMsg"></span>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let deleteTarget = null;
+
+        const ALL_PERMS = [
+            {% for perm_key, perm_label in all_permissions %}
+            {key: '{{ perm_key }}', label: '{{ perm_label }}'},
+            {% endfor %}
+        ];
+
+        const AVATAR_COLORS = ['av-0','av-1','av-2','av-3','av-4','av-5','av-6','av-7'];
+
+        function avatarColor(name) {
+            let h = 0;
+            for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+            return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+        }
+
+        function initials(name) {
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+            return name.slice(0, 2).toUpperCase();
+        }
+
+        // ── Toast ──────────────────────────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const t  = document.getElementById('toast');
+            const ic = document.getElementById('toastIcon');
+            const m  = document.getElementById('toastMsg');
+            m.textContent = msg;
+            if (type === 'error') {
+                t.className  = 'fixed bottom-5 right-5 z-[1000] flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-sm font-medium min-w-[220px] border bg-red-50 border-red-200 text-red-700';
+                ic.className = 'fas fa-exclamation-circle text-red-500 text-lg flex-shrink-0';
+            } else {
+                t.className  = 'fixed bottom-5 right-5 z-[1000] flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl text-sm font-medium min-w-[220px] border bg-emerald-50 border-emerald-200 text-emerald-700';
+                ic.className = 'fas fa-check-circle text-emerald-500 text-lg flex-shrink-0';
+            }
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        // ── Load & Render ──────────────────────────────────────────────────
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/manage-users/list');
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                allUsers = data.users;
+                populateEntityFilter();
+                updateStats();
+                renderTable();
+            } catch(e) { showToast('Failed to load users', 'error'); }
+        }
+
+        function populateEntityFilter() {
+            const sel = document.getElementById('entityFilter');
+            const entities = [...new Set(allUsers.map(u => u.entity))].sort();
+            sel.innerHTML = '<option value="">All Entities</option>' +
+                entities.map(e => `<option value="${e}">${e}</option>`).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent    = allUsers.length;
+            document.getElementById('statEntities').textContent = new Set(allUsers.map(u => u.entity)).size;
+            document.getElementById('statPerms').textContent    = allUsers.filter(u => u.permissions && u.permissions.length > 0).length;
+            document.getElementById('statInfinity').textContent = allUsers.filter(u => u.permissions && u.permissions.includes('infinity-process')).length;
+        }
+
+        function renderTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const entity = document.getElementById('entityFilter').value;
+            const filtered = allUsers.filter(u =>
+                (u.name.toLowerCase().includes(search) || u.username.toLowerCase().includes(search) || u.entity.toLowerCase().includes(search)) &&
+                (!entity || u.entity === entity)
+            );
+
+            document.getElementById('footerCount').textContent = filtered.length;
+            document.getElementById('tableFooter').classList.toggle('hidden', filtered.length === 0);
+
+            if (filtered.length === 0) {
+                document.getElementById('usersTableBody').innerHTML =
+                    `<tr><td colspan="8" class="py-16 text-center text-slate-400"><i class="fas fa-search mr-2 opacity-40"></i>No users found</td></tr>`;
+                return;
+            }
+
+            document.getElementById('usersTableBody').innerHTML = filtered.map((u, idx) => {
+                const avClass = avatarColor(u.name);
+                const inits   = initials(u.name);
+
+                // Permissions - show max 3 chips, then +N
+                const perms = u.permissions || [];
+                const MAX_SHOW = 3;
+                const shown = perms.slice(0, MAX_SHOW);
+                const extra = perms.length - MAX_SHOW;
+                const permHtml = perms.length === 0
+                    ? `<span class="text-slate-300 text-xs italic">None</span>`
+                    : shown.map(p => {
+                        const found = ALL_PERMS.find(x => x.key === p);
+                        return `<span class="inline-block bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-0.5 rounded-lg text-xs font-medium whitespace-nowrap">${found ? found.label : p}</span>`;
+                    }).join('') + (extra > 0 ? `<span class="inline-block bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-xs font-semibold">+${extra} more</span>` : '');
+
+                // News process
+                const procHtml = perms.includes('infinity-process')
+                    ? `<span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 text-xs font-semibold px-2 py-0.5 rounded-lg"><i class="fas fa-infinity text-xs"></i></span>`
+                    : `<span class="font-semibold text-slate-700">${u.max_processes || 1}</span>`;
+
+                // EF limit
+                const efHtml = `<span class="text-purple-600 font-semibold">${u.email_founder_max_processes || 10}</span>`;
+
+                // SF processes
+                const sfProc = (u.sf_max_processes !== undefined && u.sf_max_processes !== null) ? u.sf_max_processes : 1;
+                const sfHtml = sfProc === 0
+                    ? `<span class="text-slate-300 font-medium">0</span>`
+                    : `<span class="text-sky-600 font-semibold">${sfProc}</span>`;
+
+                // Quota progress
+                let quotaHtml;
+                if (u.domain_quota > 0) {
+                    const used  = u.domains_processed_this_month || 0;
+                    const pct   = Math.min(100, Math.round((used / u.domain_quota) * 100));
+                    const color = pct >= 90 ? '#ef4444' : pct >= 60 ? '#f59e0b' : '#10b981';
+                    quotaHtml = `
+                        <div class="min-w-[120px]">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-600 font-medium">${used.toLocaleString()} / ${u.domain_quota.toLocaleString()}</span>
+                                <span class="font-bold" style="color:${color}">${pct}%</span>
+                            </div>
+                            <div class="quota-bar"><div class="quota-fill" style="width:${pct}%;background:${color}"></div></div>
+                        </div>`;
+                } else {
+                    quotaHtml = `<span class="text-xs text-slate-400 italic">Unlimited</span>`;
+                }
+
+                // Action buttons
+                const resetBtn = u.domain_quota > 0
+                    ? `<button onclick="resetQuota('${u.username}')" class="act-btn bg-amber-50 text-amber-600 hover:bg-amber-100" title="Reset Quota"><i class="fas fa-sync-alt text-xs"></i></button>`
+                    : '';
+
+                return `<tr class="user-row border-b border-slate-100 last:border-0">
+                    <td class="px-5 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-xs font-bold ${avClass}">${inits}</div>
+                            <div>
+                                <p class="font-semibold text-slate-800 text-sm leading-tight">${u.name}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">@${u.username}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-block bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide">${u.entity}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-1">${permHtml}</div>
+                    </td>
+                    <td class="px-4 py-3 text-center">${procHtml}</td>
+                    <td class="px-4 py-3 text-center">${efHtml}</td>
+                    <td class="px-4 py-3 text-center">${sfHtml}</td>
+                    <td class="px-4 py-3">${quotaHtml}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick='openEditModal(${JSON.stringify(u).replace(/'/g, "&#39;")})' class="act-btn bg-indigo-50 text-indigo-600 hover:bg-indigo-100" title="Edit User"><i class="fas fa-edit text-xs"></i></button>
+                            <button onclick="openDeleteModal('${u.username}', '${u.name.replace(/'/g,"&#39;")}')" class="act-btn bg-red-50 text-red-500 hover:bg-red-100" title="Delete User"><i class="fas fa-trash text-xs"></i></button>
+                            ${resetBtn}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderTable);
+        document.getElementById('entityFilter').addEventListener('change', renderTable);
+
+        // ── Permission chips ───────────────────────────────────────────────
+        function togglePerm(btn) { btn.classList.toggle('active'); }
+
+        function setAllPerms(on) {
+            document.querySelectorAll('.perm-chip').forEach(b => {
+                b.classList.toggle('active', on);
+            });
+        }
+
+        function getSelectedPerms() {
+            return [...document.querySelectorAll('.perm-chip.active')].map(b => b.dataset.perm);
+        }
+
+        function setSelectedPerms(perms) {
+            document.querySelectorAll('.perm-chip').forEach(b => {
+                b.classList.toggle('active', perms.includes(b.dataset.perm));
+            });
+        }
+
+        // ── Add/Edit modal ─────────────────────────────────────────────────
+        function openAddModal() {
+            document.getElementById('modalMode').value = 'add';
+            document.getElementById('modalTargetUsername').value = '';
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('passHint').textContent = '(required)';
+            ['modalEntity','modalName','modalUsername','modalPassword'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('modalMaxProcesses').value = '1';
+            document.getElementById('modalEfMaxProcesses').value = '10';
+            document.getElementById('modalDomainQuota').value = '0';
+            document.getElementById('modalSfMaxProcesses').value = '1';
+            document.getElementById('modalSfMaxDomains').value = '0';
+            document.getElementById('modalDfMaxProcesses').value = '1';
+            setSelectedPerms([]);
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+
+        function openEditModal(user) {
+            document.getElementById('modalMode').value = 'edit';
+            document.getElementById('modalTargetUsername').value = user.username;
+            document.getElementById('modalTitle').textContent = 'Edit: ' + user.name;
+            document.getElementById('passHint').textContent = '(leave blank to keep current)';
+            document.getElementById('modalEntity').value   = user.entity;
+            document.getElementById('modalName').value     = user.name;
+            document.getElementById('modalUsername').value = user.username;
+            document.getElementById('modalPassword').value = '';
+            document.getElementById('modalMaxProcesses').value    = user.max_processes || 1;
+            document.getElementById('modalEfMaxProcesses').value  = user.email_founder_max_processes || 10;
+            document.getElementById('modalDomainQuota').value     = user.domain_quota || 0;
+            document.getElementById('modalSfMaxProcesses').value  = (user.sf_max_processes !== undefined && user.sf_max_processes !== null) ? user.sf_max_processes : 1;
+            document.getElementById('modalSfMaxDomains').value    = user.sf_max_domains || 0;
+            document.getElementById('modalSfStopAt').value        = user.sf_stop_at || 0;
+            document.getElementById('modalDfMaxProcesses').value  = (user.df_max_processes !== undefined && user.df_max_processes !== null) ? user.df_max_processes : 1;
+            setSelectedPerms(user.permissions || []);
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+        window.openEditModal = openEditModal;
+
+        function closeModal() { document.getElementById('userModal').classList.add('hidden'); }
+
+        async function saveUser() {
+            const mode     = document.getElementById('modalMode').value;
+            const entity   = document.getElementById('modalEntity').value.trim();
+            const name     = document.getElementById('modalName').value.trim();
+            const username = document.getElementById('modalUsername').value.trim();
+            const password = document.getElementById('modalPassword').value.trim();
+            const permissions   = getSelectedPerms();
+            const maxProcesses  = parseInt(document.getElementById('modalMaxProcesses').value) || 1;
+            const efMaxProc     = parseInt(document.getElementById('modalEfMaxProcesses').value) || 10;
+            const domainQuota   = parseInt(document.getElementById('modalDomainQuota').value) || 0;
+            const sfMaxProcRaw  = parseInt(document.getElementById('modalSfMaxProcesses').value, 10);
+            const sfMaxProcesses= isNaN(sfMaxProcRaw) ? 1 : Math.max(0, sfMaxProcRaw);
+            const sfMaxDomains  = parseInt(document.getElementById('modalSfMaxDomains').value) || 0;
+            const sfStopAt      = parseInt(document.getElementById('modalSfStopAt').value) || 0;
+            const dfMaxProcRaw  = parseInt(document.getElementById('modalDfMaxProcesses').value, 10);
+            const dfMaxProcesses= isNaN(dfMaxProcRaw) ? 1 : Math.max(0, dfMaxProcRaw);
+
+            if (!entity || !name || !username) { showToast('Entity, Name, and Username are required.', 'error'); return; }
+            if (mode === 'add' && !password)   { showToast('Password is required for new users.', 'error'); return; }
+
+            const url  = mode === 'add' ? '/api/manage-users/add' : '/api/manage-users/update';
+            const body = { entity, name, permissions, max_processes: maxProcesses, email_founder_max_processes: efMaxProc, domain_quota: domainQuota, sf_max_processes: sfMaxProcesses, sf_max_domains: sfMaxDomains, sf_stop_at: sfStopAt, df_max_processes: dfMaxProcesses };
+            if (mode === 'add') {
+                body.username = username;
+                body.password = password;
+            } else {
+                body.target_username = document.getElementById('modalTargetUsername').value;
+                body.new_username    = username;
+                body.password        = password || allUsers.find(u => u.username === body.target_username)?.password || '';
+            }
+
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving…';
+            try {
+                const res  = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); }
+                else { showToast(data.message, 'success'); closeModal(); loadUsers(); }
+            } catch(e) { showToast('Failed to save user', 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i> Save User'; }
+        }
+
+        // ── Delete modal ───────────────────────────────────────────────────
+        function openDeleteModal(username, name) {
+            deleteTarget = username;
+            document.getElementById('deleteMessage').textContent = `Delete "${name}" (@${username})? This action cannot be undone.`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        window.openDeleteModal = openDeleteModal;
+
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); deleteTarget = null; }
+
+        async function confirmDelete() {
+            if (!deleteTarget) return;
+            try {
+                const res  = await fetch('/api/manage-users/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username: deleteTarget}) });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast(data.message, 'success');
+                closeDeleteModal();
+                loadUsers();
+            } catch(e) { showToast('Failed to delete user', 'error'); }
+        }
+
+        // ── Reset quota ────────────────────────────────────────────────────
+        async function resetQuota(username) {
+            try {
+                const res  = await fetch('/api/manage-users/reset-quota', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username}) });
+                const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast(data.message, 'success');
+                loadUsers();
+            } catch(e) { showToast('Failed to reset quota', 'error'); }
+        }
+        window.resetQuota = resetQuota;
+
+        loadUsers();
+    </script>
+</body>
+</html>

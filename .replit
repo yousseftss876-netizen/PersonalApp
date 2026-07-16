@@ -1,0 +1,47 @@
+modules = ["nodejs-20", "web", "python-3.11"]
+run = "python app.py"
+
+[nix]
+channel = "stable-25_05"
+packages = ["cacert", "gitFull", "openssl", "playwright-driver", "postgresql"]
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[agent]
+expertMode = true
+
+[userenv]
+
+[userenv.shared]
+DQS_KEY = "f3jqdoqpeyipweiizk7onufnlm"
+DQS_KEYS = "f3jqdoqpeyipweiizk7onufnlm,tfpurh2dwpwbxt4ylugrjtqexm"

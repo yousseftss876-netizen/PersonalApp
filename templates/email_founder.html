@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Email Extarctor - TSS Services</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --grad-1: #7c3aed;
+            --grad-2: #a855f7;
+            --grad-3: #c084fc;
+            --accent: #8b5cf6;
+        }
+
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4c1d95 60%, #5b21b6 100%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.08);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(139, 92, 246, 0.06);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.12);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #8b5cf6;
+        }
+
+        .account-item {
+            border: 1.5px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .account-item:hover {
+            border-color: #c4b5fd;
+            background: #faf5ff;
+        }
+        .account-item.active {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+        }
+        .account-item.active .acc-dot {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+        }
+
+        .acc-dot {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: #e5e7eb;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .folder-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1.5px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+        .folder-chip:hover { border-color: #c4b5fd; background: #faf5ff; color: #6d28d9; }
+        .folder-chip.selected {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            color: #6d28d9;
+            font-weight: 600;
+        }
+        .folder-chip.selected .folder-icon { color: #8b5cf6; }
+
+        .folder-icon { width: 18px; text-align: center; font-size: 0.85rem; color: #9ca3af; transition: color 0.2s; }
+
+        .mode-card {
+            border: 1.5px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7c3aed, #a855f7, #c084fc);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .mode-card:hover { border-color: #c4b5fd; background: #faf5ff; }
+        .mode-card.selected {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .mode-card.selected::before { opacity: 1; }
+        .mode-card .mode-check { opacity: 0; transition: opacity 0.2s; }
+        .mode-card.selected .mode-check { opacity: 1; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-primary span { position: relative; z-index: 1; }
+
+        .label-chip {
+            padding: 7px 12px;
+            border-bottom: 1px solid #f9fafb;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        .label-chip:hover { background: #f5f3ff; color: #6d28d9; }
+        .label-chip.selected { background: #ede9fe; color: #6d28d9; font-weight: 600; }
+
+        .process-item {
+            border: 1.5px solid #f3f4f6;
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: all 0.25s ease;
+            background: white;
+        }
+        .process-item:hover { border-color: #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+        .progress-track {
+            height: 6px;
+            border-radius: 99px;
+            background: #f3f4f6;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #7c3aed, #a855f7, #c084fc);
+            transition: width 0.4s ease;
+            position: relative;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-up { animation: fadeUp 0.4s ease-out; }
+        .slide-down { animation: slideDown 0.3s ease-out; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-running { background: linear-gradient(135deg, #ede9fe, #e0e7ff); color: #5b21b6; }
+        .badge-done { background: linear-gradient(135deg, #dcfce7, #d1fae5); color: #166534; }
+        .badge-stopped { background: linear-gradient(135deg, #fef3c7, #fef9c3); color: #92400e; }
+        .badge-error { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; }
+        .badge-count { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #6d28d9; }
+
+        .btn-sm {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-download {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+        }
+        .btn-download:hover { box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35); transform: translateY(-1px); }
+        .btn-stop { background: #fee2e2; color: #dc2626; }
+        .btn-stop:hover { background: #fecaca; }
+        .btn-delete { background: #f3f4f6; color: #6b7280; }
+        .btn-delete:hover { background: #e5e7eb; color: #374151; }
+
+        .toast-container { position: fixed; top: 65px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            animation: slideDown 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .toast-success { background: rgba(220, 252, 231, 0.95); color: #166534; border: 1px solid #bbf7d0; }
+        .toast-error { background: rgba(254, 226, 226, 0.95); color: #991b1b; border: 1px solid #fecaca; }
+        .toast-info { background: rgba(237, 233, 254, 0.95); color: #5b21b6; border: 1px solid #ddd6fe; }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+        }
+        .empty-state-icon {
+            width: 64px; height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .range-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            background: white;
+            color: #374151;
+        }
+        .range-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .add-form {
+            background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+            border: 1.5px solid #e9d5ff;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+            margin: 16px 0;
+        }
+
+        .meta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            background: #f9fafb;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen" style="background: linear-gradient(180deg, #f8f7ff 0%, #f1eeff 40%, #ede9fe 100%);">
+<div class="tssw-watermark">{{ current_user.entity }}</div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    {% set page_title = "Email Extractor" %}
+    {% set page_icon = "ph-envelope-open" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-6 max-w-6xl" style="margin-top: -2px;">
+        <div class="mb-3 flex justify-end">
+            <span class="inline-flex items-center gap-1.5 bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold">
+                <i class="fas fa-layer-group text-xs"></i>
+                <span id="quotaDisplay">{{ ef_used }}/{{ ef_max }}</span> extractions used
+            </span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+            <div class="lg:col-span-4 space-y-5 fade-up">
+
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="card-title"><i class="fas fa-at mr-1.5"></i>Gmail Accounts</span>
+                        <button onclick="showAddAccount()" class="w-7 h-7 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-500 flex items-center justify-center transition-colors" title="Add Account">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div id="addAccountForm" class="hidden mb-4 add-form slide-down">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 block mb-1.5">Gmail Address</label>
+                                <input type="email" id="newGmailEmail" placeholder="example@gmail.com" class="form-input">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 block mb-1.5">App Password</label>
+                                <input type="password" id="newAppPassword" placeholder="16-character app password" class="form-input">
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="saveAccount()" class="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-all" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
+                                    <i class="fas fa-check mr-1.5"></i>Save
+                                </button>
+                                <button onclick="hideAddAccount()" class="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-500 rounded-lg text-sm border border-gray-200 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="accountsList" class="space-y-2">
+                        <div class="text-center py-6 text-gray-300">
+                            <i class="fas fa-spinner fa-spin text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-5">
+                    <span class="card-title block mb-3"><i class="fas fa-folder-open mr-1.5"></i>Folder</span>
+                    <div id="folderOptions" class="space-y-1.5">
+                        <div class="folder-chip selected" data-folder="inbox" onclick="selectFolder('inbox')">
+                            <i class="folder-icon fas fa-inbox"></i>Inbox (All)
+                        </div>
+                        <div class="folder-chip" data-folder="primary" onclick="selectFolder('primary')">
+                            <i class="folder-icon fas fa-star"></i>Primary
+                        </div>
+                        <div class="folder-chip" data-folder="promotions" onclick="selectFolder('promotions')">
+                            <i class="folder-icon fas fa-tag"></i>Promotions
+                        </div>
+                        <div class="folder-chip" data-folder="social" onclick="selectFolder('social')">
+                            <i class="folder-icon fas fa-users"></i>Social
+                        </div>
+                        <div class="folder-chip" data-folder="updates" onclick="selectFolder('updates')">
+                            <i class="folder-icon fas fa-bell"></i>Updates
+                        </div>
+                        <div class="folder-chip" data-folder="forums" onclick="selectFolder('forums')">
+                            <i class="folder-icon fas fa-comments"></i>Forums
+                        </div>
+                        <div class="folder-chip" data-folder="starred" onclick="selectFolder('starred')">
+                            <i class="folder-icon fas fa-star" style="color: #eab308;"></i>Starred
+                        </div>
+                        <div class="folder-chip" data-folder="custom" onclick="selectFolder('custom')">
+                            <i class="folder-icon fas fa-tags"></i>Custom Label
+                        </div>
+                    </div>
+
+                    <div id="customLabelSection" class="hidden mt-3">
+                        <div class="section-divider"></div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold text-gray-500">Select Label</label>
+                            <button onclick="fetchLabels()" class="text-xs text-violet-500 hover:text-violet-700 font-semibold transition-colors">
+                                <i class="fas fa-sync-alt mr-1"></i>Refresh
+                            </button>
+                        </div>
+                        <div id="labelsContainer" class="max-h-44 overflow-y-auto border border-gray-100 rounded-xl bg-white">
+                            <div class="text-center py-4 text-gray-400 text-xs">
+                                Select an account, then click Refresh
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-5">
+                    <span class="card-title block mb-3"><i class="fas fa-sliders-h mr-1.5"></i>Settings</span>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1.5">From <span class="text-gray-400 font-normal">(newest=1)</span></label>
+                            <input type="number" id="rangeFrom" value="1" min="1" class="range-input">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 block mb-1.5">To</label>
+                            <input type="number" id="rangeTo" value="10" min="1" class="range-input">
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <label class="text-xs font-semibold text-gray-500 block mb-2.5">Extraction Mode</label>
+                    <div class="space-y-2 mb-5">
+                        <div class="mode-card selected" data-mode="1" onclick="selectMode('1')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+                                        <i class="fas fa-file-code text-violet-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-700">Full Source</div>
+                                        <div class="text-xs text-gray-400">Complete raw email data</div>
+                                    </div>
+                                </div>
+                                <i class="mode-check fas fa-check-circle text-violet-500"></i>
+                            </div>
+                        </div>
+                        <div class="mode-card" data-mode="2" onclick="selectMode('2')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                        <i class="fas fa-file-alt text-emerald-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-700">Text Plain</div>
+                                        <div class="text-xs text-gray-400">Plain text content only</div>
+                                    </div>
+                                </div>
+                                <i class="mode-check fas fa-check-circle text-violet-500"></i>
+                            </div>
+                        </div>
+                        <div class="mode-card" data-mode="3" onclick="selectMode('3')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
+                                        <i class="fas fa-code text-sky-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-700">Text HTML</div>
+                                        <div class="text-xs text-gray-400">HTML formatted content</div>
+                                    </div>
+                                </div>
+                                <i class="mode-check fas fa-check-circle text-violet-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="startExtraction()" id="startBtn" class="btn-primary w-full py-3.5 text-sm">
+                        <span><i class="fas fa-bolt mr-2"></i>Start Extraction</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 fade-up" style="animation-delay: 0.1s;">
+                <div class="card p-5" style="min-height: 400px;">
+                    <div class="flex items-center justify-between mb-5">
+                        <span class="card-title"><i class="fas fa-layer-group mr-1.5"></i>Processes & History</span>
+                        <button onclick="loadHistory()" class="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors" title="Refresh">
+                            <i class="fas fa-sync-alt text-xs"></i>
+                        </button>
+                    </div>
+                    <div id="processesContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-envelope-open text-violet-300 text-xl"></i>
+                            </div>
+                            <p class="text-sm font-medium text-gray-400 mb-1">No extractions yet</p>
+                            <p class="text-xs text-gray-300">Configure your settings and click Start Extraction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedAccount = null;
+        let selectedFolder = 'inbox';
+        let selectedCustomLabel = null;
+        let selectedMode = '1';
+        let pollingInterval = null;
+
+        function showToast(msg, type) {
+            const c = document.getElementById('toastContainer');
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const el = document.createElement('div');
+            el.className = `toast toast-${type || 'info'}`;
+            el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>${msg}`;
+            c.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; el.style.transition = 'all 0.3s ease'; setTimeout(() => el.remove(), 300); }, 4000);
+        }
+
+        function loadAccounts() {
+            fetch('/api/email-founder/accounts')
+                .then(r => r.json())
+                .then(data => {
+                    const c = document.getElementById('accountsList');
+                    if (!data.accounts || data.accounts.length === 0) {
+                        c.innerHTML = `<div class="text-center py-6">
+                            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-envelope text-gray-300"></i>
+                            </div>
+                            <p class="text-xs text-gray-400">No accounts added</p>
+                        </div>`;
+                        return;
+                    }
+                    c.innerHTML = data.accounts.map(acc => {
+                        const isSelected = selectedAccount && selectedAccount.email === acc.email;
+                        return `<div class="account-item ${isSelected ? 'active' : ''}" onclick="selectAccount('${acc.email}')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="acc-dot flex-shrink-0">
+                                        <i class="fas fa-envelope text-xs ${isSelected ? 'text-white' : 'text-gray-400'}"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 truncate">${acc.email}</span>
+                                </div>
+                                <div class="flex items-center gap-0.5 flex-shrink-0">
+                                    <button onclick="event.stopPropagation(); editAccount('${acc.email}')" class="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-gray-400 hover:text-violet-500 transition-colors" title="Edit">
+                                        <i class="fas fa-pen text-xs"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); deleteAccount('${acc.email}')" class="w-7 h-7 rounded-lg hover:bg-white flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                });
+        }
+
+        function selectAccount(emailAddr) {
+            fetch('/api/email-founder/accounts')
+                .then(r => r.json())
+                .then(data => {
+                    const acc = data.accounts.find(a => a.email === emailAddr);
+                    if (acc) {
+                        selectedAccount = acc;
+                        loadAccounts();
+                        if (selectedFolder === 'custom') fetchLabels();
+                    }
+                });
+        }
+
+        function showAddAccount() {
+            const form = document.getElementById('addAccountForm');
+            form.classList.remove('hidden');
+            document.getElementById('newGmailEmail').value = '';
+            document.getElementById('newAppPassword').value = '';
+            document.getElementById('newGmailEmail').dataset.editing = '';
+        }
+
+        function hideAddAccount() {
+            document.getElementById('addAccountForm').classList.add('hidden');
+        }
+
+        function editAccount(emailAddr) {
+            fetch('/api/email-founder/accounts')
+                .then(r => r.json())
+                .then(data => {
+                    const acc = data.accounts.find(a => a.email === emailAddr);
+                    if (acc) {
+                        document.getElementById('addAccountForm').classList.remove('hidden');
+                        document.getElementById('newGmailEmail').value = acc.email;
+                        document.getElementById('newAppPassword').value = '';
+                        document.getElementById('newGmailEmail').dataset.editing = 'true';
+                    }
+                });
+        }
+
+        function saveAccount() {
+            const emailAddr = document.getElementById('newGmailEmail').value.trim();
+            const password = document.getElementById('newAppPassword').value.trim();
+            if (!emailAddr || !password) { showToast('Please fill in both fields.', 'error'); return; }
+            fetch('/api/email-founder/accounts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailAddr, password: password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Account saved successfully!', 'success');
+                    hideAddAccount();
+                    loadAccounts();
+                } else {
+                    showToast(data.error || 'Failed to save account.', 'error');
+                }
+            });
+        }
+
+        function deleteAccount(emailAddr) {
+            if (!confirm(`Delete account ${emailAddr}?`)) return;
+            fetch('/api/email-founder/accounts', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailAddr })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (selectedAccount && selectedAccount.email === emailAddr) selectedAccount = null;
+                    showToast('Account deleted.', 'success');
+                    loadAccounts();
+                } else {
+                    showToast(data.error || 'Failed to delete account.', 'error');
+                }
+            });
+        }
+
+        function selectFolder(folder) {
+            selectedFolder = folder;
+            selectedCustomLabel = null;
+            document.querySelectorAll('.folder-chip').forEach(el => {
+                el.classList.toggle('selected', el.dataset.folder === folder);
+            });
+            const customSection = document.getElementById('customLabelSection');
+            if (folder === 'custom') {
+                customSection.classList.remove('hidden');
+                if (selectedAccount) fetchLabels();
+            } else {
+                customSection.classList.add('hidden');
+            }
+        }
+
+        function fetchLabels() {
+            if (!selectedAccount) { showToast('Please select a Gmail account first.', 'error'); return; }
+            const c = document.getElementById('labelsContainer');
+            c.innerHTML = '<div class="text-center py-4 text-violet-400 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Fetching labels...</div>';
+            fetch('/api/email-founder/labels', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: selectedAccount.email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    c.innerHTML = `<div class="text-center py-4 text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-1"></i>${data.error}</div>`;
+                    return;
+                }
+                if (!data.labels || data.labels.length === 0) {
+                    c.innerHTML = '<div class="text-center py-4 text-gray-400 text-xs">No labels found</div>';
+                    return;
+                }
+                c.innerHTML = data.labels.map(label => {
+                    const isSelected = selectedCustomLabel === label;
+                    return `<div class="label-chip ${isSelected ? 'selected' : ''}" onclick="selectLabel(this, '${label.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-tag text-gray-300 mr-2 text-xs"></i>${label}
+                    </div>`;
+                }).join('');
+            });
+        }
+
+        function selectLabel(el, label) {
+            selectedCustomLabel = label;
+            document.querySelectorAll('.label-chip').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-card').forEach(el => {
+                el.classList.toggle('selected', el.dataset.mode === mode);
+            });
+        }
+
+        function startExtraction() {
+            if (!selectedAccount) { showToast('Please select a Gmail account.', 'error'); return; }
+            if (selectedFolder === 'custom' && !selectedCustomLabel) { showToast('Please select a custom label.', 'error'); return; }
+
+            const rangeFrom = parseInt(document.getElementById('rangeFrom').value) || 1;
+            const rangeTo = parseInt(document.getElementById('rangeTo').value) || 10;
+            if (rangeFrom > rangeTo) { showToast('"From" must be less than or equal to "To".', 'error'); return; }
+
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span><i class="fas fa-spinner fa-spin mr-2"></i>Starting...</span>';
+
+            fetch('/api/email-founder/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: selectedAccount.email,
+                    folder: selectedFolder,
+                    custom_label: selectedCustomLabel,
+                    range_from: rangeFrom,
+                    range_to: rangeTo,
+                    mode: selectedMode
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<span><i class="fas fa-bolt mr-2"></i>Start Extraction</span>';
+                if (data.success) {
+                    showToast('Extraction started!', 'success');
+                    startPolling();
+                } else {
+                    showToast(data.error || 'Failed to start extraction.', 'error');
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<span><i class="fas fa-bolt mr-2"></i>Start Extraction</span>';
+                showToast('Network error.', 'error');
+            });
+        }
+
+        function startPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            loadProcesses();
+            pollingInterval = setInterval(loadProcesses, 3000);
+        }
+
+        function loadProcesses() {
+            fetch('/api/email-founder/processes')
+                .then(r => r.json())
+                .then(data => {
+                    const running = data.processes || [];
+                    const hasRunning = running.some(p => p.status === 'running' || p.status === 'starting');
+                    if (!hasRunning && pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                        loadHistory();
+                    }
+                    renderAll(running, null);
+                });
+        }
+
+        function loadHistory() {
+            Promise.all([
+                fetch('/api/email-founder/processes').then(r => r.json()),
+                fetch('/api/email-founder/history').then(r => r.json())
+            ]).then(([procData, histData]) => {
+                const running = procData.processes || [];
+                const history = histData.history || [];
+                const hasRunning = running.some(p => p.status === 'running' || p.status === 'starting');
+                if (hasRunning && !pollingInterval) startPolling();
+                renderAll(running, history);
+            });
+        }
+
+        function renderAll(running, history) {
+            const container = document.getElementById('processesContainer');
+            let html = '';
+
+            if (running && running.length > 0) {
+                running.forEach(p => { html += renderProcessCard(p, true); });
+            }
+
+            if (history && history.length > 0) {
+                const runningKeys = (running || []).map(p => p.key);
+                const pastHistory = history.filter(h => !runningKeys.includes(h.key));
+                if (pastHistory.length > 0) {
+                    html += `<div class="flex items-center gap-3 mt-5 mb-3">
+                        <div class="h-px flex-1 bg-gray-100"></div>
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">History</span>
+                        <div class="h-px flex-1 bg-gray-100"></div>
+                    </div>`;
+                    pastHistory.forEach(h => { html += renderProcessCard(h, false); });
+                }
+            }
+
+            if (!html) {
+                html = `<div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-envelope-open text-violet-300 text-xl"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mb-1">No extractions yet</p>
+                    <p class="text-xs text-gray-300">Configure your settings and click Start Extraction</p>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderProcessCard(p, isRunning) {
+            const isActive = p.status === 'running' || p.status === 'starting';
+            const pct = p.total > 0 ? Math.round((p.progress / p.total) * 100) : 0;
+            const statusBadge = getStatusBadge(p.status);
+            const canDownload = (p.status === 'completed' || p.status === 'stopped') && p.email_count > 0;
+
+            let progressBar = '';
+            if (isActive) {
+                progressBar = `<div class="mt-3">
+                    <div class="flex justify-between text-xs mb-1.5">
+                        <span class="text-gray-500">Processing <strong>${p.progress || 0}</strong> of <strong>${p.total || '?'}</strong></span>
+                        <span class="font-semibold text-violet-600">${pct}%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                </div>`;
+            }
+
+            let errorHtml = '';
+            if (p.error && p.status === 'error') {
+                errorHtml = `<div class="mt-3 p-2.5 bg-red-50 rounded-lg text-xs text-red-600 flex items-start gap-2"><i class="fas fa-exclamation-circle mt-0.5"></i><span>${p.error}</span></div>`;
+            } else if (p.error && p.status === 'completed' && p.email_count === 0) {
+                errorHtml = `<div class="mt-3 p-2.5 bg-amber-50 rounded-lg text-xs text-amber-700 flex items-start gap-2"><i class="fas fa-info-circle mt-0.5"></i><span>${p.error}</span></div>`;
+            }
+
+            return `<div class="process-item mb-3">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe);">
+                            <i class="fas fa-envelope-open text-violet-400 text-sm"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-semibold text-gray-800 text-sm truncate">${p.gmail_email || ''}</div>
+                            <div class="flex flex-wrap gap-1.5 mt-1.5">
+                                <span class="meta-tag"><i class="fas fa-folder text-xs"></i>${p.folder_label || ''}</span>
+                                <span class="meta-tag"><i class="fas fa-hashtag text-xs"></i>${p.range_from || ''}-${p.range_to || ''}</span>
+                                <span class="meta-tag"><i class="fas fa-cog text-xs"></i>${p.mode_label || ''}</span>
+                            </div>
+                            <div class="text-xs text-gray-300 mt-1">${p.started_at || ''}${p.finished_at ? ' &rarr; ' + p.finished_at : ''}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 pt-0.5">
+                        ${statusBadge}
+                        ${p.email_count > 0 ? `<span class="badge badge-count">${p.email_count} emails</span>` : ''}
+                    </div>
+                </div>
+                ${progressBar}
+                ${errorHtml}
+                <div class="flex items-center gap-2 mt-3">
+                    ${canDownload ? `<a href="/api/email-founder/download/${p.output_file}" class="btn-sm btn-download"><i class="fas fa-download"></i>Download TXT</a>` : ''}
+                    ${isActive ? `<button onclick="stopProcess('${p.key}')" class="btn-sm btn-stop"><i class="fas fa-stop"></i>Stop</button>` : ''}
+                    ${!isActive ? `<button onclick="deleteHistory('${p.key}')" class="btn-sm btn-delete"><i class="fas fa-trash-alt"></i>Remove</button>` : ''}
+                </div>
+            </div>`;
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'running' || status === 'starting') return '<span class="badge badge-running"><i class="fas fa-circle-notch fa-spin"></i>Running</span>';
+            if (status === 'completed') return '<span class="badge badge-done"><i class="fas fa-check-circle"></i>Done</span>';
+            if (status === 'stopped') return '<span class="badge badge-stopped"><i class="fas fa-pause-circle"></i>Stopped</span>';
+            if (status === 'error') return '<span class="badge badge-error"><i class="fas fa-times-circle"></i>Error</span>';
+            return `<span class="badge" style="background:#f3f4f6;color:#6b7280;">${status}</span>`;
+        }
+
+        function stopProcess(key) {
+            fetch('/api/email-founder/stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key })
+            }).then(() => { loadProcesses(); });
+        }
+
+        function deleteHistory(key) {
+            if (!confirm('Delete this extraction and its file?')) return;
+            fetch('/api/email-founder/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: key })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Extraction removed.', 'success');
+                    loadHistory();
+                }
+            });
+        }
+
+        loadAccounts();
+        loadHistory();
+    </script>
+</body>
+</html>

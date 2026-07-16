@@ -1,0 +1,30 @@
+[
+  {
+    "key": "NihadEl_Bazi_20260311_160314",
+    "gmail_email": "aminaaz67h@gmail.com",
+    "folder_label": "Starred",
+    "mode_label": "Full Email Source",
+    "range_from": 30,
+    "range_to": 90,
+    "status": "completed",
+    "email_count": 61,
+    "output_file": "emails_20260311_160314.txt",
+    "started_at": "2026-03-11 16:03:14",
+    "finished_at": "2026-03-11 16:03:31",
+    "error": null
+  },
+  {
+    "key": "NihadEl_Bazi_20260218_132409",
+    "gmail_email": "aminaaz67h@gmail.com",
+    "folder_label": "Starred",
+    "mode_label": "Full Email Source",
+    "range_from": 20,
+    "range_to": 70,
+    "status": "completed",
+    "email_count": 51,
+    "output_file": "emails_20260218_132409.txt",
+    "started_at": "2026-02-18 13:24:09",
+    "finished_at": "2026-02-18 13:24:22",
+    "error": null
+  }
+]

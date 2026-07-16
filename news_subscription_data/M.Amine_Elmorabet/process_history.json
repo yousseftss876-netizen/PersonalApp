@@ -1,0 +1,148 @@
+[
+  {
+    "status": "completed",
+    "created_at": "2026-02-11T12:14:48.129284",
+    "start_time": "2026-02-11T12:14:47.578386",
+    "end_time": "2026-02-11T12:14:48.129284",
+    "duration": "0h 0m 0s",
+    "successful_registrations": 0,
+    "failed_registrations": 0,
+    "success_rate": 0,
+    "total_domains_processed": 0,
+    "email_used": "foma749@gmail.com",
+    "id": "3fd8b5af-0b4a-45f8-a4d2-db079b5e515c"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-11T12:13:27.569020",
+    "start_time": "2026-02-11T11:39:20.081067",
+    "end_time": "2026-02-11T12:13:27.569020",
+    "duration": "0h 34m 7s",
+    "successful_registrations": 22,
+    "failed_registrations": 10,
+    "success_rate": 68.8,
+    "total_domains_processed": 32,
+    "email_used": "janjounanosh@gmail.com",
+    "id": "67aa59ea-0403-4fa5-a43c-be55abe6da85"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T17:31:33.760517",
+    "successful_registrations": 93,
+    "failed_registrations": 73,
+    "success_rate": 56.0,
+    "total_domains_processed": 166,
+    "email_used": "mozblood@gmail.com",
+    "id": "673a876a-6dfc-41b4-88e2-6730a988f814"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T16:40:33.629969",
+    "successful_registrations": 23,
+    "failed_registrations": 13,
+    "success_rate": 63.9,
+    "total_domains_processed": 36,
+    "email_used": "brunno12708402@gmail.com",
+    "id": "3f48b106-ec32-4d13-9af0-b1a6a73b2a7c"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T15:51:01.709040",
+    "successful_registrations": 28,
+    "failed_registrations": 8,
+    "success_rate": 77.8,
+    "total_domains_processed": 36,
+    "email_used": "stevenap1313@gmail.com",
+    "id": "8e8899b7-b02a-4887-b0b5-e6efcf811250"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T15:24:26.831957",
+    "successful_registrations": 23,
+    "failed_registrations": 9,
+    "success_rate": 71.9,
+    "total_domains_processed": 32,
+    "email_used": "smeegs88@gmail.com",
+    "id": "e3d89ca4-2a3a-49bd-ae89-e2f4b61f6425"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T14:48:41.493514",
+    "successful_registrations": 25,
+    "failed_registrations": 7,
+    "success_rate": 78.1,
+    "total_domains_processed": 32,
+    "email_used": "mengqitao30@gmail.com",
+    "id": "b4c170f3-c6a4-4232-9b21-93267489911a"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T14:16:43.382241",
+    "successful_registrations": 15,
+    "failed_registrations": 17,
+    "success_rate": 46.9,
+    "total_domains_processed": 32,
+    "email_used": "rathishk2001chat@gmail.com",
+    "id": "a37d0180-f16f-48d5-8fde-4a72e8cead05"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T14:16:32.889983",
+    "successful_registrations": 18,
+    "failed_registrations": 14,
+    "success_rate": 56.2,
+    "total_domains_processed": 32,
+    "email_used": "rathishk2001chat@gmail.com",
+    "id": "e97387bf-66eb-4fa9-a69d-54890d6a9aad"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T13:51:24.990008",
+    "successful_registrations": 20,
+    "failed_registrations": 12,
+    "success_rate": 62.5,
+    "total_domains_processed": 32,
+    "email_used": "terrien.zack@gmail.com",
+    "id": "8be79b96-bfbb-4952-94eb-5c6a3fb27ee6"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T13:32:33.498780",
+    "successful_registrations": 0,
+    "failed_registrations": 4,
+    "success_rate": 0.0,
+    "total_domains_processed": 4,
+    "email_used": "rathishk2001chat@gmail.com",
+    "id": "6fa1e23e-ccea-4582-9367-b07c1bb475e5"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T13:01:19.901079",
+    "successful_registrations": 3,
+    "failed_registrations": 2,
+    "success_rate": 60.0,
+    "total_domains_processed": 5,
+    "email_used": "bfaulk31@gmail.com",
+    "id": "8a2b7b90-36b7-4851-9168-2e7875bfcd4c"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T12:59:28.758550",
+    "successful_registrations": 10,
+    "failed_registrations": 11,
+    "success_rate": 47.6,
+    "total_domains_processed": 21,
+    "email_used": "trelumarvryunmycah9312@gmail.com",
+    "id": "784058b8-2da6-4e54-a442-c0188e6f3d57"
+  },
+  {
+    "status": "completed",
+    "created_at": "2026-02-06T12:57:13.923823",
+    "successful_registrations": 5,
+    "failed_registrations": 10,
+    "success_rate": 33.3,
+    "total_domains_processed": 15,
+    "email_used": "trelumarvryunmycah9312@gmail.com",
+    "id": "05569c8c-61e9-49c5-8dd2-3117bc4a33d4"
+  }
+]

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found · TSS Platform</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.18), transparent 55%),
+                radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.18), transparent 55%),
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .grid-bg {
+            background-image:
+                linear-gradient(to right, rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 50px -25px rgba(79, 70, 229, 0.35);
+        }
+        .four-zero-four {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px -10px rgba(99, 102, 241, 0.6);
+        }
+        .btn-secondary {
+            transition: background-color .15s ease, border-color .15s ease;
+        }
+    </style>
+</head>
+<body class="grid-bg">
+    <main class="min-h-screen flex items-center justify-center px-4 py-10">
+        <div class="glass rounded-3xl max-w-xl w-full p-8 sm:p-12 text-center">
+            <div class="float inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6"
+                 style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15)); border: 1px solid rgba(99,102,241,0.25);">
+                <i class="fas fa-compass text-3xl" style="color:#6366f1;"></i>
+            </div>
+
+            <h1 class="four-zero-four text-7xl sm:text-8xl mb-4">404</h1>
+
+            <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-3">
+                Looks Like You've Lost Your Way
+            </h2>
+            <p class="text-gray-500 text-base sm:text-lg mb-8 max-w-md mx-auto">
+                The page you are looking for doesn't exist<br>Pleas Contact Tss Tools Admin.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{{ url_for('services') if current_user.is_authenticated else url_for('login') }}"
+                   class="btn-primary inline-flex items-center justify-center gap-2 text-white font-medium px-6 py-3 rounded-xl w-full sm:w-auto">
+                    <i class="fas fa-house"></i>
+                    <span>Back to home</span>
+                </a>
+                <button type="button" onclick="history.back()"
+                        class="btn-secondary inline-flex items-center justify-center gap-2 text-gray-700 font-medium px-6 py-3 rounded-xl w-full sm:w-auto bg-white/70 hover:bg-white border border-gray-200">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Go back</span>
+                </button>
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-gray-200/70 text-xs text-gray-400 flex items-center justify-center gap-2">
+                <i class="fas fa-shield-halved"></i>
+                <span>TSS Platform · Error 404</span>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

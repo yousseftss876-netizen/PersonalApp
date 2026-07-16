@@ -1,0 +1,72 @@
+[2026-04-14 10:55:06 +0000] [666] [INFO] Starting gunicorn 25.3.0
+[2026-04-14 10:55:06 +0000] [666] [INFO] Listening at:  (666)
+[2026-04-14 10:55:06 +0000] [666] [INFO] Using worker: sync
+[2026-04-14 10:55:06 +0000] [671] [INFO] Booting worker with pid: 671
+[2026-04-14 10:55:06 +0000] [671] [WARNING] Reloader is on. Use in development only!
+[2026-04-14 10:55:06 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:07:37 +0000] [671] [INFO] Worker reloading: /home/runner/workspace/subdomain_finder.py modified
+[2026-04-14 11:07:37 +0000] [671] [INFO] Worker exiting (pid: 671)
+[2026-04-14 11:07:38 +0000] [1063] [INFO] Booting worker with pid: 1063
+[2026-04-14 11:07:38 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:07:38 +0000] [1063] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:13 +0000] [1063] [INFO] Worker reloading: /home/runner/workspace/domain_founder.py modified
+[2026-04-14 11:09:13 +0000] [1063] [INFO] Worker exiting (pid: 1063)
+[2026-04-14 11:09:13 +0000] [1093] [INFO] Booting worker with pid: 1093
+[2026-04-14 11:09:13 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:13 +0000] [1093] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:23 +0000] [1093] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:09:23 +0000] [1093] [INFO] Worker exiting (pid: 1093)
+[2026-04-14 11:09:23 +0000] [1118] [INFO] Booting worker with pid: 1118
+[2026-04-14 11:09:23 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:23 +0000] [1118] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:31 +0000] [1118] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:09:31 +0000] [1118] [INFO] Worker exiting (pid: 1118)
+[2026-04-14 11:09:31 +0000] [1139] [INFO] Booting worker with pid: 1139
+[2026-04-14 11:09:31 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:31 +0000] [1139] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:41 +0000] [1139] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:09:41 +0000] [1139] [INFO] Worker exiting (pid: 1139)
+[2026-04-14 11:09:42 +0000] [1162] [INFO] Booting worker with pid: 1162
+[2026-04-14 11:09:42 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:42 +0000] [1162] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:50 +0000] [1162] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:09:50 +0000] [1162] [INFO] Worker exiting (pid: 1162)
+[2026-04-14 11:09:50 +0000] [1191] [INFO] Booting worker with pid: 1191
+[2026-04-14 11:09:50 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:50 +0000] [1191] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:09:57 +0000] [1191] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:09:57 +0000] [1191] [INFO] Worker exiting (pid: 1191)
+[2026-04-14 11:09:57 +0000] [1221] [INFO] Booting worker with pid: 1221
+[2026-04-14 11:09:57 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:09:57 +0000] [1221] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:10:07 +0000] [1221] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-04-14 11:10:07 +0000] [1221] [INFO] Worker exiting (pid: 1221)
+[2026-04-14 11:10:07 +0000] [1243] [INFO] Booting worker with pid: 1243
+[2026-04-14 11:10:07 +0000] [1243] [WARNING] Reloader is on. Use in development only!
+[2026-04-14 11:10:07 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-04-14 11:13:51 +0000] [666] [INFO] Handling signal: hup
+[2026-04-14 11:13:51 +0000] [666] [INFO] Hang up: Master
+[2026-04-14 11:13:51 +0000] [1416] [INFO] Booting worker with pid: 1416
+[2026-04-14 11:13:51 +0000] [666] [WARNING] Worker (pid:1243) was sent SIGHUP!
+[2026-04-14 11:13:51 +0000] [666] [INFO] Control socket listening at /home/runner/.gunicorn/gunicorn.ctl
+[2026-04-14 11:13:51 +0000] [1416] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources

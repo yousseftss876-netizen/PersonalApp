@@ -1,0 +1,16 @@
+[
+  {
+    "key": "ElHarrasRHIMOU_20260309_113044",
+    "gmail_email": "yaldirimburak@gmail.com",
+    "folder_label": "Starred",
+    "mode_label": "Full Email Source",
+    "range_from": 400,
+    "range_to": 500,
+    "status": "completed",
+    "email_count": 101,
+    "output_file": "emails_20260309_113044.txt",
+    "started_at": "2026-03-09 11:30:44",
+    "finished_at": "2026-03-09 11:30:56",
+    "error": null
+  }
+]

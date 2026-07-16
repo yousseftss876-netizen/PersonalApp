@@ -1,0 +1,225 @@
+<!-- ════════════════════════════════════════════════════════
+     SHARED SERVICE HEADER — include in every service page
+     Required variables (set before including):
+       page_title  – e.g. "Domain Checker"
+       page_icon   – Phosphor icon class, e.g. "ph-globe-hemisphere-west"
+     Optional variables:
+       back_url    – override back button URL (default: services)
+       back_label  – override back button label (default: "Services")
+════════════════════════════════════════════════════════ -->
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter','Segoe UI',system-ui,sans-serif; }
+
+    .svc-header {
+        position: sticky; top: 0; z-index: 999;
+        background: rgba(255,255,255,0.88);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .svc-header-inner {
+        max-width: 1280px; margin: 0 auto;
+        padding: 10px 20px;
+        display: flex; align-items: center; gap: 12px;
+    }
+
+    /* Brand */
+    .svc-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; flex-shrink: 0; }
+    .svc-brand-icon {
+        width: 32px; height: 32px; border-radius: 10px;
+        background: linear-gradient(135deg,#6366f1,#a855f7);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .svc-brand-icon i { font-size: 17px; color: #fff; }
+    .svc-brand-name { font-weight: 700; font-size: 14px; color: #1e293b; letter-spacing: -.02em; }
+
+    /* Divider */
+    .svc-divider { width: 1px; height: 22px; background: #e2e8f0; flex-shrink: 0; }
+
+    /* Page title */
+    .svc-page-title { display: flex; align-items: center; gap: 8px; }
+    .svc-page-title-icon {
+        width: 30px; height: 30px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--page-accent-bg, #f1f5f9);
+        flex-shrink: 0;
+    }
+    .svc-page-title-icon i { font-size: 16px; color: var(--page-accent-color, #6366f1); }
+    .svc-page-title span { font-weight: 600; font-size: 14px; color: #334155; white-space: nowrap; }
+
+    /* Spacer */
+    .svc-spacer { flex: 1; }
+
+    /* Avatar / profile */
+    .svc-avatar-btn {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: linear-gradient(135deg,#6366f1,#a855f7);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700; color: #fff;
+        cursor: pointer; flex-shrink: 0;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(99,102,241,.3);
+        transition: transform .15s;
+    }
+    .svc-avatar-btn:hover { transform: scale(1.07); }
+
+    /* Dropdown */
+    .svc-profile-wrap { position: relative; }
+    .svc-profile-menu {
+        position: absolute; top: calc(100% + 10px); right: 0;
+        width: 220px;
+        background: #fff;
+        border: 1px solid #e8ecf0;
+        border-radius: 14px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.13);
+        overflow: hidden;
+        display: none; z-index: 1000;
+        animation: svcFadeSlide .15s ease;
+    }
+    .svc-profile-menu.open { display: block; }
+    @keyframes svcFadeSlide {
+        from { opacity:0; transform:translateY(-6px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    .svc-profile-head {
+        padding: 13px 15px;
+        background: linear-gradient(135deg,#f5f3ff,#ede9fe);
+        border-bottom: 1px solid #ede9fe;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .svc-profile-head .mini-avatar {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: linear-gradient(135deg,#6366f1,#a855f7);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .svc-profile-head .user-name { font-weight: 600; font-size: 13px; color: #1e293b; }
+    .svc-profile-head .entity-tag {
+        display: inline-block; margin-top: 3px;
+        font-size: 10px; font-weight: 700; letter-spacing: .04em;
+        padding: 1px 8px; border-radius: 20px;
+        background: #ede9fe; color: #6d28d9;
+    }
+    .svc-menu-item {
+        display: flex; align-items: center; gap: 9px;
+        padding: 9px 15px;
+        font-size: 13px; font-weight: 500; color: #374151;
+        text-decoration: none; cursor: pointer;
+        transition: background .12s;
+        border: none; background: none; width: 100%; text-align: left;
+    }
+    .svc-menu-item i { font-size: 16px; color: #6366f1; flex-shrink: 0; }
+    .svc-menu-item:hover { background: #f8fafc; }
+    .svc-menu-item.danger { color: #ef4444; }
+    .svc-menu-item.danger i { color: #ef4444; }
+    .svc-menu-item.danger:hover { background: #fef2f2; }
+    .svc-menu-divider { border-top: 1px solid #f1f5f9; margin: 3px 0; }
+</style>
+
+<header class="svc-header">
+    <div class="svc-header-inner">
+
+        <!-- Brand -->
+        <a href="{{ url_for('services') }}" class="svc-brand">
+            <div class="svc-brand-icon"><i class="ph ph-squares-four"></i></div>
+            <span class="svc-brand-name hidden sm:block">TSS Platform</span>
+        </a>
+
+        <div class="svc-divider hidden sm:block"></div>
+
+        <!-- Page title -->
+        <div class="svc-page-title">
+            <div class="svc-page-title-icon">
+                <i class="ph {{ page_icon | default('ph-squares-four') }}"></i>
+            </div>
+            <span>{{ page_title | default('Service') }}</span>
+        </div>
+
+        <div class="svc-spacer"></div>
+
+        <!-- Profile -->
+        <div class="svc-profile-wrap" id="svcProfileWrap">
+            <div class="svc-avatar-btn" onclick="svcToggleProfile(event)">
+                {{ current_user.name[0].upper() }}
+            </div>
+
+            <div class="svc-profile-menu" id="svcProfileMenu">
+                <div class="svc-profile-head">
+                    <div class="mini-avatar">{{ current_user.name[0].upper() }}</div>
+                    <div>
+                        <div class="user-name">{{ current_user.name }}</div>
+                        <span class="entity-tag">{{ current_user.entity }}</span>
+                    </div>
+                </div>
+
+                <a href="{{ back_url | default(url_for('services')) }}" class="svc-menu-item">
+                    <i class="ph ph-arrow-left"></i>
+                    {{ back_label | default('Back to Services') }}
+                </a>
+
+                {% if current_user.has_user_management_permission %}
+                <a href="{{ url_for('manage_users') }}" class="svc-menu-item">
+                    <i class="ph ph-users-three"></i>
+                    Manage Users
+                </a>
+                {% endif %}
+
+                {% if current_user.has_access_management_permission %}
+                <a href="{{ url_for('access_management') }}" class="svc-menu-item">
+                    <i class="ph ph-shield-check"></i>
+                    Access Management
+                </a>
+                {% endif %}
+
+                {% if current_user.has_processes_management_permission %}
+                <a href="{{ url_for('processes_management_page') }}" class="svc-menu-item">
+                    <i class="ph ph-list-checks"></i>
+                    Processes Management
+                </a>
+                {% endif %}
+
+                {% if current_user.has_warmup_lists_permission %}
+                <a href="{{ url_for('warmup_lists_page') }}" class="svc-menu-item">
+                    <i class="ph ph-fire-simple"></i>
+                    Warmup Lists
+                </a>
+                {% endif %}
+
+                {% if current_user.has_warmup_reports_permission %}
+                <a href="{{ url_for('warmup_reports') }}" class="svc-menu-item">
+                    <i class="ph ph-chart-line-up"></i>
+                    Warmup Reports
+                </a>
+                {% endif %}
+
+                <div class="svc-menu-divider"></div>
+
+                <a href="{{ url_for('logout') }}" class="svc-menu-item danger">
+                    <i class="ph ph-sign-out"></i>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<script>
+(function() {
+    function svcToggleProfile(e) {
+        e.stopPropagation();
+        document.getElementById('svcProfileMenu').classList.toggle('open');
+    }
+    window.svcToggleProfile = svcToggleProfile;
+    document.addEventListener('click', function(e) {
+        var wrap = document.getElementById('svcProfileWrap');
+        if (wrap && !wrap.contains(e.target)) {
+            var menu = document.getElementById('svcProfileMenu');
+            if (menu) menu.classList.remove('open');
+        }
+    });
+})();
+</script>

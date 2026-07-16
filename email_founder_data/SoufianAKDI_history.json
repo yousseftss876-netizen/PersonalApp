@@ -1,0 +1,16 @@
+[
+  {
+    "key": "SoufianAKDI_20260417_121524",
+    "gmail_email": "mariadeep355@gmail.com",
+    "folder_label": "Warm Up",
+    "mode_label": "Full Email Source",
+    "range_from": 1,
+    "range_to": 30,
+    "status": "completed",
+    "email_count": 30,
+    "output_file": "emails_20260417_121524.txt",
+    "started_at": "2026-04-17 12:15:24",
+    "finished_at": "2026-04-17 12:15:34",
+    "error": null
+  }
+]

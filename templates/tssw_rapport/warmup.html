@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warmup Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Load Warmup Data directly -->
+    <script src="{{ url_for('static', filename='tssw_rapport/warmup_data.js') }}"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+
+        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            primary: '#4f46e5', // Indigo 600
+                            secondary: '#9333ea', // Purple 600
+                            accent: '#db2777', // Pink 600
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'bounce-slow': 'bounce 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Light Mode Base */
+        body {
+            background-color: #f8fafc; /* Slate 50 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,90%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,95%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,90%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #1e293b; /* Slate 800 */
+        }
+
+        /* Glassmorphism Light */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        thead th { background: rgba(241, 245, 249, 0.8); }
+        tr:hover td { background: rgba(248, 250, 252, 0.8); }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(248, 250, 252, 0.9);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+.text-white {
+  color: white !important;
+}
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+   <!-- <div id="loadingOverlay">
+        <div class="flex flex-col items-center">
+            <i class="ph ph-circle-notch animate-spin text-4xl text-indigo-600 mb-3"></i>
+            <p class="text-slate-600 font-medium animate-pulse">Loading Warmup Data...</p>
+        </div>
+    </div>-->
+
+    <!-- Navigation -->
+    <!-- Navigation -->
+<nav class="nav-glass fixed w-full z-50 top-0 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <a href="{{ url_for('tssw_rapport_domain') }}" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white transition-transform group-hover:scale-105">
+                    <i class="ph ph-chart-line-up text-xl"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-slate-800">Domain<span class="text-indigo-600">Project</span></span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-6">
+                <a href="{{ url_for('tssw_rapport_domain') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-globe"></i> Domain Report
+                </a>
+                <a href="{{ url_for('tssw_rapport_offer') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-paper-plane-tilt"></i> Offer
+                </a>
+                <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                <!-- User Profile Dropdown -->
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center gap-3 focus:outline-none group transition-all duration-200 hover:scale-105">
+                        <!-- Circular Avatar -->
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-medium shadow-lg shadow-indigo-500/30 transition-transform group-hover:scale-105">
+                            <span class="text-sm font-semibold"><i class="fas fa-user text-white"></i></span>
+                        </div>
+                        <!-- Name & Entity -->
+                        <div class="flex flex-col items-start">
+                            <span class="font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">{{ current_user.name }}</span>
+                            <span class="text-xs text-slate-500">{{ current_user.entity }}</span>
+                        </div>
+                        <i class="ph ph-caret-down text-slate-500 text-sm transition-transform duration-200" id="chevron"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="userDropdown" class="absolute right-0 mt-3 w-64 glass-card rounded-xl shadow-2xl py-2 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-50">
+                        <!-- User Info -->
+                        <div class="px-4 py-3 border-b border-slate-200/50">
+                            <p class="font-semibold text-slate-800">{{ current_user.name }}</p>
+                            <p class="text-sm text-slate-500">{{ current_user.entity }}</p>
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="py-1">
+                            <a href="{{ url_for('tssw_rapport_index') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 transition-colors">
+                                <i class="ph ph-th-large w-5 mr-3 text-slate-500"></i>
+                                Other Project
+                            </a>
+                            <a href="{{ url_for('services') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 transition-colors">
+                                <i class="ph ph-th-large w-5 mr-3 text-slate-500"></i>
+                                Back to Services
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50/70 transition-colors">
+                                <i class="ph ph-sign-out w-5 mr-3"></i>
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+        
+        <!-- Header & Controls -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 animate-fade-in">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-slate-800">Deliverability Health</h1>
+                <p class="text-slate-500 mt-1">This Report Present The Numbre Sent in seeds of Each Domain Per day (The Statistics of Night Reporting and After Send are not involved)</p>
+            </div>
+            
+            <div class="mt-4 md:mt-0 flex items-center gap-3 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
+                <div class="px-3 py-1.5 bg-slate-100 rounded-lg">
+                    <i class="ph ph-globe text-slate-500"></i>
+                </div>
+                <select id="domainSelector" class="bg-transparent border-none text-sm font-bold text-slate-700 focus:ring-0 cursor-pointer min-w-[240px] outline-none max-w-xs">
+                    <option>Loading domains...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-fade-in">
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Sent</p>
+                        <h3 class="text-3xl font-display font-bold text-slate-800 mt-1" id="kpi-total">0</h3>
+                    </div>
+                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <i class="ph ph-paper-plane-tilt text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 flex items-center gap-1">
+                    <span class="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <i class="ph ph-trend-up"></i> Total Lifetime
+                    </span>
+                    Sents
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Avg Daily Sents</p>
+                        <h3 class="text-3xl font-display font-bold text-slate-800 mt-1" id="kpi-avg">0</h3>
+                    </div>
+                    <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                        <i class="ph ph-chart-bar text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500">
+                    Average per active day
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Error Rate</p>
+                        <h3 class="text-3xl font-display font-bold text-slate-800 mt-1" id="kpi-error">0%</h3>
+                    </div>
+                    <div class="p-2 bg-rose-50 rounded-lg text-rose-600">
+                        <i class="ph ph-warning-circle text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 flex items-center gap-1">
+                    <span id="kpi-error-badge" class="font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                        --
+                    </span>
+                    impact on reputation
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Health Score</p>
+                        <h3 class="text-3xl font-display font-bold text-slate-800 mt-1" id="kpi-health">0</h3>
+                    </div>
+                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <i class="ph ph-heartbeat text-xl"></i>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div id="health-bar" class="bg-gradient-to-r from-emerald-500 to-green-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 animate-slide-up">
+            
+            <!-- Volume Chart (Line) -->
+            <div class="glass-card p-6 rounded-2xl lg:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800">Sending Rate Velocity</h3>
+                        <p class="text-sm text-slate-500">Daily total email traffic across all drops</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="flex items-center gap-1 text-xs font-medium text-slate-500">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Nbr Sents
+                        </span>
+                    </div>
+                </div>
+                <div class="relative h-72 w-full">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Error Distribution (Doughnut) -->
+            <div class="glass-card p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800">Authentication Health</h3>
+                        <p class="text-sm text-slate-500">Distribution of clean sends vs protocol errors</p>
+                    </div>
+                </div>
+                <div class="relative h-52 flex justify-center mb-4">
+                    <canvas id="errorChart"></canvas>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center text-sm p-2 rounded bg-slate-50 border border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-emerald-500"></div>
+                            <span class="text-slate-600 font-medium">Clean Sends</span>
+                        </div>
+                        <span class="font-bold text-slate-800" id="stat-clean">0</span>
+                    </div>
+                     <div class="flex justify-between items-center text-sm p-2 rounded bg-rose-50 border border-rose-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-rose-500"></div>
+                            <span class="text-slate-600 font-medium">SPF Errors</span>
+                        </div>
+                        <span class="font-bold text-slate-800" id="stat-spf">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm p-2 rounded bg-amber-50 border border-amber-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-amber-500"></div>
+                            <span class="text-slate-600 font-medium">DKIM Errors</span>
+                        </div>
+                        <span class="font-bold text-slate-800" id="stat-dkim">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm p-2 rounded bg-purple-50 border border-purple-100">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-purple-500"></div>
+                            <span class="text-slate-600 font-medium">DMARC Errors</span>
+                        </div>
+                        <span class="font-bold text-slate-800" id="stat-dmarc">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drops Heatmap/Detail Table -->
+        <div class="glass-card rounded-2xl overflow-hidden border border-slate-200 animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="p-6 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Daily Drop Inspection</h3>
+                    <p class="text-sm text-slate-500">Granular view of daily drops, Total Sents, and technical compliance</p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                     <!-- Date Filter -->
+                     <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                        <i class="ph ph-calendar-blank text-slate-400"></i>
+                        <span class="text-xs text-slate-500 font-bold uppercase">Go to Date:</span>
+                        <input type="date" id="dateJump" class="text-sm border-none focus:ring-0 text-slate-600 outline-none">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all text-sm font-medium flex items-center gap-1 disabled:opacity-50" id="btnPrev">
+                            <i class="ph ph-caret-left"></i> Prev
+                        </button>
+                        <button onclick="changePage(1)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all text-sm font-medium flex items-center gap-1 disabled:opacity-50" id="btnNext">
+                            Next <i class="ph ph-caret-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200">
+                            <th class="px-6 py-4 w-32">Date</th>
+                            <th class="px-6 py-4 w-24">Total</th>
+                            <th class="px-6 py-4">Drop Performance Visualization</th>
+                            <th class="px-6 py-4 text-right w-48">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warmupTableBody" class="divide-y divide-slate-100 bg-white/30">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-3 bg-slate-50/50 border-t border-slate-100 text-xs text-slate-500 flex justify-between">
+                 <span id="page-info">Showing latest records</span>
+                 <span>Data Source: <span class="font-mono text-indigo-600">Warmup_All_Json.json</span></span>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('userMenuButton');
+    const dropdown = document.getElementById('userDropdown');
+    const chevron = document.getElementById('chevron');
+
+    if (button && dropdown && chevron) {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('opacity-0');
+            dropdown.classList.toggle('scale-95');
+            dropdown.classList.toggle('pointer-events-none');
+            chevron.classList.toggle('rotate-180');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target)) {
+                dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+    }
+});
+        // Global State
+        let rawData = {};
+        const domainSelector = document.getElementById('domainSelector');
+        let currentDomain = "";
+        let chartVolume = null;
+        let chartErrors = null;
+        let currentPage = 0;
+        const itemsPerPage = 8;
+        let allDates = []; // Store all dates for index lookup
+
+        // Async Init
+        async function init() {
+            // Force hide loading after 5 seconds if nothing happens (safety net)
+            setTimeout(() => {
+                const loader = document.getElementById('loadingOverlay');
+                if (loader && !loader.classList.contains('hidden')) {
+                    console.error("Loading timed out");
+                    loader.innerHTML = '<div class="text-rose-500 font-bold p-4 bg-white rounded shadow">Loading Timeout - check console</div>';
+                }
+            }, 5000);
+
+            try {
+                // 1. Try global variable (fastest, for local file://)
+                if (window.WARMUP_DATA) {
+                    console.log("Loaded from window.WARMUP_DATA");
+                    rawData = window.WARMUP_DATA;
+                } 
+                // 2. Try fetching JS file manually (if script tag failed)
+                else {
+                    console.log("Fetching warmup_data.js...");
+                    // We fetch the JS file as text and eval it (only if variable missing)
+                    // Or better, fetch as json if we kept the json file.
+                    // But we only have .js now.
+                    // Let's try to fetch the .js file and strip the assignment
+                    const response = await fetch('warmup_data.js');
+                    if (!response.ok) throw new Error(`Failed to load data file (${response.status})`);
+                    const text = await response.text();
+                    // Strip "window.WARMUP_DATA = " and semicolon
+                    const jsonText = text.replace(/^window\.WARMUP_DATA\s*=\s*/, '').replace(/;?\s*$/, '');
+                    rawData = JSON.parse(jsonText);
+                }
+                
+                // Sort domains alphabetically
+                const domains = Object.keys(rawData).sort();
+                
+                // Populate Selector
+                domainSelector.innerHTML = '';
+                domains.forEach(domain => {
+                    const option = document.createElement('option');
+                    option.value = domain;
+                    option.text = domain;
+                    domainSelector.appendChild(option);
+                });
+
+                // Set initial domain
+                if (domains.length > 0) {
+                    // Try to default to assemblycoffeeroasters.com if exists, else first
+                    currentDomain = domains.includes("assemblycoffeeroasters.com") ? "assemblycoffeeroasters.com" : domains[0];
+                    domainSelector.value = currentDomain;
+                    updateDashboard();
+                }
+                
+                // Remove Loading Overlay
+                document.getElementById('loadingOverlay').classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error loading data:", error);
+                document.getElementById('loadingOverlay').innerHTML = `
+                    <div class="text-center p-6 bg-white rounded-xl shadow-xl border border-rose-100 max-w-md">
+                        <i class="ph ph-warning-circle text-4xl text-rose-500 mb-3"></i>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">Data Loading Error</h3>
+                        <div class="bg-slate-100 p-3 rounded text-left mb-4 overflow-auto max-h-32">
+                            <p class="font-mono text-xs text-rose-600 break-all">${error.message}</p>
+                        </div>
+                        <button onclick="location.reload()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700">Retry</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Event Listeners
+        domainSelector.addEventListener('change', (e) => {
+            currentDomain = e.target.value;
+            currentPage = 0; // Reset pagination to latest
+            document.getElementById('dateJump').value = ''; // Reset date filter
+            updateDashboard();
+        });
+
+        document.getElementById('dateJump').addEventListener('change', (e) => {
+            const selectedDate = e.target.value;
+            if(!selectedDate) return;
+            
+            // Find index of selected date in current domain's data
+            // Note: data is sorted chronologically in JSON usually, but we reverse it for display (newest first)
+            const domainData = rawData[currentDomain] || [];
+            
+            // We sort reversed for display logic
+            const sortedData = [...domainData].reverse();
+            
+            const targetIndex = sortedData.findIndex(d => d.date === selectedDate);
+            
+            if(targetIndex !== -1) {
+                currentPage = Math.floor(targetIndex / itemsPerPage);
+                renderTable(domainData);
+                
+                // Highlight row effect (optional)
+                setTimeout(() => {
+                    const rows = document.querySelectorAll('#warmupTableBody tr');
+                    const relativeIndex = targetIndex % itemsPerPage;
+                    if(rows[relativeIndex]) {
+                        rows[relativeIndex].classList.add('bg-indigo-50');
+                        setTimeout(() => rows[relativeIndex].classList.remove('bg-indigo-50'), 2000);
+                    }
+                }, 100);
+            } else {
+                alert('No data found for this date.');
+            }
+        });
+
+        function updateDashboard() {
+            const data = rawData[currentDomain];
+            if (!data) return;
+
+            // 1. Calculate Stats
+            let totalSent = 0;
+            let totalDays = data.length;
+            let errorCounts = { spf: 0, dkim: 0, dmarc: 0, clean: 0 };
+            
+            data.forEach(day => {
+                Object.values(day.drops).forEach(drop => {
+                    totalSent += drop.sent;
+                    if(drop.sent > 0) {
+                        if(drop.error) {
+                            errorCounts[drop.error.toLowerCase()] += drop.sent;
+                        } else {
+                            errorCounts.clean += drop.sent;
+                        }
+                    }
+                });
+            });
+
+            const avgDaily = totalDays > 0 ? Math.round(totalSent / totalDays) : 0;
+            const totalErrors = errorCounts.spf + errorCounts.dkim + errorCounts.dmarc;
+            const errorRate = totalSent > 0 ? ((totalErrors / totalSent) * 100).toFixed(1) : 0;
+            const healthScore = Math.max(0, 100 - (errorRate * 2));
+
+            // Update DOM Stats
+            document.getElementById('kpi-total').innerText = totalSent.toLocaleString(); // Exact number requested
+            document.getElementById('kpi-avg').innerText = avgDaily.toLocaleString();
+            document.getElementById('kpi-error').innerText = errorRate + '%';
+            document.getElementById('kpi-health').innerText = Math.round(healthScore);
+            
+            // Health Bar
+            const healthBar = document.getElementById('health-bar');
+            healthBar.style.width = `${healthScore}%`;
+            healthBar.className = `h-full rounded-full transition-all duration-1000 ${healthScore > 80 ? 'bg-emerald-500' : healthScore > 50 ? 'bg-amber-500' : 'bg-rose-500'}`;
+
+            // Error Badge
+            const errBadge = document.getElementById('kpi-error-badge');
+            if(errorRate < 2) {
+                errBadge.className = 'bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold';
+                errBadge.innerText = 'Low';
+            } else if (errorRate < 5) {
+                errBadge.className = 'bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold';
+                errBadge.innerText = 'Medium';
+            } else {
+                errBadge.className = 'bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold';
+                errBadge.innerText = 'Critical';
+            }
+
+            // Update Counts
+            document.getElementById('stat-clean').innerText = errorCounts.clean.toLocaleString();
+            document.getElementById('stat-spf').innerText = errorCounts.spf.toLocaleString();
+            document.getElementById('stat-dkim').innerText = errorCounts.dkim.toLocaleString();
+            document.getElementById('stat-dmarc').innerText = errorCounts.dmarc.toLocaleString();
+
+            // 2. Render Charts
+            renderCharts(data, errorCounts);
+            
+            // 3. Render Table
+            renderTable(data);
+        }
+
+        function renderCharts(data, errorCounts) {
+            // Volume Chart
+            const dates = data.map(d => d.date.substring(5)); // MM-DD
+            const volumes = data.map(d => Object.values(d.drops).reduce((a, b) => a + b.sent, 0));
+            
+            const ctxVol = document.getElementById('volumeChart').getContext('2d');
+            
+            if(chartVolume) chartVolume.destroy();
+
+            chartVolume = new Chart(ctxVol, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Total Sent',
+                        data: volumes,
+                        borderColor: '#4f46e5', // Indigo-600
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#4f46e5',
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+
+            // Error Chart
+            const ctxErr = document.getElementById('errorChart').getContext('2d');
+            if(chartErrors) chartErrors.destroy();
+
+            chartErrors = new Chart(ctxErr, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Clean', 'SPF', 'DKIM', 'DMARC'],
+                    datasets: [{
+                        data: [errorCounts.clean, errorCounts.spf, errorCounts.dkim, errorCounts.dmarc],
+                        backgroundColor: ['#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('warmupTableBody');
+            tbody.innerHTML = '';
+            
+            // Reverse sort for latest dates first (Desc Order)
+            const sortedData = [...data].reverse();
+            const start = currentPage * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = sortedData.slice(start, end);
+
+            pageData.forEach(day => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                
+                let dayTotal = 0;
+                let dayErrors = [];
+                let dropViz = '';
+
+                Object.entries(day.drops).forEach(([key, drop], index) => {
+                    dayTotal += drop.sent;
+                    if(drop.error) dayErrors.push(drop.error.toUpperCase());
+                    
+                    // Visualization Bar Segment
+                    // Scale: Max expected drop might be ~5k for visual scaling logic
+                    let color = 'bg-slate-200';
+                    if(drop.sent > 0) {
+                        if(!drop.error) color = 'bg-emerald-400';
+                        else if(drop.error.toLowerCase() === 'spf') color = 'bg-rose-400';
+                        else if(drop.error.toLowerCase() === 'dkim') color = 'bg-amber-400';
+                        else if(drop.error.toLowerCase() === 'dmarc') color = 'bg-purple-400';
+                    }
+                    
+                    dropViz += `
+                        <div class="group relative flex-1 h-8 mx-0.5 rounded-sm ${color} ${drop.sent === 0 ? 'opacity-30' : ''} transition-all hover:scale-110 cursor-help">
+                             <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-800 text-white text-xs p-2 rounded z-10 w-32 text-center shadow-lg">
+                                <div class="font-bold border-b border-slate-700 pb-1 mb-1">${key}</div>
+                                <div>Sent: ${drop.sent}</div>
+                                <div class="${drop.error ? 'text-rose-300' : 'text-emerald-300'} font-bold uppercase">${drop.error || 'OK'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const uniqueErrors = [...new Set(dayErrors)];
+                let statusHtml = '<span class="status-badge bg-emerald-100 text-emerald-700"><i class="ph ph-check-circle mr-1"></i> Healthy</span>';
+                
+                if(uniqueErrors.length > 0) {
+                    statusHtml = `<div class="flex flex-col gap-1 items-end">`;
+                    uniqueErrors.forEach(err => {
+                        let badgeColor = 'bg-rose-100 text-rose-700';
+                        if(err === 'DKIM') badgeColor = 'bg-amber-100 text-amber-700';
+                        if(err === 'DMARC') badgeColor = 'bg-purple-100 text-purple-700';
+                        statusHtml += `<span class="status-badge ${badgeColor}">${err} Issue</span>`;
+                    });
+                    statusHtml += `</div>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-slate-600 font-medium">${day.date}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800">${dayTotal.toLocaleString()}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center w-full max-w-md">
+                            ${dropViz}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        ${statusHtml}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Pagination UI
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+            const pageInfo = document.getElementById('page-info');
+
+            btnPrev.disabled = currentPage === 0;
+            btnNext.disabled = end >= sortedData.length;
+            pageInfo.innerText = `Showing records ${start + 1}-${Math.min(end, sortedData.length)} of ${sortedData.length}`;
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            renderTable(rawData[currentDomain]);
+        }
+
+        // Run
+        init();
+
+    </script>
+</body>
+</html>

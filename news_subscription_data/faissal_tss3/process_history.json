@@ -1,0 +1,15 @@
+[
+  {
+    "id": "28c42d65-9b81-41ba-a774-a0ee2841649e",
+    "email_used": null,
+    "total_domains_processed": 3183,
+    "successful_registrations": 153,
+    "failed_registrations": 3030,
+    "success_rate": 5,
+    "created_at": "2026-02-12T09:31:13.976289",
+    "start_time": "2026-02-11T08:23:18.272109",
+    "end_time": "2026-02-12T09:31:13.976289",
+    "duration": "25h 7m 55s",
+    "status": "stopped"
+  }
+]

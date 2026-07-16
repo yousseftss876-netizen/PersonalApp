@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Sents - Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Load Offer Data directly -->
+    <script src="{{ url_for('static', filename='tssw_rapport/offer_data.js') }}"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            primary: '#4f46e5', // Indigo 600
+                            secondary: '#9333ea', // Purple 600
+                            accent: '#db2777', // Pink 600
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'bounce-slow': 'bounce 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Light Mode Base */
+        body {
+            background-color: #f8fafc; /* Slate 50 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,90%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,95%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,90%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #1e293b; /* Slate 800 */
+        }
+
+        /* Glassmorphism Light */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        thead th { background: rgba(241, 245, 249, 0.8); }
+        tr:hover td { background: rgba(248, 250, 252, 0.8); }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(248, 250, 252, 0.9);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+.text-white {
+  color: white !important;
+}
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+
+
+<!-- Navigation -->
+<nav class="nav-glass fixed w-full z-50 top-0 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <a href="{{ url_for('tssw_rapport_domain') }}" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white transition-transform group-hover:scale-105">
+                    <i class="ph ph-chart-line-up text-xl"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-slate-800">Domain<span class="text-indigo-600">Project</span></span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-6">
+                <a href="{{ url_for('tssw_rapport_domain') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-globe"></i> Domain Report
+                </a>
+                <a href="{{ url_for('tssw_rapport_warmup') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-fire"></i> Warmup
+                </a>
+                <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                <!-- User Profile Dropdown -->
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center gap-3 focus:outline-none group transition-all duration-200 hover:scale-105">
+                        <!-- Circular Avatar -->
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-medium shadow-lg shadow-indigo-500/30 transition-transform group-hover:scale-105">
+                            <span class="text-sm font-semibold"><i class="fas fa-user text-white"></i></span>
+                        </div>
+                        <!-- Name & Entity -->
+                        <div class="flex flex-col items-start">
+                            <span class="font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">{{ current_user.name }}</span>
+                            <span class="text-xs text-slate-500">{{ current_user.entity }}</span>
+                        </div>
+                        <i class="ph ph-caret-down text-slate-500 text-sm transition-transform duration-200" id="chevron"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="userDropdown" class="absolute right-0 mt-3 w-64 glass-card rounded-xl shadow-2xl py-2 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-50">
+                        <!-- User Info -->
+                        <div class="px-4 py-3 border-b border-slate-200/50">
+                            <p class="font-semibold text-slate-800">{{ current_user.name }}</p>
+                            <p class="text-sm text-slate-500">{{ current_user.entity }}</p>
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="py-1">
+                            <a href="{{ url_for('tssw_rapport_index') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 transition-colors">
+                                <i class="ph ph-th-large w-5 mr-3 text-slate-500"></i>
+                                Other Project
+                            </a>
+                            <a href="{{ url_for('services') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 transition-colors">
+                                <i class="ph ph-th-large w-5 mr-3 text-slate-500"></i>
+                                Back to Services
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50/70 transition-colors">
+                                <i class="ph ph-sign-out w-5 mr-3"></i>
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content Layout -->
+    <div class="pt-24 pb-20 px-4 max-w-7xl mx-auto min-h-screen flex gap-8">
+        
+        <!-- Sidebar Domain Selector -->
+        <aside class="w-72 flex-shrink-0 hidden lg:block">
+             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-28 h-[calc(100vh-8rem)]">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 mb-2 px-1">Active Domains</h3>
+                    <div class="relative">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+                        <input type="text" id="sidebarSearch" placeholder="Find domain..." 
+                               class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all">
+                    </div>
+                </div>
+                <div id="domainList" class="overflow-y-auto h-full pb-20 p-2 space-y-1 custom-scrollbar">
+                    <!-- Items injected by JS -->
+                    <div class="animate-pulse space-y-2 p-2">
+                        <div class="h-10 bg-slate-100 rounded-lg"></div>
+                        <div class="h-10 bg-slate-100 rounded-lg"></div>
+                        <div class="h-10 bg-slate-100 rounded-lg"></div>
+                    </div>
+                </div>
+             </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <main class="flex-1 min-w-0">
+            
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 animate-fade-in">
+                <div>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                        <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">Performance</span>
+                        <i class="ph ph-caret-right text-xs"></i>
+                        <span id="currentDomainLabel">All Domains</span>
+                    </div>
+                    <h1 class="text-3xl font-display font-bold text-slate-800" id="pageTitle">Overview</h1>
+                </div>
+                <!-- Mobile Only Domain Select -->
+                <div class="lg:hidden mt-4 w-full">
+                    <select id="mobileDomainSelect" class="w-full p-2 border border-slate-200 rounded-lg bg-white">
+                        <option value="all">All Domains</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 animate-fade-in">
+                <div class="glass-card p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/30">
+                    <p class="text-blue-600/80 text-xs font-bold uppercase tracking-wider mb-1">Total Sents</p>
+                    <h3 class="text-2xl font-display font-bold text-slate-800" id="kpi-volume">0</h3>
+                    <div class="mt-2 text-xs text-slate-500 font-medium bg-white/60 inline-block px-1.5 py-0.5 rounded border border-blue-100/50">
+                        Targeted Emails
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/30">
+                    <p class="text-emerald-600/80 text-xs font-bold uppercase tracking-wider mb-1">Est. Revenue</p>
+                    <h3 class="text-2xl font-display font-bold text-slate-800" id="kpi-revenue">$0</h3>
+                    <div class="mt-2 text-xs text-slate-500 font-medium bg-white/60 inline-block px-1.5 py-0.5 rounded border border-emerald-100/50">
+                        Projected Earnings
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30">
+                    <p class="text-amber-600/80 text-xs font-bold uppercase tracking-wider mb-1">Serveurs Used</p>
+                    <h3 class="text-2xl font-display font-bold text-slate-800" id="kpi-seeds">0</h3>
+                    <div class="mt-2 text-xs text-slate-500 font-medium bg-white/60 inline-block px-1.5 py-0.5 rounded border border-amber-100/50">
+                        Prod Serveurs
+                    </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-xl border border-purple-100 bg-gradient-to-br from-white to-purple-50/30">
+                    <p class="text-purple-600/80 text-xs font-bold uppercase tracking-wider mb-1">Avg CPM</p>
+                    <h3 class="text-2xl font-display font-bold text-slate-800" id="kpi-cpm">$0.00</h3>
+                    <div class="mt-2 text-xs text-slate-500 font-medium bg-white/60 inline-block px-1.5 py-0.5 rounded border border-purple-100/50">
+                        Cost Efficiency
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 animate-slide-up">
+                
+                <!-- Volume vs Seeds Chart -->
+                <div class="glass-card p-6 rounded-2xl lg:col-span-2 relative">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Traffic Composition</h3>
+                            <p class="text-sm text-slate-500">Regular Data Sent vs Seed Sents Inspection</p>
+                        </div>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="volSeedsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Revenue Offers (Doughnut) -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Top Revenue Sources</h3>
+                            <p class="text-sm text-slate-500">Highest performing offers</p>
+                        </div>
+                    </div>
+                    <div class="relative h-48 flex justify-center mb-4">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div id="topOffersLegend" class="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drops Table -->
+            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200 animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="p-5 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Detailed Activity Log</h3>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <div class="relative">
+                            <input type="text" id="tableSearch" placeholder="Offers Revenu" class="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none w-48" disabled>
+                        </div>
+                        <div class="flex gap-1">
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200 text-xs uppercase tracking-wider">
+                                <th class="px-6 py-3 w-28">Mailer</th>
+                                <th class="px-6 py-3">Offer</th>
+                                <th class="px-6 py-3">Data</th>
+                                <th class="px-6 py-3 text-right">Seeds</th>
+                                <th class="px-6 py-3 text-right">Clicks</th>
+                                <th class="px-6 py-3 text-right">Leads</th>
+                                <th class="px-6 py-3 text-right">Revenu</th>
+                                <th class="px-6 py-3 text-right">CPM</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white/30">
+                           <tr><td class="px-6 py-3 whitespace-nowrap text-slate-500 font-mono text-xs">Ouiguemane YOUSSEF</td>
+                    <td class="px-6 py-3">
+                        <div class="max-w-[150px] truncate text-slate-600 text-xs font-medium" title="exampless22">4846 (US - INTL SEE GEOS) Total Drive [Dynamic Payout] (Normal Version) - Email Only [LMI]</div>
+                    </td>
+                    <td class="px-6 py-3 text-slate-600 text-xs">144,572</td>
+                    <td class="px-6 py-3 text-right text-slate-700 font-bold font-mono text-xs">13,787</td>
+                    <td class="px-6 py-3 text-right text-amber-600 font-mono text-xs">1,322</td>
+                    <td class="px-6 py-3 text-right text-emerald-600 font-bold text-xs">3</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">198$</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">1.37$</td></tr>
+					
+					<tr><td class="px-6 py-3 whitespace-nowrap text-slate-500 font-mono text-xs">Ouiguemane YOUSSEF</td>
+                    <td class="px-6 py-3">
+                        <div class="max-w-[150px] truncate text-slate-600 text-xs font-medium" title="exampless22">(8450) [R] EXCLUSIVE - Coverage Chaser - Zip Submit - Email [Sensitive] [CX3]</div>
+                    </td>
+                    <td class="px-6 py-3 text-slate-600 text-xs">48,526</td>
+                    <td class="px-6 py-3 text-right text-slate-700 font-bold font-mono text-xs">0</td>
+                    <td class="px-6 py-3 text-right text-amber-600 font-mono text-xs">258</td>
+                    <td class="px-6 py-3 text-right text-emerald-600 font-bold text-xs">10</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">150$</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">3.09$</td></tr>
+					
+					<tr><td class="px-6 py-3 whitespace-nowrap text-slate-500 font-mono text-xs">e.Redouan</td>
+                    <td class="px-6 py-3">
+                        <div class="max-w-[150px] truncate text-slate-600 text-xs font-medium" title="exampless22">41457 **LTD*** [US] CPC [Pixeled] - GoodLabs | Depression71 Study Participation Recruitment [1.5MM Database] [SD2]</div>
+                    </td>
+                    <td class="px-6 py-3 text-slate-600 text-xs">48,481</td>
+                    <td class="px-6 py-3 text-right text-slate-700 font-bold font-mono text-xs">0</td>
+                    <td class="px-6 py-3 text-right text-amber-600 font-mono text-xs">155</td>
+                    <td class="px-6 py-3 text-right text-emerald-600 font-bold text-xs">1</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">66$</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">2.72$</td></tr>
+					
+					<tr><td class="px-6 py-3 whitespace-nowrap text-slate-500 font-mono text-xs">Ouiguemane YOUSSEF</td>
+                    <td class="px-6 py-3">
+                        <div class="max-w-[150px] truncate text-slate-600 text-xs font-medium" title="exampless22">41457 **LTD*** [US] CPC [Pixeled] - GoodLabs | Depression71 Study Participation Recruitment [1.5MM Database] [SD2]</div>
+                    </td>
+                    <td class="px-6 py-3 text-slate-600 text-xs">48,481</td>
+                    <td class="px-6 py-3 text-right text-slate-700 font-bold font-mono text-xs">0</td>
+                    <td class="px-6 py-3 text-right text-amber-600 font-mono text-xs">155</td>
+                    <td class="px-6 py-3 text-right text-emerald-600 font-bold text-xs">11</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">132$</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">2.47$</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-2 bg-slate-50/50 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between items-center">
+                     <span id="page-info">Showing latest records</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Hidden Modals/Templates -->
+    <div id="domainsModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg glass-card border-none">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="ph ph-globe text-indigo-600 text-xl"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-base font-semibold leading-6 text-slate-900" id="modal-title">Used Domains</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-slate-500 mb-4" id="modal-subtitle">Domains used in this drop:</p>
+                                    <div class="bg-slate-50 rounded-lg p-3 max-h-60 overflow-y-auto border border-slate-100" id="modal-content">
+                                        <!-- Domains list -->
+                                    </div>
+                                    <div class="mt-4 grid grid-cols-2 gap-4 text-xs">
+                                        <div class="bg-slate-50 p-2 rounded">
+                                            <span class="text-slate-400 block">Server</span>
+                                            <span class="font-mono font-medium text-slate-700" id="modal-server">--</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded">
+                                            <span class="text-slate-400 block">Deploy ID</span>
+                                            <span class="font-mono font-medium text-slate-700" id="modal-deploy">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto" onclick="closeModal()">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('userMenuButton');
+    const dropdown = document.getElementById('userDropdown');
+    const chevron = document.getElementById('chevron');
+
+    if (button && dropdown && chevron) {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('opacity-0');
+            dropdown.classList.toggle('scale-95');
+            dropdown.classList.toggle('pointer-events-none');
+            chevron.classList.toggle('rotate-180');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target)) {
+                dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+    }
+});
+
+        // Global State
+        let rawData = null;
+        let filteredActivities = [];
+        let currentScopeDomain = 'all'; // 'all' or specific domain
+        let currentPage = 0;
+        const itemsPerPage = 10;
+        
+        // Charts
+        let volSeedsChart = null;
+        let revenueChart = null;
+
+        // Init
+        async function init() {
+            setTimeout(() => {
+                const loader = document.getElementById('loadingOverlay');
+                if (loader && !loader.classList.contains('hidden')) {
+                    loader.innerHTML = '<div class="text-rose-500 font-bold p-4 bg-white rounded shadow">Loading Timeout</div>';
+                }
+            }, 5000);
+
+            try {
+                if (window.OFFER_DATA) {
+                    rawData = window.OFFER_DATA;
+                } else {
+                    const response = await fetch('offer_data.js');
+                    if (!response.ok) throw new Error("Failed to load data file");
+                    const text = await response.text();
+                    const jsonText = text.replace(/^window\.OFFER_DATA\s*=\s*/, '').replace(/;?\s*$/, '');
+                    rawData = JSON.parse(jsonText);
+                }
+
+                // Initial Filter (Show All)
+                filteredActivities = [...rawData.activities].reverse();
+
+                // Render Sidebar Domain List
+                renderDomainSidebar(rawData.domains);
+
+                // Populate Mobile Selector
+                const mobSelect = document.getElementById('mobileDomainSelect');
+                rawData.domains.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    mobSelect.appendChild(opt);
+                });
+
+                // Init Dashboard
+                updateDashboard();
+
+                // Hide Loader
+                document.getElementById('loadingOverlay').classList.add('hidden');
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loadingOverlay').innerHTML = `<p class="text-rose-500 bg-white p-4 rounded">Error: ${e.message}</p>`;
+            }
+        }
+
+        // Render Sidebar
+        function renderDomainSidebar(domains) {
+            const list = document.getElementById('domainList');
+            list.innerHTML = '';
+
+            // "All Domains" Item
+            const allItem = document.createElement('div');
+            allItem.className = `p-3 rounded-lg cursor-pointer transition-colors flex justify-between items-center group ${currentScopeDomain === 'all' ? 'bg-indigo-50 border border-indigo-200 shadow-sm' : 'hover:bg-slate-50 border border-transparent'}`;
+            allItem.onclick = () => selectDomain('all');
+            allItem.innerHTML = `
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${currentScopeDomain === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600'} transition-colors">
+                        <i class="ph ph-squares-four text-lg"></i>
+                    </div>
+                    <span class="text-sm font-bold ${currentScopeDomain === 'all' ? 'text-indigo-900' : 'text-slate-600'} truncate">All Domains</span>
+                </div>
+            `;
+            list.appendChild(allItem);
+
+            // Domain Items
+            domains.forEach(d => {
+                const item = document.createElement('div');
+                const isActive = currentScopeDomain === d;
+                item.className = `p-3 rounded-lg cursor-pointer transition-colors flex justify-between items-center group ${isActive ? 'bg-indigo-50 border border-indigo-200 shadow-sm' : 'hover:bg-slate-50 border border-transparent'}`;
+                item.onclick = () => selectDomain(d);
+                
+                // Get Volume Badge
+                const vol = rawData.activities.filter(a => a.domain === d).reduce((s, a) => s + a.volume, 0);
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${isActive ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-400 group-hover:border-indigo-200 group-hover:text-indigo-500'} transition-colors">
+                            <i class="ph ph-globe text-lg"></i>
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-sm font-bold ${isActive ? 'text-indigo-900' : 'text-slate-600'} truncate" title="${d}">${d}</span>
+                            <span class="text-[10px] text-slate-400 truncate">${vol.toLocaleString()} sent</span>
+                        </div>
+                    </div>
+                    ${isActive ? '<i class="ph ph-caret-right text-indigo-500"></i>' : ''}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function selectDomain(domain) {
+            currentScopeDomain = domain;
+            document.getElementById('currentDomainLabel').textContent = domain === 'all' ? 'All Domains' : domain;
+            document.getElementById('pageTitle').textContent = domain === 'all' ? 'Overview' : domain;
+            document.getElementById('mobileDomainSelect').value = domain;
+            
+            // Re-render sidebar to update active state
+            // Filter domains if search is active
+            const term = document.getElementById('sidebarSearch').value.toLowerCase();
+            const visibleDomains = rawData.domains.filter(d => d.toLowerCase().includes(term));
+            renderDomainSidebar(visibleDomains);
+            
+            // Filter Data
+            if (domain === 'all') {
+                filteredActivities = [...rawData.activities].reverse();
+            } else {
+                filteredActivities = rawData.activities.filter(d => d.domain === domain).reverse();
+            }
+            
+            currentPage = 0;
+            document.getElementById('tableSearch').value = '';
+            updateDashboard();
+        }
+
+        // Dashboard Updates
+        function updateDashboard() {
+            renderKPIs();
+            renderCharts();
+            renderTable();
+        }
+
+        function renderKPIs() {
+            let totalVol = 0;
+            let totalRev = 0;
+            let weightedCPM = 0;
+            let cpmVol = 0;
+            let totalSeeds = 0;
+
+            filteredActivities.forEach(act => {
+                totalVol += act.volume;
+                totalRev += act.revenue;
+                totalSeeds += act.seeds;
+                if(act.cpm > 0) {
+                    weightedCPM += (act.cpm * act.volume);
+                    cpmVol += act.volume;
+                }
+            });
+
+            const avgCPM = cpmVol > 0 ? (weightedCPM / cpmVol) : 0;
+
+            document.getElementById('kpi-volume').textContent = totalVol.toLocaleString();
+            document.getElementById('kpi-revenue').textContent = '$' + totalRev.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('kpi-cpm').textContent = '$' + avgCPM.toFixed(2);
+            document.getElementById('kpi-seeds').textContent = "3";
+        }
+
+        function renderCharts() {
+            // 1. Volume vs Seeds (Combo Chart)
+            // Aggregate by Date
+            const dateMap = {};
+            filteredActivities.forEach(a => {
+                if(!dateMap[a.date]) dateMap[a.date] = { vol: 0, seeds: 0 };
+                dateMap[a.date].vol += a.volume;
+                dateMap[a.date].seeds += a.seeds;
+            });
+            
+            // Sort dates
+            // Note: date format is YYYY-MM-DD or DD/MM/YYYY depending on python output.
+            // Let's assume sortable string for now or use parse.
+            const sortedDates = Object.keys(dateMap).sort(); // Basic sort work for ISO
+            
+            const ctxVol = document.getElementById('volSeedsChart').getContext('2d');
+            if (volSeedsChart) volSeedsChart.destroy();
+            
+            volSeedsChart = new Chart(ctxVol, {
+                type: 'bar',
+                data: {
+                    labels: sortedDates,
+                    datasets: [
+                        {
+                            label: 'Regular Volume',
+                            data: sortedDates.map(d => dateMap[d].vol),
+                            backgroundColor: '#6366f1', // Indigo 500
+                            borderRadius: 4,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Seed Volume',
+                            data: sortedDates.map(d => dateMap[d].seeds),
+                            borderColor: '#f59e0b', // Amber 500
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            tension: 0.3,
+                            order: 1,
+                            yAxisID: 'y1' // Use secondary axis as seeds are much smaller
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'top', align: 'end' } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#f1f5f9' },
+                            title: { display: true, text: 'Total Sent' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false }, // only want the grid lines for one axis to show up
+                            title: { display: true, text: 'Seeds Sent', color: '#f59e0b' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Top Revenue Offers
+            const offerRevs = {};
+            filteredActivities.forEach(d => {
+                if (!offerRevs[d.offer]) {
+                    offerRevs[d.offer] = 0;
+                }
+                offerRevs[d.offer] += d.revenue;
+            });
+            
+          //  const sortedOffers = Object.entries(offerRevs).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const sortedOffers = [
+["41457 LTD* [US] CPC [Pixeled] - GoodLabs | Depression71 Study Participation Recruitment [1.5MM Database] [SD2]", 198],
+["4846 (US - INTL SEE GEOS) Total Drive [Dynamic Payout] (Normal Version) - Email Only [LMI]", 198],
+["(8450) [R] EXCLUSIVE - Coverage Chaser - Zip Submit - Email [Sensitive] [CX3]", 150],
+["4593 USA - [Cap: 150 daily] McAfee (DTC Link) - Generic Creative Only [Dynamic Payout] [No McAfee or Brand on creatives] - Sensitive [LMI]", 0],
+["4797 CAP USA - Super Anti Spyware (Proof Required)(Sensitive) - Email Only [LMI]", 0],
+["7428 [Private] Total Drive | CPA | [US/CA/AU/UK/DE/FR/ES/IT/NL/NO/PL/SE] | CC Submit | Email Preview Required | Email Traffic Allowed Only [PMNE]", 0]
+];
+
+
+            const ctxRev = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+            
+            revenueChart = new Chart(ctxRev, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedOffers.map(x => x[0].substring(0, 20) + '...'),
+                    datasets: [{
+                        data: sortedOffers.map(x => x[1]),
+                        backgroundColor: ['#4f46e5', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Render Legend
+            
+            const legendEl = document.getElementById('topOffersLegend');
+            legendEl.innerHTML = sortedOffers.map((o, i) => `
+                <div class="flex justify-between items-center text-xs p-1 border-b border-slate-50 last:border-0">
+                    <div class="flex items-center gap-2 overflow-hidden w-2/3">
+                        <div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${['#4f46e5', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'][i]}"></div>
+                        <span class="truncate text-slate-600" title="${o[0]}">${o[0]}</span>
+                    </div>
+                    <span class="font-bold text-slate-700">$${Math.round(o[1]).toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTable() {
+            const start = currentPage * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredActivities.slice(start, end);
+            
+            const tbody = document.getElementById('dropsTableBody');
+            tbody.innerHTML = '';
+            
+            pageData.forEach(act => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-indigo-50/30 transition-colors group';
+                tr.innerHTML = `
+                    <td class="px-6 py-3 whitespace-nowrap text-slate-500 font-mono text-xs">${act.date}</td>
+                    <td class="px-6 py-3">
+                        <div class="max-w-[150px] truncate text-slate-600 text-xs font-medium" title="${act.offer}">${act.offer}</div>
+                    </td>
+                    <td class="px-6 py-3 text-slate-600 text-xs">${act.mailer}</td>
+                    <td class="px-6 py-3 text-right text-slate-700 font-bold font-mono text-xs">${act.volume.toLocaleString()}</td>
+                    <td class="px-6 py-3 text-right text-amber-600 font-mono text-xs">${Math.round(act.seeds).toLocaleString()}</td>
+                    <td class="px-6 py-3 text-right text-emerald-600 font-bold text-xs">$${act.revenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">$${act.cpm.toFixed(2)}</td>
+                    <td class="px-6 py-3 text-right text-slate-500 text-xs">$${act.epc.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Update Pagination Text
+            document.getElementById('page-info').textContent = `Showing ${start + 1}-${Math.min(end, filteredActivities.length)} of ${filteredActivities.length}`;
+            document.getElementById('btnPrev').disabled = currentPage === 0;
+            document.getElementById('btnNext').disabled = end >= filteredActivities.length;
+        }
+
+        // Interaction
+        function changePage(delta) {
+            currentPage += delta;
+            renderTable();
+        }
+
+        // Sidebar Search
+        document.getElementById('sidebarSearch').addEventListener('input', (e) => {
+             const term = e.target.value.toLowerCase();
+             const visibleDomains = rawData.domains.filter(d => d.toLowerCase().includes(term));
+             renderDomainSidebar(visibleDomains);
+        });
+
+        // Table Search
+        document.getElementById('tableSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            // Filter from the CURRENT Scope
+            let baseData = rawData.activities;
+            if (currentScopeDomain !== 'all') {
+                baseData = baseData.filter(d => d.domain === currentScopeDomain);
+            }
+            
+            filteredActivities = baseData.filter(d => 
+                d.offer.toLowerCase().includes(term) ||
+                d.mailer.toLowerCase().includes(term)
+            ).reverse();
+            
+            currentPage = 0;
+            renderTable();
+        });
+        
+        // Mobile Filter
+        document.getElementById('mobileDomainSelect').addEventListener('change', (e) => {
+             selectDomain(e.target.value);
+        });
+
+        // Run
+        init();
+    </script>
+</body>
+</html>

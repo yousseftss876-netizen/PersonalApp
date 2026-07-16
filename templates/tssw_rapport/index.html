@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        *, *::before, *::after {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        :root {
+          --background: hsl(220, 20%, 97%);
+          --foreground: hsl(220, 40%, 13%);
+          --card: hsl(0, 0%, 100%);
+          --primary: hsl(220, 80%, 55%);
+          --primary-light: hsl(220, 80%, 60%);
+          --primary-dark: hsl(220, 80%, 45%);
+          --muted: hsl(220, 15%, 45%);
+          --border: hsl(220, 20%, 88%);
+        }
+
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: var(--background);
+          color: var(--foreground);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          overflow-x: hidden;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-decoration {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .bg-blob {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(100px);
+          opacity: 0.4;
+          animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-blob-1 {
+          top: 10%;
+          left: -10rem;
+          width: 30rem;
+          height: 30rem;
+          background: linear-gradient(135deg, var(--primary), var(--primary-light));
+          animation-delay: 0s;
+        }
+
+        .bg-blob-2 {
+          bottom: 10%;
+          right: -10rem;
+          width: 35rem;
+          height: 35rem;
+          background: linear-gradient(135deg, var(--primary-light), hsl(220, 90%, 70%));
+          animation-delay: -10s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(8rem, -8rem) rotate(10deg); }
+        }
+
+        .top-header {
+          background: var(--card);
+          border-bottom: 1px solid var(--border);
+          padding: 1rem 1.5rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 1rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          backdrop-filter: blur(10px);
+          overflow: visible !important;
+        }
+
+        .logo {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--primary);
+          letter-spacing: -0.5px;
+        }
+
+        .user-profile {
+          position: relative;
+        }
+
+        .user-profile-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+
+        .user-profile-btn:hover {
+          transform: scale(1.05);
+        }
+
+        .avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--primary), var(--primary-light));
+          color: white;
+          font-weight: 600;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          border: 2px solid var(--primary);
+        }
+
+        .user-info-text {
+          text-align: right;
+        }
+
+        .user-name {
+          font-weight: 600;
+          font-size: 0.95rem;
+          color: var(--foreground);
+        }
+
+        .user-entity {
+          font-size: 0.75rem;
+          color: var(--muted);
+        }
+
+        .user-profile-btn i {
+          color: var(--muted);
+          font-size: 0.8rem;
+          transition: transform 0.2s ease;
+        }
+
+        .user-profile-btn.active i {
+          transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 0.75rem;
+          width: 240px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 0.75rem;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+          padding: 0.5rem 0;
+          opacity: 0;
+          transform: scale(0.95);
+          pointer-events: none;
+          transition: all 0.2s ease;
+          z-index: 200;
+          backdrop-filter: blur(10px);
+        }
+
+        .user-dropdown.active {
+          opacity: 1;
+          transform: scale(1);
+          pointer-events: auto;
+        }
+
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem 1rem;
+          color: var(--foreground);
+          text-decoration: none;
+          font-size: 0.875rem;
+          transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+          background: rgba(var(--primary), 0.1);
+        }
+
+        .dropdown-item i {
+          margin-right: 0.75rem;
+          color: var(--muted);
+          width: 1.25rem;
+        }
+
+        .dropdown-item.logout {
+          color: #dc2626;
+        }
+
+        .dropdown-item.logout:hover {
+          background: rgba(220, 38, 38, 0.1);
+        }
+
+        .dropdown-header {
+          padding: 1rem 1rem 0.75rem;
+          border-bottom: 1px solid var(--border);
+          margin-bottom: 0.5rem;
+        }
+
+        .dropdown-name {
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        .dropdown-entity {
+          font-size: 0.8rem;
+          color: var(--muted);
+        }
+
+        .main-content {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 3rem 1rem;
+          position: relative;
+          z-index: 10;
+        }
+
+        .container {
+          max-width: 72rem;
+          width: 100%;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .hero {
+          margin-bottom: 4rem;
+        }
+
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.6rem 1.2rem;
+          border-radius: 9999px;
+          background: hsla(220, 80%, 55%, 0.12);
+          color: var(--primary);
+          font-weight: 600;
+          font-size: 0.95rem;
+          margin-bottom: 1.5rem;
+          opacity: 0;
+          animation: fadeInDown 0.8s ease-out forwards;
+        }
+
+        .badge-dot {
+          width: 0.6rem;
+          height: 0.6rem;
+          border-radius: 50%;
+          background: var(--primary);
+          animation: pulseGlow 2s infinite;
+        }
+
+        h1 {
+          font-size: 3rem;
+          font-weight: 700;
+          letter-spacing: -0.05em;
+          margin-bottom: 1.5rem;
+          background: linear-gradient(90deg, var(--foreground), var(--primary));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          opacity: 0;
+          animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        .subtitle {
+          font-size: 0.80rem;
+          color: var(--muted);
+          max-width: 36rem;
+          margin: 0 auto;
+          line-height: 1.7;
+          opacity: 0;
+          animation: fadeInUp 1s ease-out 0.6s forwards;
+        }
+
+        .highlight {
+          color: var(--primary);
+          font-weight: 600;
+        }
+
+        .project-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 2rem;
+        }
+
+        .project-card {
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 1.5rem;
+          padding: 2rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+          transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+          position: relative;
+          overflow: hidden;
+          opacity: 0;
+          transform: translateY(40px);
+          animation: cardReveal 0.8s ease-out forwards;
+        }
+
+        .project-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 4px;
+          background: linear-gradient(90deg, var(--primary), var(--primary-light));
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.4s ease;
+        }
+
+        .project-card:hover::before {
+          transform: scaleX(1);
+        }
+
+        .project-card:hover {
+          transform: translateY(-12px);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.2s; }
+        .project-card:nth-child(2) { animation-delay: 0.4s; }
+        .project-card:nth-child(3) { animation-delay: 0.6s; }
+
+        .project-title {
+          font-size: 1.8rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+          color: var(--foreground);
+        }
+
+        .project-description {
+          font-size: 1.05rem;
+          color: var(--muted);
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+
+        .view-details {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+          color: white;
+          padding: 0.9rem 2rem;
+          border-radius: 9999px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1rem;
+          box-shadow: 0 8px 25px hsla(220, 80%, 55%, 0.3);
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .view-details::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          background: rgba(255,255,255,0.2);
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .view-details:hover::after {
+          width: 300px;
+          height: 300px;
+        }
+
+        .view-details:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 35px hsla(220, 80%, 55%, 0.4);
+        }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardReveal {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 0 0 hsla(220, 80%, 55%, 0.4); }
+          50% { box-shadow: 0 0 0 10px hsla(220, 80%, 55%, 0); }
+        }
+
+        .footer {
+          padding: 2rem;
+          text-align: center;
+          color: var(--muted);
+          font-size: 0.9rem;
+          opacity: 0;
+          animation: fadeInUp 1s ease-out 1s forwards;
+        }
+
+        @media (min-width: 768px) {
+          h1 { font-size: 4.5rem; }
+          .subtitle { font-size: 1.4rem; }
+          .project-grid { gap: 2.5rem; }
+        }
+        .text-white {
+  color: white !important;
+}
+    </style>
+</head>
+<body>
+    <div class="bg-decoration">
+        <div class="bg-blob bg-blob-1"></div>
+        <div class="bg-blob bg-blob-2"></div>
+    </div>
+
+    <header class="top-header">
+        <div class="logo">2025 Projects</div>
+
+        <div class="user-profile">
+            <button class="user-profile-btn" id="userProfileBtn">
+                <div class="user-info-text">
+                    <div class="user-name">{{ current_user.name }}</div>
+                </div>
+                <div class="avatar"><i class="fas fa-user text-white"></i></div>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+
+            <div class="user-dropdown" id="userDropdown">
+                <div class="dropdown-header">
+                    <div class="dropdown-name">{{ current_user.name }}</div>
+                    <div class="dropdown-entity">{{ current_user.entity }}</div>
+                </div>
+                <a href="{{ url_for('services') }}" class="dropdown-item">
+                    <i class="fas fa-th-large"></i>
+                    Back to Services
+                </a>
+                <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Log Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="hero">
+                <div class="badge">
+                    <div class="badge-dot"></div>
+                    To: Redouan El Arras Manager of TSSW
+                </div>
+                <h1>2025 Projects Report</h1>
+                <p class="subtitle">
+                  This report presents the main projects I worked on throughout <span class="highlight">2025</span>.
+                  Each project was developed with dedication, passion, and significant effort.
+                  Below, you will find an overview and the key details of each project.
+                  While some data may be limited, I have made every effort to gather all available information and present it in a clear, structured, and professional manner.
+                </p>
+            </div>
+
+            <div class="project-grid">
+                <div class="project-card">
+                    <h2 class="project-title">Domain Project</h2>
+                    <p class="project-description">
+                      
+                     This project started in March 2025 and involved creating an SEO-focused website for a specific domain, followed by the warm-up and sending processes. The project is still ongoing...
+                    </p>
+                    <a href="{{ url_for('tssw_rapport_domain') }}" class="view-details">
+                        View Details
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <h2 class="project-title">App Project</h2>
+                    <p class="project-description">
+                        I began developing a Python application called "TSS Tools", designed to create online services that reduce workload and improve efficiency for our team and Other entities.
+                    </p>
+                    <a href="{{ url_for('tssw_rapport_app') }}" class="view-details">
+                        View Details
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <h2 class="project-title">Chrome Project Connect</h2>
+                    <p class="project-description">
+                        Chrome extension developed to automate connection Process for bulk Gmail account connections Instead of Imacros and Tool IT
+                    </p>
+                    <a href="{{ url_for('tssw_rapport_chromprocess') }}" class="view-details">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        2025 Ouiguemane Youssef. Crafted with care.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('userProfileBtn');
+            const dropdown = document.getElementById('userDropdown');
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+                btn.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                    btn.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "emails": [],
+  "fetched_at": "2026-04-22T13:54:39.766605+00:00",
+  "email_count": 0,
+  "status": "error",
+  "error": "IMAP error: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'"
+}

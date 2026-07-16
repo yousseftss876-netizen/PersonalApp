@@ -1,0 +1,508 @@
+{
+  "emails": [
+    {
+      "uid": "10054",
+      "folder": "Inbox",
+      "from_name": "EXPONA EXHIBITIONS",
+      "from_email": "alex@expona.net",
+      "subject": "EXPONA NEWSLETTER APRIL",
+      "date": "15 min",
+      "date_timestamp": 1776865166.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "39161",
+      "folder": "Spam",
+      "from_name": "Trawick International",
+      "from_email": "info@emailtrawick.com",
+      "subject": "The #1 mistake travelers are making right now",
+      "date": "23 h",
+      "date_timestamp": 1776782924.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39162",
+      "folder": "Spam",
+      "from_name": "Spamhaus Team",
+      "from_email": "marketing@updates.spamhaus.com",
+      "subject": "REPORT | Oct 25 - Mar 26 Domain Report from Spamhaus",
+      "date": "21 h",
+      "date_timestamp": 1776787617.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39163",
+      "folder": "Spam",
+      "from_name": "HuffPost Morning Email",
+      "from_email": "info@emails.huffpost.com",
+      "subject": "Trump will attend the White House Correspondents' Dinner. We sure\r\n won't.",
+      "date": "21 h",
+      "date_timestamp": 1776787847.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39164",
+      "folder": "Spam",
+      "from_name": "PW Daily",
+      "from_email": "PW_Daily@publishersweekly-emails.com",
+      "subject": "Revived BookCon Draws Massive Crowds; Authors Guild Condemns AI Use\r\n in Publishing",
+      "date": "21 h",
+      "date_timestamp": 1776789123.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39165",
+      "folder": "Spam",
+      "from_name": "Rebecca Schoenkopf from Wonkette",
+      "from_email": "wonkette@substack.com",
+      "subject": "New York Times Shocked, Shocked That Democrats Fighting Back After\r\n Trump Ordered Gerrymanders",
+      "date": "21 h",
+      "date_timestamp": 1776789853.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39166",
+      "folder": "Spam",
+      "from_name": "Scientific American",
+      "from_email": "newsletters@scientificamerican.com",
+      "subject": "Technology: The AI model Anthropic won't release",
+      "date": "20 h",
+      "date_timestamp": 1776791658.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39167",
+      "folder": "Spam",
+      "from_name": "Travel Weekly Agent Updates",
+      "from_email": "AgentUpdates@partners.northstartravelgroupmail.com",
+      "subject": "Turn Your Clients Stay into a Wellness Retreat",
+      "date": "20 h",
+      "date_timestamp": 1776791725.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39168",
+      "folder": "Spam",
+      "from_name": "Publishers Weekly",
+      "from_email": "PW@publishersweekly-partners.com",
+      "subject": "Webinar: Managing IP Risk and Licensing Opportunities in the Era of\r\n AI",
+      "date": "20 h",
+      "date_timestamp": 1776793066.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39169",
+      "folder": "Spam",
+      "from_name": "1440 Multiversity",
+      "from_email": "info@1440.org",
+      "subject": "April 25: Join Us for a Teaching Kitchen Education Dinner that Embodies Food as Medicine",
+      "date": "20 h",
+      "date_timestamp": 1776793263.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39170",
+      "folder": "Spam",
+      "from_name": " La Méridionale ",
+      "from_email": "latraverseezen@info.lameridionale.fr",
+      "subject": "⛴️ Court séjour, plaisir longue durée",
+      "date": "20 h",
+      "date_timestamp": 1776793399.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39171",
+      "folder": "Spam",
+      "from_name": "Michigan Department of Attorney General",
+      "from_email": "MIAG@govsubscriptions.michigan.gov",
+      "subject": "AG Nessel Calls on Consumer Financial Protection Bureau to Abandon Plan to Decimate Enforcement, Consumer Protection",
+      "date": "19 h",
+      "date_timestamp": 1776795399.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39172",
+      "folder": "Spam",
+      "from_name": "Sport Manitoba Victory Vault",
+      "from_email": "SportMB@etouchservices.com",
+      "subject": "Deadline  Tonight—  Your First Shot at The Vault🔐​",
+      "date": "19 h",
+      "date_timestamp": 1776795572.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39173",
+      "folder": "Spam",
+      "from_name": "Marcie Jones from Wonkette",
+      "from_email": "wonkette@substack.com",
+      "subject": "Monkey Fight! Reps. Cory Mills, Nancy Mace Battle To Be House's\r\n Second-Weakest Link",
+      "date": "19 h",
+      "date_timestamp": 1776796213.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39174",
+      "folder": "Spam",
+      "from_name": "Science Signaling Table of Contents",
+      "from_email": "alerts@aaas.sciencepubs.org",
+      "subject": "Science Signaling Content for 21 April 2026; Vol. 19, No. 934",
+      "date": "18 h",
+      "date_timestamp": 1776798238.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39175",
+      "folder": "Spam",
+      "from_name": "HX Expeditions",
+      "from_email": "HX-NoReply@mail.travelhx.com",
+      "subject": "Free suite upgrade in Antarctica ends soon",
+      "date": "18 h",
+      "date_timestamp": 1776798403.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39176",
+      "folder": "Spam",
+      "from_name": "Heather Cox Richardson from Letters from an American",
+      "from_email": "heathercoxrichardson@substack.com",
+      "subject": "Fecklessly Failing",
+      "date": "19 h",
+      "date_timestamp": 1776797414.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39177",
+      "folder": "Spam",
+      "from_name": "Humane World for Animals",
+      "from_email": "connect@humanesociety.org",
+      "subject": "Give a rescued animal the gift of a lifetime",
+      "date": "18 h",
+      "date_timestamp": 1776798756.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39178",
+      "folder": "Spam",
+      "from_name": "Publishers Weekly",
+      "from_email": "PW@publishersweekly-emails.com",
+      "subject": "Your Marketing Playbook Just Got More Powerful",
+      "date": "18 h",
+      "date_timestamp": 1776799907.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39179",
+      "folder": "Spam",
+      "from_name": "Joe Perticone - The Bulwark",
+      "from_email": "thebulwark+presspass@substack.com",
+      "subject": "Chip Roy’s Deportation Nation",
+      "date": "18 h",
+      "date_timestamp": 1776800045.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39180",
+      "folder": "Spam",
+      "from_name": "MI Dept. of Environment, Great Lakes, and Energy",
+      "from_email": "EGLE@govsubscriptions.michigan.gov",
+      "subject": "Governor announces $1.8 million grant competition for industrial decarbonization",
+      "date": "17 h",
+      "date_timestamp": 1776801366.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39181",
+      "folder": "Spam",
+      "from_name": "Scientific American",
+      "from_email": "newsletters@scientificamerican.com",
+      "subject": "Today in Science: The real science of peptides",
+      "date": "17 h",
+      "date_timestamp": 1776801625.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39182",
+      "folder": "Spam",
+      "from_name": "Michigan DOT",
+      "from_email": "MDOT@govsubscriptions.michigan.gov",
+      "subject": "Construction Restriction Bulletin Notification",
+      "date": "17 h",
+      "date_timestamp": 1776801709.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39183",
+      "folder": "Spam",
+      "from_name": "Michigan State Police",
+      "from_email": "MichStatePolice@govsubscriptions.michigan.gov",
+      "subject": "News Release: Debris Removal Key to Keeping Water Moving through the Cheboygan Lock and Dam Complex",
+      "date": "17 h",
+      "date_timestamp": 1776801800.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39184",
+      "folder": "Spam",
+      "from_name": "Observer Lifestyle",
+      "from_email": "newsletter@mail.observer.com",
+      "subject": "The Thoughtful Luxury Beauty Gifts for Mother’s Day",
+      "date": "17 h",
+      "date_timestamp": 1776801913.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39185",
+      "folder": "Spam",
+      "from_name": "Evan Hurst from Wonkette",
+      "from_email": "wonkette@substack.com",
+      "subject": "Is It TREASON To Criticize Dear Leader Abroad, Or Should Greg Gutfeld\r\n Get F*cked?",
+      "date": "17 h",
+      "date_timestamp": 1776802807.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39186",
+      "folder": "Spam",
+      "from_name": "PW Children's Bookshelf",
+      "from_email": "Childrens_Bookshelf@publishersweekly-emails.com",
+      "subject": "Veronica Roth on Her New Books and 15 Years of Divergent; Photos from\r\n the Bologna Fair; Report from BookCon",
+      "date": "17 h",
+      "date_timestamp": 1776803757.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39187",
+      "folder": "Spam",
+      "from_name": "Wonkette One A Day News",
+      "from_email": "wonkette+wonkette-news-one-a-day@substack.com",
+      "subject": "Where Were You When You Heard Dershowitz Switched Parties? Wonkette\r\n One-A-Day, April 21, 2026",
+      "date": "16 h",
+      "date_timestamp": 1776806244.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39188",
+      "folder": "Spam",
+      "from_name": "Jonathan Cohn - The Bulwark",
+      "from_email": "thebulwark+the-breakdown@substack.com",
+      "subject": "America Just Shrugged at the Largest Mass Shooting in Years",
+      "date": "14 h",
+      "date_timestamp": 1776815048.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39189",
+      "folder": "Spam",
+      "from_name": "Observer Daily",
+      "from_email": "newsletter@mail.observer.com",
+      "subject": "Apple’s New CEO John Ternus Faces Test Leading Former Rivals and Senior Peers",
+      "date": "13 h",
+      "date_timestamp": 1776815894.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39190",
+      "folder": "Spam",
+      "from_name": "Heather Cox Richardson and Liza Donnelly from Letters from an American",
+      "from_email": "heathercoxrichardson@substack.com",
+      "subject": "Earth Day | Talk & Draw with Liza Donnelly & Heather Cox Richardson",
+      "date": "13 h",
+      "date_timestamp": 1776816864.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39191",
+      "folder": "Spam",
+      "from_name": "Tim, Sarah and JVL - The Bulwark",
+      "from_email": "thebulwark+thenextlevel@substack.com",
+      "subject": "JVL Is the Reigning Champion of All the Internet",
+      "date": "12 h",
+      "date_timestamp": 1776820413.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39192",
+      "folder": "Spam",
+      "from_name": "CONICA AG",
+      "from_email": "marketing@conica.com",
+      "subject": "FW: From base layer to top coat: How performance is built",
+      "date": "9 h",
+      "date_timestamp": 1776830783.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39193",
+      "folder": "Spam",
+      "from_name": "The Conversation",
+      "from_email": "africa-editorial@theconversation.com",
+      "subject": "East Africa’s regional bloc under strain",
+      "date": "9 h",
+      "date_timestamp": 1776832265.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39194",
+      "folder": "Spam",
+      "from_name": "Heather Cox Richardson from Letters from an American",
+      "from_email": "heathercoxrichardson@substack.com",
+      "subject": "April 21, 2026",
+      "date": "9 h",
+      "date_timestamp": 1776831802.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39195",
+      "folder": "Spam",
+      "from_name": "ASOS",
+      "from_email": "hello@official.asos.com",
+      "subject": "20% off 1000s of styles",
+      "date": "6 h",
+      "date_timestamp": 1776842147.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39196",
+      "folder": "Spam",
+      "from_name": "De Gruyter Brill",
+      "from_email": "newsletter@degruyterbrill.com",
+      "subject": "Book your place on our next webinar: Improving Your Academic English\r\n for Research Publishing",
+      "date": "6 h",
+      "date_timestamp": 1776843690.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39197",
+      "folder": "Spam",
+      "from_name": "SportSpar.com",
+      "from_email": "news@info.sportspar.com",
+      "subject": "Our Last Sizes Sale has started  💥",
+      "date": "4 h",
+      "date_timestamp": 1776849693.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39198",
+      "folder": "Spam",
+      "from_name": "BTN Europe",
+      "from_email": "BTNEMarketing@info.northstartravelgroupmail.com",
+      "subject": "Check out the features you may have missed from Business Travel News\r\n Europe",
+      "date": "3 h",
+      "date_timestamp": 1776852297.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39199",
+      "folder": "Spam",
+      "from_name": "News from Science",
+      "from_email": "alerts@aaas.sciencepubs.org",
+      "subject": "Whistleblower alleges Finnish startup’s vaunted solid-state battery isn’t what it claims",
+      "date": "3 h",
+      "date_timestamp": 1776852512.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39200",
+      "folder": "Spam",
+      "from_name": "Catherine Rampell - The Bulwark",
+      "from_email": "thebulwark+receipts@substack.com",
+      "subject": "Trump’s Fed Chair Nominee Fails the Big Test",
+      "date": "3 h",
+      "date_timestamp": 1776852208.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39201",
+      "folder": "Spam",
+      "from_name": "Morningstar | Morning Digest",
+      "from_email": "newsletter@morningstar.com",
+      "subject": "3 Stocks to Sell and 3 Stocks to Buy Instead",
+      "date": "3 h",
+      "date_timestamp": 1776853975.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39202",
+      "folder": "Spam",
+      "from_name": "PetaPixel",
+      "from_email": "newsletter@petapixel.com",
+      "subject": "The Daily PetaPixel for 04/22/2026",
+      "date": "2 h",
+      "date_timestamp": 1776855851.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39203",
+      "folder": "Spam",
+      "from_name": "Wonkette Tabs",
+      "from_email": "wonkette+wonkette-tabs@substack.com",
+      "subject": "Love Your Mother. Tabs, Wed., April 22, 2026",
+      "date": "2 h",
+      "date_timestamp": 1776855824.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39204",
+      "folder": "Spam",
+      "from_name": "Bleacher Report",
+      "from_email": "no-reply@fans.bleacherreport.com",
+      "subject": "👂  Last-minute QB draft rumors",
+      "date": "1 h",
+      "date_timestamp": 1776859501.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39205",
+      "folder": "Spam",
+      "from_name": "HuffPost Morning Email",
+      "from_email": "info@emails.huffpost.com",
+      "subject": "Was Tucker Carlson's viral apology genuine?",
+      "date": "1 h",
+      "date_timestamp": 1776860225.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39206",
+      "folder": "Spam",
+      "from_name": "Publishers Weekly",
+      "from_email": "PW@publishersweekly-partners.com",
+      "subject": "Meet Your New Favorite Unlikely Duo: Skeleton and Cat",
+      "date": "1 h",
+      "date_timestamp": 1776861161.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39207",
+      "folder": "Spam",
+      "from_name": "Marcie Jones from Wonkette",
+      "from_email": "wonkette@substack.com",
+      "subject": "Our Old Friend Hairball Joe DiGenova Is Back, Y'All",
+      "date": "59 min",
+      "date_timestamp": 1776862529.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39208",
+      "folder": "Spam",
+      "from_name": "Bill Kristol & Andrew Egger - The Bulwark",
+      "from_email": "thebulwark+morningshots@substack.com",
+      "subject": "BREAKING: Dems Remember They Can Play Hardball, Too",
+      "date": "27 min",
+      "date_timestamp": 1776864465.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "39209",
+      "folder": "Spam",
+      "from_name": "Travel Weekly Agent Updates",
+      "from_email": "AgentUpdates@partners.northstartravelgroupmail.com",
+      "subject": "Laid-Back Luxury Awaits in Greater Fort Lauderdale",
+      "date": "9 min",
+      "date_timestamp": 1776865522.0,
+      "folder_name": "Spam"
+    }
+  ],
+  "fetched_at": "2026-04-22T13:54:48.434865+00:00",
+  "email_count": 50,
+  "status": "idle",
+  "error": null
+}

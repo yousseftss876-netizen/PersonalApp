@@ -1,0 +1,508 @@
+{
+  "emails": [
+    {
+      "uid": "85042",
+      "folder": "Inbox",
+      "from_name": "Bloomberg Businessweek",
+      "from_email": "noreply@news.bloomberg.com",
+      "subject": "Will more Republicans challenge Trump?",
+      "date": "2 h",
+      "date_timestamp": 1777052983.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85041",
+      "folder": "Inbox",
+      "from_name": "The Daily Skimm",
+      "from_email": "dailyskimm@morning7.theskimm.com",
+      "subject": "Weekend: The New Rules of Leggings 👀",
+      "date": "3 h",
+      "date_timestamp": 1777050614.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85040",
+      "folder": "Inbox",
+      "from_name": "Fox News Breaking News",
+      "from_email": "inbox@bn.foxnews.com",
+      "subject": "BREAKING NEWS: Justice Department announces it's readopting the\r\n firing squad as a means of execution",
+      "date": "4 h",
+      "date_timestamp": 1777047157.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85039",
+      "folder": "Inbox",
+      "from_name": "Khan Academy",
+      "from_email": "no-replylrcf@login.submario.com",
+      "subject": "Khan Academy account recovery",
+      "date": "4 h",
+      "date_timestamp": 1777046393.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85038",
+      "folder": "Inbox",
+      "from_name": "Instagram",
+      "from_email": "no-replyhiet@login.submario.com",
+      "subject": "472193 is your Instagram code",
+      "date": "4 h",
+      "date_timestamp": 1777046392.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85037",
+      "folder": "Inbox",
+      "from_name": "Matt Levine",
+      "from_email": "noreply@news.bloomberg.com",
+      "subject": "Money Stuff: The Podcast: Economic Animals",
+      "date": "4 h",
+      "date_timestamp": 1777046374.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85036",
+      "folder": "Inbox",
+      "from_name": "WebMD",
+      "from_email": "no-replysnec@login.submario.com",
+      "subject": "Reset Your Password",
+      "date": "4 h",
+      "date_timestamp": 1777046077.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85033",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "donotreplykflo@login.submario.com",
+      "subject": "[TeamSpeak] password reset verification",
+      "date": "4 h",
+      "date_timestamp": 1777045931.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85034",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "donotreplyioby@login.submario.com",
+      "subject": "[TeamSpeak] password reset verification",
+      "date": "4 h",
+      "date_timestamp": 1777045931.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85035",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "donotreplyctwm@login.submario.com",
+      "subject": "[TeamSpeak] password reset verification",
+      "date": "4 h",
+      "date_timestamp": 1777045931.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85032",
+      "folder": "Inbox",
+      "from_name": "Google",
+      "from_email": "no-reply@accounts.google.com",
+      "subject": "Alerte de sécurité critique",
+      "date": "4 h",
+      "date_timestamp": 1777045728.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85031",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "customersupportvyqv@login.submario.com",
+      "subject": "Mise à jour du mot de passe du compte F1",
+      "date": "4 h",
+      "date_timestamp": 1777045620.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85030",
+      "folder": "Inbox",
+      "from_name": "Riot Games",
+      "from_email": "noreplygwhs@login.submario.com",
+      "subject": "Code de  connexion :  117223",
+      "date": "4 h",
+      "date_timestamp": 1777045489.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85029",
+      "folder": "Inbox",
+      "from_name": "Riot Games",
+      "from_email": "noreplyvfly@login.submario.com",
+      "subject": "Code de  connexion :  764515",
+      "date": "4 h",
+      "date_timestamp": 1777045351.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85028",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "donotreplyrarr@login.submario.com",
+      "subject": "myTeamSpeak Account Activation",
+      "date": "4 h",
+      "date_timestamp": 1777045193.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85027",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "donotreplylerw@login.submario.com",
+      "subject": "[TeamSpeak] password reset verification",
+      "date": "4 h",
+      "date_timestamp": 1777044945.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85026",
+      "folder": "Inbox",
+      "from_name": "MPW Daily | Fortune",
+      "from_email": "mpwdaily@mail.fortune.com",
+      "subject": "What we learned in Gloria Steinem's living room",
+      "date": "4 h",
+      "date_timestamp": 1777044833.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85025",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "customersupportcwfo@login.submario.com",
+      "subject": "Vérifiez votre compte F1",
+      "date": "4 h",
+      "date_timestamp": 1777044663.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85024",
+      "folder": "Inbox",
+      "from_name": "Fox News Breaking News",
+      "from_email": "inbox@bn.foxnews.com",
+      "subject": "BREAKING NEWS: Bus crash near Pentagon injures 23, including 10 War\r\n Department personnel",
+      "date": "4 h",
+      "date_timestamp": 1777044514.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85023",
+      "folder": "Inbox",
+      "from_name": "Mailtimer Help",
+      "from_email": "support@download.marshpointelementary.com",
+      "subject": "Welcome to Mailtimer 🎉 - just one more step!",
+      "date": "5 h",
+      "date_timestamp": 1777043351.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85022",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "University of the Virgin Islands - Navigate Student Success\r\n <no-reply.uvu@download.marshpointelementary.com>",
+      "subject": "Applicant Portal: Login Link",
+      "date": "5 h",
+      "date_timestamp": 1777041593.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85021",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "University of the Virgin Islands - Navigate Student Success\r\n <no-reply.uku@download.marshpointelementary.com>",
+      "subject": "Applicant Portal: Login Link",
+      "date": "6 h",
+      "date_timestamp": 1777039888.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85020",
+      "folder": "Inbox",
+      "from_name": "Product Fruits Team",
+      "from_email": "no-reply@assets.howtobeatsudoku.com",
+      "subject": "Complete your Product Fruits registration",
+      "date": "6 h",
+      "date_timestamp": 1777039270.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85019",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "University of the Virgin Islands - Navigate Student Success\r\n <no-reply.ege@download.marshpointelementary.com>",
+      "subject": "Applicant Portal: Login Link",
+      "date": "6 h",
+      "date_timestamp": 1777039224.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85018",
+      "folder": "Inbox",
+      "from_name": "HousingAnywhere",
+      "from_email": "noreply.udez@download.marshpointelementary.com",
+      "subject": "Reset your forgotten password",
+      "date": "6 h",
+      "date_timestamp": 1777037319.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85017",
+      "folder": "Inbox",
+      "from_name": "HousingAnywhere",
+      "from_email": "noreply.trab@download.marshpointelementary.com",
+      "subject": "Reset your forgotten password",
+      "date": "7 h",
+      "date_timestamp": 1777036519.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85016",
+      "folder": "Inbox",
+      "from_name": "Christmas Savings",
+      "from_email": "no-reply.absn@assets.howtobeatsudoku.com",
+      "subject": "Important Mortgage Refinance Information",
+      "date": "7 h",
+      "date_timestamp": 1777036404.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85015",
+      "folder": "Inbox",
+      "from_name": "Verify Your Email",
+      "from_email": "no-reply.sakh@assets.howtobeatsudoku.com",
+      "subject": "Important Mortgage Refinance Information",
+      "date": "7 h",
+      "date_timestamp": 1777036265.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85014",
+      "folder": "Inbox",
+      "from_name": "Christmas Deals",
+      "from_email": "no-reply.zhgx@assets.howtobeatsudoku.com",
+      "subject": "Revealed: Our 10 Favorite Amazon Picks!",
+      "date": "7 h",
+      "date_timestamp": 1777035970.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85013",
+      "folder": "Inbox",
+      "from_name": "CFO Daily | Fortune",
+      "from_email": "cfodaily@mail.fortune.com",
+      "subject": "Huntington's CFO is an AI strategist",
+      "date": "7 h",
+      "date_timestamp": 1777035932.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85012",
+      "folder": "Inbox",
+      "from_name": "Bloomberg",
+      "from_email": "noreply@news.bloomberg.com",
+      "subject": "Next Africa: Wooing Dangote",
+      "date": "7 h",
+      "date_timestamp": 1777035737.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85011",
+      "folder": "Inbox",
+      "from_name": "Nocturn | Glasses",
+      "from_email": "no-replyrqky@assets.howtobeatsudoku.com",
+      "subject": "Night driving glasses keeping everyone safe on the road",
+      "date": "7 h",
+      "date_timestamp": 1777034604.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85010",
+      "folder": "Inbox",
+      "from_name": "Nocturn | Glasses",
+      "from_email": "no-replydmnu@assets.howtobeatsudoku.com",
+      "subject": "Night driving glasses keeping everyone safe on the road",
+      "date": "7 h",
+      "date_timestamp": 1777034509.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85009",
+      "folder": "Inbox",
+      "from_name": "FHA",
+      "from_email": "no-replysrqx@assets.howtobeatsudoku.com",
+      "subject": "When it makes sense to Refinance Your Mortgage",
+      "date": "8 h",
+      "date_timestamp": 1777033633.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85008",
+      "folder": "Inbox",
+      "from_name": "Semafor Africa",
+      "from_email": "africa@semafor.com",
+      "subject": "🟡  Normalizing ties",
+      "date": "8 h",
+      "date_timestamp": 1777032621.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85007",
+      "folder": "Inbox",
+      "from_name": "Term Sheet | Fortune",
+      "from_email": "termsheet@mail.fortune.com",
+      "subject": "Not another VC hot take",
+      "date": "8 h",
+      "date_timestamp": 1777032372.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85006",
+      "folder": "Inbox",
+      "from_name": "Fox News First Morning Headlines",
+      "from_email": "email@inbox2.foxnews.com",
+      "subject": "US economic chokehold on Iran reaches peak leverage",
+      "date": "8 h",
+      "date_timestamp": 1777030699.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85005",
+      "folder": "Inbox",
+      "from_name": "Bloomberg",
+      "from_email": "noreply@news.bloomberg.com",
+      "subject": "AI euphoria returns",
+      "date": "8 h",
+      "date_timestamp": 1777030098.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85004",
+      "folder": "Inbox",
+      "from_name": "Autodesk",
+      "from_email": "noreply@download.marshpointelementary.com",
+      "subject": "One-time passcode",
+      "date": "9 h",
+      "date_timestamp": 1777029221.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85003",
+      "folder": "Inbox",
+      "from_name": "NPR",
+      "from_email": "email@nl.npr.org",
+      "subject": "Israel-Lebanon ceasefire extended for three weeks. And, the Trump\r\n administration eases rules on medical marijuana",
+      "date": "9 h",
+      "date_timestamp": 1777029075.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85002",
+      "folder": "Inbox",
+      "from_name": "Nocturn | Glasses",
+      "from_email": "no-replylcuu@assets.howtobeatsudoku.com",
+      "subject": "Night driving glasses keeping everyone safe on the road",
+      "date": "9 h",
+      "date_timestamp": 1777029050.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85001",
+      "folder": "Inbox",
+      "from_name": "Bloomberg Green",
+      "from_email": "noreply@news.bloomberg.com",
+      "subject": "Batteries are driving the gas revolution",
+      "date": "9 h",
+      "date_timestamp": 1777028978.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "85000",
+      "folder": "Inbox",
+      "from_name": "Autodesk",
+      "from_email": "noreply@download.marshpointelementary.com",
+      "subject": "One-time passcode",
+      "date": "9 h",
+      "date_timestamp": 1777028574.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84999",
+      "folder": "Inbox",
+      "from_name": "Vox’s Today, Explained",
+      "from_email": "newsletter@vox.com",
+      "subject": "A ruling with wide reach",
+      "date": "9 h",
+      "date_timestamp": 1777028512.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84998",
+      "folder": "Inbox",
+      "from_name": "KPRC 2",
+      "from_email": "kprc2@newsletters.click2houston.com",
+      "subject": "2 Newsletter: Houston changes its immigration policy. But what does\r\n that mean?",
+      "date": "9 h",
+      "date_timestamp": 1777028165.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84997",
+      "folder": "Inbox",
+      "from_name": "Fortune Tech",
+      "from_email": "fortunetech@mail.fortune.com",
+      "subject": "A relentless march",
+      "date": "9 h",
+      "date_timestamp": 1777027969.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84996",
+      "folder": "Inbox",
+      "from_name": "FHA",
+      "from_email": "notify@EOTb.assets.howtobeatsudoku.com",
+      "subject": "When it makes sense to Refinance Your Mortgage",
+      "date": "9 h",
+      "date_timestamp": 1777027966.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84995",
+      "folder": "Inbox",
+      "from_name": "FHA",
+      "from_email": "notify@hWy3.assets.howtobeatsudoku.com",
+      "subject": "When it makes sense to Refinance Your Mortgage",
+      "date": "9 h",
+      "date_timestamp": 1777027882.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84994",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "Christmas Deals<info.yze@assets.howtobeatsudoku.com>",
+      "subject": "Revealed: Our 10 Favorite Amazon Picks!",
+      "date": "9 h",
+      "date_timestamp": 1777027629.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "84993",
+      "folder": "Inbox",
+      "from_name": "FHA",
+      "from_email": "notify@AWwi.assets.howtobeatsudoku.com",
+      "subject": "When it makes sense to Refinance Your Mortgage",
+      "date": "9 h",
+      "date_timestamp": 1777026976.0,
+      "folder_name": "Inbox"
+    }
+  ],
+  "fetched_at": "2026-04-24T20:28:26.350479+00:00",
+  "email_count": 50,
+  "status": "idle",
+  "error": null
+}

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS Gmail Access</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .email-item { border-bottom: 1px solid #e5e7eb; transition: background-color 0.2s ease; }
+        .email-item:hover { background-color: #f9fafb; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #fecaca; border-right: 3px solid #dc2626; }
+        .new-badge { animation: newPulse 2s infinite; }
+        @keyframes newPulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+        .account-card { transition: all .2s ease; cursor: pointer; }
+        .account-card:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(59,130,246,.15); }
+        .account-card.selected { border-color: #3b82f6 !important; background-color: #eff6ff !important; box-shadow: 0 2px 10px rgba(59,130,246,.2); }
+        .account-card.inactive { opacity: .65; cursor: pointer; }
+        .account-card.inactive:hover { border-color: #fca5a5; }
+        .move-btn { transition: all .15s ease; }
+        .move-btn:hover { transform: scale(1.1); }
+        .activated-section { border: 2px solid #22c55e; }
+        .inactive-section { border: 2px solid #e5e7eb; }
+        .gmail-accounts-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .gmail-accounts-scroll::-webkit-scrollbar { width: 6px; }
+        .gmail-accounts-scroll::-webkit-scrollbar-track { background: transparent; }
+        .gmail-accounts-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .gmail-accounts-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "TSS Gmail Access" %}
+    {% set page_icon = "ph-envelope-simple" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+
+        <!-- Welcome -->
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-1">Welcome, {{ current_user.name }}!</h2>
+            <p class="text-gray-600">
+                Access and manage your
+                {% if current_user.entity.lower() == 'tssw' %}<span class="font-semibold text-blue-600">all TSS entities'</span>
+                {% else %}<span class="font-semibold text-blue-600">{{ current_user.entity }}</span>{% endif %}
+                Gmail accounts securely
+            </p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}{% for category, message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if category == 'error' %}bg-red-50 border border-red-200 text-red-700{% elif category == 'success' %}bg-green-50 border border-green-200 text-green-700{% else %}bg-blue-50 border border-blue-200 text-blue-700{% endif %}">
+                    <i class="fas {% if category == 'error' %}fa-exclamation-triangle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} mr-2"></i>{{ message }}
+                </div>
+            {% endfor %}{% endif %}
+        {% endwith %}
+
+        <!-- ============================================================
+             ADMIN SECTION: Two-panel account management
+        ============================================================ -->
+        {% if is_admin %}
+        <div class="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-sliders-h text-blue-500"></i>
+                    Gmail Account Management
+                </h3>
+                <span class="text-xs text-gray-400">Move accounts between panels to control access</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Left: Gmail Accounts (inactive) -->
+                <div class="inactive-section rounded-lg p-3 bg-gray-50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                        <span class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Gmail Accounts</span>
+                        <span id="inactive-count" class="ml-auto bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="inactive-panel" class="space-y-2 min-h-[60px] max-h-[360px] overflow-y-auto pr-1 gmail-accounts-scroll">
+                        {% for key, account in accounts.items() %}
+                            {% if key not in activated_keys %}
+                            <div class="admin-card flex items-center justify-between bg-white border border-gray-200 rounded-lg px-3 py-2 gap-2" data-key="{{ key }}" data-entity="{{ account.entity }}" data-email="{{ account.email }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0
+                                        {% if account.entity == 'TSS1' %}bg-blue-500{% elif account.entity == 'TSS2' %}bg-green-500{% elif account.entity == 'TSS3' %}bg-yellow-500{% elif account.entity == 'TSSF' %}bg-orange-500{% elif account.entity == 'TSSW' %}bg-red-500{% else %}bg-gray-500{% endif %}">
+                                        {{ account.entity[0] }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-semibold text-gray-700">{{ account.entity }}</div>
+                                        <div class="text-xs text-gray-500 truncate max-w-[160px]">{{ account.email }}</div>
+                                    </div>
+                                </div>
+                                <button onclick="activateAccount('{{ key }}')" class="move-btn flex-shrink-0 w-7 h-7 bg-green-100 hover:bg-green-200 text-green-600 rounded-full flex items-center justify-center" title="Activate">
+                                    <i class="fas fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for key, account in accounts.items() %}
+                            {% if key in activated_keys %}<!-- placeholder, nothing here -->{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Right: Active Gmail Accounts -->
+                <div class="activated-section rounded-lg p-3 bg-green-50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span class="text-sm font-semibold text-green-700 uppercase tracking-wide">Active Gmail Accounts</span>
+                        <span id="active-count" class="ml-auto bg-green-200 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="active-panel" class="space-y-2 min-h-[60px] max-h-[360px] overflow-y-auto pr-1 gmail-accounts-scroll">
+                        {% for key, account in accounts.items() %}
+                            {% if key in activated_keys %}
+                            <div class="admin-card flex items-center justify-between bg-white border border-green-200 rounded-lg px-3 py-2 gap-2" data-key="{{ key }}" data-entity="{{ account.entity }}" data-email="{{ account.email }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0
+                                        {% if account.entity == 'TSS1' %}bg-blue-500{% elif account.entity == 'TSS2' %}bg-green-500{% elif account.entity == 'TSS3' %}bg-yellow-500{% elif account.entity == 'TSSF' %}bg-orange-500{% elif account.entity == 'TSSW' %}bg-red-500{% else %}bg-gray-500{% endif %}">
+                                        {{ account.entity[0] }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-semibold text-gray-700">{{ account.entity }}</div>
+                                        <div class="text-xs text-gray-500 truncate max-w-[160px]">{{ account.email }}</div>
+                                    </div>
+                                </div>
+                                <button onclick="deactivateAccount('{{ key }}')" class="move-btn flex-shrink-0 w-7 h-7 bg-red-100 hover:bg-red-200 text-red-500 rounded-full flex items-center justify-center" title="Deactivate">
+                                    <i class="fas fa-arrow-left text-xs"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Search Filters (shown when account selected) -->
+        <div id="filters-section" class="bg-white rounded-lg shadow-md p-5 mb-6" style="display:none;">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                    <label class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-user mr-2"></i>Search by Sender:</label>
+                    <input type="text" id="search_sender" value="{{ search_sender }}" placeholder="Enter sender name or email..."
+                        class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-envelope-open-text mr-2"></i>Search by Subject:</label>
+                    <input type="text" id="search_subject" value="{{ search_subject }}" placeholder="Enter subject keywords..."
+                        class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <div id="connection-status" style="display:none;"></div>
+
+        <!-- Main layout: sidebar + email panel -->
+        <div class="flex gap-5 mb-8">
+            <!-- Gmail Accounts Sidebar -->
+            <div class="w-72 flex-shrink-0">
+                <div class="bg-gradient-to-b from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-3">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-1">
+                        <i class="fas fa-envelope mr-1 text-blue-500"></i> Gmail Accounts
+                    </h3>
+                    <div class="space-y-2" id="accounts-sidebar">
+                        {% for key, account in accounts.items() %}
+                        {% set is_active = key in activated_keys %}
+                        <div class="account-card border rounded-xl p-3 bg-white {% if not is_active %}inactive{% endif %}"
+                             data-key="{{ key }}" data-active="{{ 'true' if is_active else 'false' }}"
+                             onclick="handleAccountClick('{{ key }}', {{ 'true' if is_active else 'false' }})">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0
+                                    {% if account.entity == 'TSS1' %}bg-gradient-to-br from-blue-500 to-blue-600
+                                    {% elif account.entity == 'TSS2' %}bg-gradient-to-br from-green-500 to-green-600
+                                    {% elif account.entity == 'TSS3' %}bg-gradient-to-br from-yellow-500 to-yellow-600
+                                    {% elif account.entity == 'TSSF' %}bg-gradient-to-br from-orange-500 to-orange-600
+                                    {% elif account.entity == 'TSSW' %}bg-gradient-to-br from-red-500 to-red-600
+                                    {% else %}bg-gradient-to-br from-gray-500 to-gray-600{% endif %}">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs font-semibold text-gray-800 flex items-center gap-1">
+                                        {{ account.entity }}
+                                        {% if is_active %}<span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block" title="Active"></span>
+                                        {% else %}<span class="w-1.5 h-1.5 bg-gray-300 rounded-full inline-block" title="Inactive"></span>{% endif %}
+                                    </div>
+                                    <div class="text-xs text-gray-500 truncate">{{ account.email }}</div>
+                                    <div class="text-xs text-gray-400" id="cache-time-{{ key }}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Panel -->
+            <div class="flex-1 space-y-4">
+                <div id="account-info-and-folders" style="display:none;">
+                    <!-- Inbox / Spam toggle -->
+                    <div class="bg-white rounded-lg shadow-sm p-3 mb-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div id="inbox-sidebar" class="sidebar-item active flex items-center justify-between p-3 rounded-lg cursor-pointer border border-gray-200">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-inbox text-blue-500"></i>
+                                    <span class="font-medium text-gray-800 text-sm">Inbox</span>
+                                </div>
+                                <span id="inbox-count" class="bg-blue-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="spam-sidebar" class="sidebar-item flex items-center justify-between p-3 rounded-lg cursor-pointer border border-gray-200">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-exclamation-triangle text-red-500"></i>
+                                    <span class="font-medium text-gray-800 text-sm">Spam</span>
+                                </div>
+                                <span id="spam-count" class="bg-red-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email list -->
+                    <div id="gmail-interface" style="display:none;">
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <div class="flex flex-col" style="max-height:700px;">
+                                <div id="email-list" class="flex-1 overflow-y-auto">
+                                    <div id="emails-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome screen -->
+                <div id="welcome-screen">
+                    <div class="text-center py-16">
+                        <i class="fas fa-mail-bulk text-gray-300 text-6xl mb-6"></i>
+                        <h2 class="text-2xl font-semibold text-gray-600 mb-4">Select a Gmail Account</h2>
+                        <p class="text-gray-500 mb-8">
+                            {% if current_user.entity.lower() == 'tssw' %}You have access to all TSS entities.
+                            {% else %}You have access to {{ current_user.entity }} emails.{% endif %}
+                            Click an active account in the sidebar to view emails.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                                <i class="fas fa-shield-alt text-blue-500 text-2xl mb-3"></i>
+                                <h3 class="font-semibold text-gray-800 mb-1">Secure</h3>
+                                <p class="text-gray-500 text-sm">Secure sign-in for third-party Gmail access</p>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                                <i class="fas fa-bolt text-green-500 text-2xl mb-3"></i>
+                                <h3 class="font-semibold text-gray-800 mb-1">Live Updates</h3>
+                                <p class="text-gray-500 text-sm">Email list auto-updates when new data arrives</p>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                                <i class="fas fa-sort-amount-down text-purple-500 text-2xl mb-3"></i>
+                                <h3 class="font-semibold text-gray-800 mb-1">Newest First</h3>
+                                <p class="text-gray-500 text-sm">Latest emails always shown at the top</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let searchTimeout;
+        let allEmails = [];
+        let currentView = 'inbox';
+        let eventSource = null;
+        let previousEmailUIDs = new Set();
+        let currentAccountKey = null;
+
+        // ── Admin: activate / deactivate ─────────────────────────────
+        {% if is_admin %}
+        function updatePanelCounts() {
+            document.getElementById('inactive-count').textContent = document.querySelectorAll('#inactive-panel .admin-card').length;
+            document.getElementById('active-count').textContent   = document.querySelectorAll('#active-panel .admin-card').length;
+        }
+
+        async function activateAccount(accountKey) {
+            const card = document.querySelector(`#inactive-panel [data-key="${accountKey}"]`);
+            if (!card) return;
+            try {
+                const r = await fetch(`/api/gmail/activate/${encodeURIComponent(accountKey)}`, { method: 'POST' });
+                const d = await r.json();
+                if (!d.success) { showNotification('Activate failed: ' + (d.error || ''), 'error'); return; }
+                // Move card to active panel
+                document.getElementById('active-panel').appendChild(card);
+                // Swap button to deactivate
+                const btn = card.querySelector('button');
+                btn.onclick = () => deactivateAccount(accountKey);
+                btn.className = 'move-btn flex-shrink-0 w-7 h-7 bg-red-100 hover:bg-red-200 text-red-500 rounded-full flex items-center justify-center';
+                btn.title = 'Deactivate';
+                btn.innerHTML = '<i class="fas fa-arrow-left text-xs"></i>';
+                card.classList.remove('border-gray-200');
+                card.classList.add('border-green-200');
+                // Update sidebar dot
+                updateSidebarDot(accountKey, true);
+                updatePanelCounts();
+                showNotification('Account activated', 'success');
+            } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+        }
+
+        async function deactivateAccount(accountKey) {
+            const card = document.querySelector(`#active-panel [data-key="${accountKey}"]`);
+            if (!card) return;
+            try {
+                const r = await fetch(`/api/gmail/deactivate/${encodeURIComponent(accountKey)}`, { method: 'POST' });
+                const d = await r.json();
+                if (!d.success) { showNotification('Deactivate failed: ' + (d.error || ''), 'error'); return; }
+                // Move card to inactive panel
+                document.getElementById('inactive-panel').appendChild(card);
+                // Swap button to activate
+                const btn = card.querySelector('button');
+                btn.onclick = () => activateAccount(accountKey);
+                btn.className = 'move-btn flex-shrink-0 w-7 h-7 bg-green-100 hover:bg-green-200 text-green-600 rounded-full flex items-center justify-center';
+                btn.title = 'Activate';
+                btn.innerHTML = '<i class="fas fa-arrow-right text-xs"></i>';
+                card.classList.remove('border-green-200');
+                card.classList.add('border-gray-200');
+                // Update sidebar dot
+                updateSidebarDot(accountKey, false);
+                updatePanelCounts();
+                // If this account was selected, clear the email view
+                if (currentAccountKey === accountKey) {
+                    stopRealTimeUpdates();
+                    document.getElementById('account-info-and-folders').style.display = 'none';
+                    document.getElementById('filters-section').style.display = 'none';
+                    document.getElementById('welcome-screen').style.display = 'block';
+                    document.getElementById('gmail-interface').style.display = 'none';
+                    allEmails = [];
+                    previousEmailUIDs = new Set();
+                    currentAccountKey = null;
+                    try { localStorage.removeItem('gmail_selected_account'); } catch(e) {}
+                }
+                showNotification('Account deactivated', 'success');
+            } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+        }
+
+        function updateSidebarDot(accountKey, isActive) {
+            const sidebarCard = document.querySelector(`#accounts-sidebar [data-key="${accountKey}"]`);
+            if (!sidebarCard) return;
+            sidebarCard.dataset.active = isActive ? 'true' : 'false';
+            const dot = sidebarCard.querySelector('.rounded-full.inline-block');
+            if (dot) {
+                dot.className = `w-1.5 h-1.5 rounded-full inline-block ${isActive ? 'bg-green-500' : 'bg-gray-300'}`;
+                dot.title = isActive ? 'Active' : 'Inactive';
+            }
+            if (isActive) sidebarCard.classList.remove('inactive');
+            else sidebarCard.classList.add('inactive');
+            // Update onclick
+            sidebarCard.onclick = () => handleAccountClick(accountKey, isActive);
+        }
+
+        // Init panel counts on load
+        document.addEventListener('DOMContentLoaded', updatePanelCounts);
+        {% endif %}
+
+        // ── Account selection ─────────────────────────────────────────
+        function handleAccountClick(accountKey, isActive) {
+            if (!isActive) {
+                showInactiveAlert();
+                return;
+            }
+            selectGmailAccount(accountKey);
+        }
+
+        function showInactiveAlert() {
+            const existing = document.getElementById('inactive-alert');
+            if (existing) { existing.remove(); }
+            const el = document.createElement('div');
+            el.id = 'inactive-alert';
+            el.className = 'fixed inset-0 flex items-center justify-center z-[2000] bg-black bg-opacity-40';
+            el.innerHTML = `
+                <div class="bg-white rounded-xl shadow-xl p-7 max-w-sm mx-4 text-center">
+                    <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-yellow-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Account Not Active</h3>
+                    <p class="text-gray-500 text-sm mb-5">This Gmail account is not active. Please contact TSSW Team to enable access to this account.</p>
+                    <button onclick="document.getElementById('inactive-alert').remove()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors">
+                        Got it
+                    </button>
+                </div>`;
+            document.body.appendChild(el);
+            el.addEventListener('click', function(e) { if (e.target === el) el.remove(); });
+        }
+
+        function selectGmailAccount(accountKey) {
+            try { localStorage.setItem('gmail_selected_account', accountKey); } catch(e) {}
+
+            // Highlight in sidebar
+            document.querySelectorAll('#accounts-sidebar .account-card').forEach(c => c.classList.remove('selected'));
+            const card = document.querySelector(`#accounts-sidebar [data-key="${accountKey}"]`);
+            if (card) card.classList.add('selected');
+
+            allEmails = [];
+            previousEmailUIDs = new Set();
+
+            document.getElementById('account-info-and-folders').style.display = 'block';
+            document.getElementById('filters-section').style.display = 'grid';
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('gmail-interface').style.display = 'block';
+
+            stopRealTimeUpdates();
+            fetchEmailsOnce(accountKey);
+            startRealTimeUpdates(accountKey);
+        }
+
+        // ── SSE ───────────────────────────────────────────────────────
+        function startRealTimeUpdates(accountKey) {
+            if (eventSource) eventSource.close();
+            currentAccountKey = accountKey;
+            eventSource = new EventSource(`/events/${encodeURIComponent(accountKey)}`);
+
+            eventSource.onopen = () => hideConnectionStatus();
+
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.heartbeat) return;
+                    if (data.emails !== undefined) {
+                        // Sort newest first
+                        const sorted = [...data.emails].sort((a, b) => (b.date_timestamp || 0) - (a.date_timestamp || 0));
+                        const currentUIDs = new Set(sorted.map(e => e.uid));
+                        if (previousEmailUIDs.size > 0) {
+                            const newCount = [...currentUIDs].filter(u => !previousEmailUIDs.has(u)).length;
+                            if (newCount > 0) showNewEmailNotification(newCount);
+                        }
+                        allEmails = sorted;
+                        updateEmailCounts();
+                        updateEmailDisplay();
+                        hideConnectionStatus();
+                        previousEmailUIDs = currentUIDs;
+                        updateCacheTimestamp(accountKey, data.fetched_at);
+                    }
+                    if (data.error) showConnectionError(data.error);
+                } catch(e) { console.error('SSE parse error:', e); }
+            };
+
+            eventSource.onerror = function() {
+                showConnectionError('Connection lost. Reconnecting...');
+                setTimeout(() => { if (currentAccountKey === accountKey) startRealTimeUpdates(accountKey); }, 5000);
+            };
+        }
+
+        function stopRealTimeUpdates() {
+            if (eventSource) { eventSource.close(); eventSource = null; }
+            currentAccountKey = null;
+        }
+
+        // ── Fetch from cache (initial load) ──────────────────────────
+        async function fetchEmailsOnce(accountKey) {
+            showLoading();
+            try {
+                const response = await fetch('/fetch_emails', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account: accountKey })
+                });
+                const data = await response.json();
+                if (data.error === 'not_activated') {
+                    showConnectionError('This account is not activated. Contact Tssw Team.');
+                    return;
+                }
+                if (data.emails && data.emails.length > 0) {
+                    // Already sorted newest-first by backend, but ensure client-side too
+                    const sorted = [...data.emails].sort((a, b) => (b.date_timestamp || 0) - (a.date_timestamp || 0));
+                    previousEmailUIDs = new Set(sorted.map(e => e.uid));
+                    allEmails = sorted;
+                    updateEmailCounts();
+                    updateEmailDisplay();
+                    updateCacheTimestamp(accountKey, data.fetched_at);
+                    hideConnectionStatus();
+                } else {
+                    const c = document.getElementById('emails-container');
+                    if (c) c.innerHTML = `
+                        <div class="p-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-4"></i>
+                            <p class="text-lg font-medium">No emails cached yet</p>
+                            <p class="text-sm mt-1">Emails will appear once the sync service writes data for this account</p>
+                        </div>`;
+                    hideConnectionStatus();
+                }
+            } catch(e) { showConnectionError('Could not load cached emails.'); }
+        }
+
+        // ── Display helpers ───────────────────────────────────────────
+        function isNewEmail(em) {
+            return ((new Date() - new Date(em.date_timestamp * 1000)) / 1000) <= 300;
+        }
+
+        function getFilteredEmails() {
+            const sender  = document.getElementById('search_sender')?.value.toLowerCase().trim() || '';
+            const subject = document.getElementById('search_subject')?.value.toLowerCase().trim() || '';
+            let filtered = allEmails.filter(e => {
+                const f = (e.folder || e.folder_name || '').toLowerCase();
+                return currentView === 'spam' ? f === 'spam' : f === 'inbox';
+            });
+            if (sender || subject) {
+                filtered = filtered.filter(e => {
+                    const from = ((e.from_name || '') + ' ' + (e.from_email || '')).toLowerCase();
+                    return (!sender || from.includes(sender)) && (!subject || (e.subject || '').toLowerCase().includes(subject));
+                });
+            }
+            return filtered; // already sorted newest-first from allEmails
+        }
+
+        function updateEmailCounts() {
+            const inboxN = allEmails.filter(e => (e.folder || e.folder_name || '').toLowerCase() === 'inbox').length;
+            const spamN  = allEmails.filter(e => (e.folder || e.folder_name || '').toLowerCase() === 'spam').length;
+            const inboxEl = document.getElementById('inbox-count');
+            const spamEl  = document.getElementById('spam-count');
+            if (inboxEl) inboxEl.textContent = inboxN;
+            if (spamEl)  spamEl.textContent  = spamN;
+        }
+
+        function updateEmailDisplay() {
+            const container = document.getElementById('emails-container');
+            const filtered = getFilteredEmails();
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p class="text-lg">No emails found</p>
+                        <p class="text-sm">Try adjusting your search filters</p>
+                    </div>`;
+            } else {
+                container.innerHTML = filtered.map(e => `
+                    <div class="email-item p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
+                            <div class="font-medium text-gray-900 truncate flex items-center gap-1">
+                                ${isNewEmail(e) ? '<span class="new-badge bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">New</span>' : ''}
+                                ${escapeHtml(e.from_name || (e.from_email ? e.from_email.split('@')[0] : ''))}
+                            </div>
+                            <div class="text-gray-600 truncate text-sm">
+                                ${escapeHtml(e.from_email ? (e.from_email.split('@')[1] || e.from_email) : '')}
+                            </div>
+                            <div class="text-gray-600 truncate text-sm">${escapeHtml(e.subject || 'No Subject')}</div>
+                            <div class="text-gray-400 text-xs text-right">${escapeHtml(e.date || '')}</div>
+                        </div>
+                    </div>`).join('');
+            }
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function formatFetchedAt(iso) {
+            if (!iso) return '';
+            try {
+                const d = new Date(iso), diffSec = Math.floor((new Date() - d) / 1000);
+                if (diffSec < 60) return `updated ${diffSec}s ago`;
+                if (diffSec < 3600) return `updated ${Math.floor(diffSec/60)}m ago`;
+                return `updated ${Math.floor(diffSec/3600)}h ago`;
+            } catch(e) { return ''; }
+        }
+
+        function updateCacheTimestamp(accountKey, fetchedAt) {
+            const el = document.getElementById('cache-time-' + accountKey);
+            if (el) el.textContent = formatFetchedAt(fetchedAt);
+        }
+
+        // ── Status / notification helpers ─────────────────────────────
+        function showLoading() {
+            const c = document.getElementById('emails-container');
+            if (c) c.innerHTML = `<div class="p-8 text-center"><i class="fas fa-spinner fa-spin text-blue-500 text-3xl mb-4"></i><p class="text-gray-600">Loading emails...</p></div>`;
+        }
+
+        function hideConnectionStatus() {
+            const el = document.getElementById('connection-status');
+            if (el) el.style.display = 'none';
+        }
+
+        function showConnectionError(msg) {
+            const el = document.getElementById('connection-status');
+            if (el) {
+                el.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"><div class="flex items-center text-red-700"><i class="fas fa-exclamation-triangle mr-2"></i>${msg}</div></div>`;
+                el.style.display = 'block';
+            }
+        }
+
+        function showNotification(msg, type) {
+            const n = document.createElement('div');
+            n.className = `fixed top-16 right-4 p-4 rounded-lg shadow-lg z-[1000] ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+            n.innerHTML = `<div class="flex items-center gap-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>${msg}</div>`;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        function showNewEmailNotification(count) {
+            const existing = document.getElementById('new-email-notif');
+            if (existing) existing.remove();
+            const n = document.createElement('div');
+            n.id = 'new-email-notif';
+            n.className = 'fixed top-16 right-4 bg-green-500 text-white px-5 py-4 rounded-lg shadow-lg z-[1000]';
+            n.innerHTML = `<div class="flex items-center gap-3"><i class="fas fa-envelope text-lg"></i><div><div class="font-semibold">${count} new email${count > 1 ? 's' : ''} arrived!</div></div><button onclick="this.parentElement.parentElement.remove()" class="ml-2"><i class="fas fa-times"></i></button></div>`;
+            document.body.appendChild(n);
+            setTimeout(() => { if (n.parentNode) { n.style.opacity='0'; n.style.transition='opacity .5s'; setTimeout(()=>n.remove(),500); } }, 8000);
+        }
+
+        // ── DOMContentLoaded ──────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore last selected account
+            const savedKey = (() => { try { return localStorage.getItem('gmail_selected_account'); } catch(e) { return null; } })();
+            if (savedKey) {
+                const card = document.querySelector(`#accounts-sidebar [data-key="${savedKey}"]`);
+                if (card && card.dataset.active === 'true') {
+                    selectGmailAccount(savedKey);
+                } else {
+                    try { localStorage.removeItem('gmail_selected_account'); } catch(e) {}
+                }
+            }
+
+            // Inbox / Spam tabs
+            document.getElementById('inbox-sidebar').addEventListener('click', function() {
+                currentView = 'inbox';
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                updateEmailDisplay();
+            });
+            document.getElementById('spam-sidebar').addEventListener('click', function() {
+                currentView = 'spam';
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                updateEmailDisplay();
+            });
+
+            // Search filters
+            ['search_sender','search_subject'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(updateEmailDisplay, 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

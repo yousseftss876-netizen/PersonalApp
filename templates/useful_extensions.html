@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Useful Extensions - TSS</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); min-height: 100vh; }
+        .glass-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 24px 0 rgba(99,102,241,0.10);
+        }
+        .ext-row { transition: background 0.15s; }
+        .ext-row:hover { background: rgba(245,243,255,0.9); }
+        .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; }
+        .modal-bg { background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); }
+        .modal-box { animation: slideUp 0.2s ease; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        .btn-action { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:8px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:filter 0.15s; border:none; }
+        .btn-action:hover { filter: brightness(1.1); }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "Useful Extensions" %}
+    {% set page_icon = "ph-puzzle-piece" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <!-- Top bar -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Extensions Library</h2>
+                <p class="text-sm text-gray-500 mt-0.5">Browse and download browser extensions for your workflow</p>
+            </div>
+            {% if current_user.has_add_extensions_permission %}
+            <button onclick="toggleModal()" class="btn-action bg-indigo-600 text-white px-5 py-2.5 text-sm">
+                <i class="fas fa-plus"></i> Add Extension
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Installation Guides -->
+        <div class="glass-card rounded-2xl p-5 mb-6">
+            <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-3"><i class="fas fa-book-open mr-2 text-indigo-400"></i>Installation Guides</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button onclick="showInstallGuide('chrome')"
+                        class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-colors text-sm">
+                    <i class="fab fa-chrome text-lg"></i> Chrome Guide
+                </button>
+                <button onclick="showInstallGuide('firefox')"
+                        class="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-colors text-sm">
+                    <i class="fab fa-firefox text-lg"></i> Firefox Guide
+                </button>
+                <button onclick="showInstallGuide('icedragon')"
+                        class="flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-colors text-sm">
+                    <i class="fas fa-snowflake text-lg"></i> IceDragon Guide
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="glass-card rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-center">
+            <div class="flex-1 min-w-[220px] relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="Search extensions..."
+                       class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white">
+            </div>
+            <select id="browserFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white">
+                <option value="all">All Browsers</option>
+                <option value="Chrome">Chrome</option>
+                <option value="firefox">Firefox</option>
+                <option value="icedragon">IceDragon</option>
+            </select>
+        </div>
+
+        <!-- Extensions table -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/70">
+                        <th class="px-6 py-3.5 font-semibold text-gray-600">Extension</th>
+                        <th class="px-6 py-3.5 font-semibold text-gray-600">Browser</th>
+                        <th class="px-6 py-3.5 font-semibold text-gray-600">Last Updated</th>
+                        <th class="px-6 py-3.5 font-semibold text-gray-600 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="extensionTable" class="divide-y divide-gray-100">
+                    {% for ext in extensions %}
+                    <tr class="ext-row" data-name="{{ ext.name | lower }}" data-browser="{{ ext.browser }}">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center
+                                    {% if ext.get('type') == 'updated' %}bg-gradient-to-br from-green-400 to-emerald-600
+                                    {% else %}bg-gradient-to-br from-purple-400 to-indigo-600{% endif %} shadow-sm">
+                                    <i class="fas {% if ext.get('type') == 'updated' %}fa-sync-alt{% else %}fa-puzzle-piece{% endif %} text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-gray-900">{{ ext.name }}</span>
+                                    {% if ext.get('type') == 'updated' %}
+                                    <div class="mt-0.5">
+                                        <span class="badge bg-green-100 text-green-700"><i class="fas fa-sync-alt"></i>Updated</span>
+                                        {% if ext.versions %}
+                                        <span class="badge bg-gray-100 text-gray-500 ml-1">{{ ext.versions|length }} version{{ 's' if ext.versions|length != 1 else '' }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="badge
+                                {% if ext.browser == 'Chrome' %}bg-blue-100 text-blue-700
+                                {% elif ext.browser == 'firefox' %}bg-orange-100 text-orange-700
+                                {% else %}bg-cyan-100 text-cyan-700{% endif %}">
+                                <i class="{% if ext.browser == 'Chrome' %}fab fa-chrome
+                                    {% elif ext.browser == 'firefox' %}fab fa-firefox
+                                    {% else %}fas fa-snowflake{% endif %}"></i>
+                                {{ ext.browser }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">{{ ext.date }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                {% if ext.get('type') == 'updated' %}
+                                <a href="{{ url_for('extension_history', ext_id=ext.id) }}"
+                                   class="btn-action bg-emerald-500 text-white" title="View History & Download">
+                                    <i class="fas fa-history"></i> History
+                                </a>
+                                {% elif current_user.has_add_extensions_permission or can_download_ext(ext) %}
+                                <a href="{{ url_for('download_extension_file', ext_id=ext.id) }}"
+                                   class="btn-action bg-blue-500 text-white" title="Download">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                                {% else %}
+                                <span class="btn-action bg-gray-200 text-gray-400 cursor-not-allowed" title="You don't have access to download this extension">
+                                    <i class="fas fa-lock"></i> Restricted
+                                </span>
+                                {% endif %}
+
+                                {% if current_user.has_add_extensions_permission %}
+                                {% if ext.get('type') == 'updated' %}
+                                <button onclick="openUpdateModal('{{ ext.id }}', '{{ ext.name }}')"
+                                        class="btn-action bg-purple-500 text-white" title="Upload New Version">
+                                    <i class="fas fa-upload"></i> Update
+                                </button>
+                                {% endif %}
+                                <button onclick="deleteExtension('{{ ext.id }}')"
+                                        class="btn-action bg-red-500 text-white" title="Delete Extension">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div id="emptyState" class="hidden py-14 text-center text-gray-400">
+                <i class="fas fa-search text-4xl mb-3 opacity-30"></i>
+                <p>No extensions match your search.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installation Guide Modal -->
+    <div id="installGuideModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-bg absolute inset-0" onclick="closeInstallGuide()"></div>
+        <div class="modal-box relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto z-10">
+            <div class="sticky top-0 bg-white px-6 pt-5 pb-4 border-b flex items-center justify-between">
+                <h3 id="guideTitle" class="text-xl font-bold text-gray-800"></h3>
+                <button onclick="closeInstallGuide()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="guideContent" class="px-6 py-5 text-gray-700 space-y-4 text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Add Extension Modal -->
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-bg absolute inset-0" onclick="toggleModal()"></div>
+        <div class="modal-box relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10">
+            <div class="px-6 pt-5 pb-4 border-b flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-plus text-indigo-600 mr-2"></i>Add New Extension</h3>
+                <button onclick="toggleModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addExtensionForm" class="px-6 py-5 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Extension Type</label>
+                    <div class="flex gap-3">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="ext_type" value="normal" checked class="hidden peer">
+                            <div class="peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-semibold text-sm transition-all hover:border-indigo-300 text-gray-600">
+                                <i class="fas fa-puzzle-piece mr-1"></i> Normal
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="ext_type" value="updated" class="hidden peer">
+                            <div class="peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-semibold text-sm transition-all hover:border-green-300 text-gray-600">
+                                <i class="fas fa-sync-alt mr-1"></i> Updated
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Extension Name</label>
+                    <input type="text" name="name" required
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Browser</label>
+                    <select name="browser" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white">
+                        <option value="Chrome">Chrome</option>
+                        <option value="firefox">Firefox</option>
+                        <option value="icedragon">IceDragon</option>
+                    </select>
+                </div>
+                <div id="descriptionField" class="hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Version Description</label>
+                    <textarea name="description" rows="3" placeholder="Describe what this version includes..."
+                              class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">File (.rar or .zip)</label>
+                    <input type="file" name="file" accept=".rar,.zip" required
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Who can download this?</label>
+                    <div class="flex gap-3 mb-2">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="download_access" value="all" checked class="hidden peer" onchange="toggleUserPicker()">
+                            <div class="peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 border-2 border-gray-200 rounded-xl px-4 py-2.5 text-center font-semibold text-sm transition-all hover:border-indigo-300 text-gray-600">
+                                <i class="fas fa-users mr-1"></i> All users
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="download_access" value="specific" class="hidden peer" onchange="toggleUserPicker()">
+                            <div class="peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 border-2 border-gray-200 rounded-xl px-4 py-2.5 text-center font-semibold text-sm transition-all hover:border-indigo-300 text-gray-600">
+                                <i class="fas fa-user-check mr-1"></i> Specific users
+                            </div>
+                        </label>
+                    </div>
+                    <div id="userPicker" class="hidden max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 space-y-1.5 bg-gray-50">
+                        {% for u in service_users %}
+                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="allowed_users" value="{{ u.username }}" class="rounded text-indigo-600 focus:ring-indigo-400">
+                            {{ u.name }} <span class="text-gray-400">({{ u.username }})</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition-colors text-sm shadow">
+                    <i class="fas fa-plus mr-2"></i>Add Extension
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Update Modal -->
+    <div id="updateModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-bg absolute inset-0" onclick="closeUpdateModal()"></div>
+        <div class="modal-box relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10">
+            <div class="px-6 pt-5 pb-4 border-b flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-upload text-purple-600 mr-2"></i>Upload New Version</h3>
+                <button onclick="closeUpdateModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="updateExtensionForm" class="px-6 py-5 space-y-4">
+                <input type="hidden" name="ext_id" id="updateExtId">
+                <p class="text-sm text-gray-500">Adding update for: <strong id="updateExtName" class="text-gray-800"></strong></p>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Version <span class="text-red-500">*</span></label>
+                    <input type="text" name="version" required placeholder="e.g. 1.0.0 or v2.1 or build-42"
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">What Changed <span class="text-red-500">*</span></label>
+                    <textarea name="description" rows="3" required placeholder="Describe what changed in this version..."
+                              class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">New File (.rar or .zip) <span class="text-red-500">*</span></label>
+                    <input type="file" name="file" accept=".rar,.zip" required
+                           class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white">
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Allow others to download this version</p>
+                        <p class="text-xs text-gray-400 mt-0.5">When disabled, this version will be hidden from other users</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
+                        <input type="checkbox" name="downloadable" id="updateDownloadable" value="1" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl transition-colors text-sm shadow">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Update
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <div class="flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl border-l-4 border-purple-500 min-w-[220px]">
+            <i class="fas fa-check-circle text-green-400"></i>
+            <span id="toastMessage" class="text-sm font-medium"></span>
+        </div>
+    </div>
+
+    <script>
+        // Install guides
+        function showInstallGuide(browser) {
+            const modal = document.getElementById('installGuideModal');
+            const titleEl = document.getElementById('guideTitle');
+            const contentEl = document.getElementById('guideContent');
+            const guides = {
+                chrome: {
+                    title: 'How to Install on Google Chrome',
+                    content: `<p>All extensions come in .rar or .zip file from tsstools.online</p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Extract the .rar or .zip file (you'll get <strong>.json &amp; .js</strong> files)</li>
+                        <li>Open Chrome → go to <strong>chrome://extensions/</strong></li>
+                        <li>Enable <strong>Developer mode</strong> (top-right toggle)</li>
+                        <li>Click <strong>Load unpacked</strong> and select the extension folder</li>
+                        <li>Done! The extension should appear in your toolbar</li>
+                    </ol>
+                    <p class="text-xs text-gray-500 italic mt-3">Note: Chrome may show a developer mode warning — this is normal for sideloaded extensions.</p>`
+                },
+                firefox: {
+                    title: 'How to Install on Mozilla Firefox',
+                    content: `<p>All extensions come in .rar or .zip file from tsstools.online</p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Extract the .rar or .zip file</li>
+                        <li>Open Firefox → go to <strong>about:debugging#/runtime/this-firefox</strong></li>
+                        <li>Click <strong>Load Temporary Add-on…</strong></li>
+                        <li>Navigate to your extension folder and select <strong>manifest.json</strong></li>
+                        <li>Click <strong>Add / Install</strong> when prompted</li>
+                    </ol>
+                    <p class="text-xs text-gray-500 italic mt-3">Note: Temporary add-ons are removed when Firefox restarts.</p>`
+                },
+                icedragon: {
+                    title: 'How to Install on Comodo IceDragon',
+                    content: `<p>IceDragon is compatible with Firefox extensions — same methods apply!</p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Extract the .rar or .zip file</li>
+                        <li>Open IceDragon → hamburger menu (top right) → <strong>Add-ons</strong></li>
+                        <li>Click the gear icon → <strong>Install Add-on From File...</strong></li>
+                        <li>Select your extracted <strong>manifest.json</strong> file</li>
+                        <li>Click <strong>Install</strong> when prompted</li>
+                    </ol>
+                    <p class="text-xs text-gray-500 italic mt-3">Alternative: Drag &amp; drop the .xpi file into the IceDragon window.</p>`
+                }
+            };
+            const g = guides[browser];
+            titleEl.textContent = g.title;
+            contentEl.innerHTML = g.content;
+            modal.classList.remove('hidden');
+        }
+
+        function closeInstallGuide() {
+            document.getElementById('installGuideModal').classList.add('hidden');
+        }
+
+        // Add modal
+        function toggleModal() {
+            document.getElementById('modal').classList.toggle('hidden');
+        }
+
+        // Update modal
+        function openUpdateModal(extId, extName) {
+            document.getElementById('updateExtId').value = extId;
+            document.getElementById('updateExtName').textContent = extName;
+            document.getElementById('updateModal').classList.remove('hidden');
+        }
+        function closeUpdateModal() {
+            document.getElementById('updateModal').classList.add('hidden');
+            document.getElementById('updateExtensionForm').reset();
+        }
+
+        // Toast
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            t.classList.remove('translate-y-16', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-16', 'opacity-0'), 3000);
+        }
+
+        // Filtering
+        const searchInput = document.getElementById('searchInput');
+        const browserFilter = document.getElementById('browserFilter');
+        function filterTable() {
+            const term = searchInput.value.toLowerCase();
+            const browser = browserFilter.value;
+            let visible = 0;
+            document.querySelectorAll('#extensionTable tr').forEach(row => {
+                const match = row.dataset.name.includes(term) && (browser === 'all' || row.dataset.browser === browser);
+                row.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+        }
+        searchInput.addEventListener('input', filterTable);
+        browserFilter.addEventListener('change', filterTable);
+
+        // Show/hide description for Updated type
+        document.querySelectorAll('input[name="ext_type"]').forEach(r => {
+            r.addEventListener('change', function() {
+                document.getElementById('descriptionField').classList.toggle('hidden', this.value !== 'updated');
+            });
+        });
+
+        // Show/hide the user picker for download access
+        function toggleUserPicker() {
+            const specific = document.querySelector('input[name="download_access"]:checked').value === 'specific';
+            document.getElementById('userPicker').classList.toggle('hidden', !specific);
+        }
+
+        // Add extension
+        document.getElementById('addExtensionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const res = await fetch('/api/extensions', {method: 'POST', body: new FormData(e.target)});
+                const data = await res.json();
+                if (data.success) { showToast('Extension added!'); setTimeout(() => location.reload(), 1500); }
+                else showToast(data.error || 'Failed to add extension');
+            } catch { showToast('An error occurred'); }
+        });
+
+        // Upload update
+        document.getElementById('updateExtensionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const extId = fd.get('ext_id'); fd.delete('ext_id');
+            try {
+                const res = await fetch(`/api/extensions/${extId}/update`, {method: 'POST', body: fd});
+                const data = await res.json();
+                if (data.success) { showToast('Update uploaded!'); closeUpdateModal(); setTimeout(() => location.reload(), 1500); }
+                else showToast(data.error || 'Failed to upload');
+            } catch { showToast('An error occurred'); }
+        });
+
+        // Delete extension
+        async function deleteExtension(id) {
+            if (!confirm('Delete this extension? This action cannot be undone.')) return;
+            try {
+                const res = await fetch(`/api/extensions/${id}`, {method: 'DELETE'});
+                const data = await res.json();
+                if (data.success) { showToast('Extension deleted!'); setTimeout(() => location.reload(), 1000); }
+            } catch { showToast('Failed to delete'); }
+        }
+    </script>
+</body>
+</html>

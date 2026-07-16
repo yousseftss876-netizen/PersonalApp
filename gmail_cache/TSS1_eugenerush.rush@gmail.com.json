@@ -1,0 +1,508 @@
+{
+  "emails": [
+    {
+      "uid": "119315",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : At&T",
+      "date": "13 h",
+      "date_timestamp": 1776885526.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119314",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Chelsea",
+      "date": "13 h",
+      "date_timestamp": 1776885379.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119313",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Uber",
+      "date": "13 h",
+      "date_timestamp": 1776885342.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327733",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Fear The Walking Dead",
+      "date": "13 h",
+      "date_timestamp": 1776885304.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119312",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Justin Bieber",
+      "date": "13 h",
+      "date_timestamp": 1776885218.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327732",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : P&G",
+      "date": "13 h",
+      "date_timestamp": 1776885062.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "327731",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Eddie Redmayne",
+      "date": "13 h",
+      "date_timestamp": 1776885044.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "327730",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Salesforce.com",
+      "date": "13 h",
+      "date_timestamp": 1776885043.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119311",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Nasdaq:Aapl",
+      "date": "13 h",
+      "date_timestamp": 1776885041.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327729",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Orange Is The New Black",
+      "date": "13 h",
+      "date_timestamp": 1776884970.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119310",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Drake",
+      "date": "13 h",
+      "date_timestamp": 1776884969.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327728",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Rick And Morty",
+      "date": "14 h",
+      "date_timestamp": 1776884351.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "327727",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Duterte",
+      "date": "14 h",
+      "date_timestamp": 1776884061.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119309",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Amzn",
+      "date": "14 h",
+      "date_timestamp": 1776883902.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119308",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Overdose",
+      "date": "14 h",
+      "date_timestamp": 1776883691.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119307",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Chris Pratt",
+      "date": "14 h",
+      "date_timestamp": 1776883509.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119306",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Oracle",
+      "date": "14 h",
+      "date_timestamp": 1776883476.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119305",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Chelsea",
+      "date": "14 h",
+      "date_timestamp": 1776882928.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119304",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : At&T",
+      "date": "14 h",
+      "date_timestamp": 1776882571.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119303",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Uber",
+      "date": "14 h",
+      "date_timestamp": 1776882390.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327726",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Nvda",
+      "date": "14 h",
+      "date_timestamp": 1776881819.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119302",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Justin Bieber",
+      "date": "14 h",
+      "date_timestamp": 1776881643.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119301",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Bruce Springsteen",
+      "date": "14 h",
+      "date_timestamp": 1776881596.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119300",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Nasdaq:Aapl",
+      "date": "14 h",
+      "date_timestamp": 1776881195.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "327725",
+      "folder": "Spam",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Verizon",
+      "date": "14 h",
+      "date_timestamp": 1776881106.0,
+      "folder_name": "Spam"
+    },
+    {
+      "uid": "119299",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Type 2 Diabetes",
+      "date": "14 h",
+      "date_timestamp": 1776880837.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119298",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Nissan Leaf",
+      "date": "15 h",
+      "date_timestamp": 1776880402.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119297",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Obama",
+      "date": "15 h",
+      "date_timestamp": 1776880364.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119296",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Beyonce",
+      "date": "15 h",
+      "date_timestamp": 1776880319.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119295",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Tesla Model 3",
+      "date": "15 h",
+      "date_timestamp": 1776880300.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119293",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Twin Peaks",
+      "date": "15 h",
+      "date_timestamp": 1776880266.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119294",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Nvidia",
+      "date": "15 h",
+      "date_timestamp": 1776880266.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119292",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Aapl",
+      "date": "15 h",
+      "date_timestamp": 1776880210.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119291",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Amazon",
+      "date": "15 h",
+      "date_timestamp": 1776880185.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119290",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Swift",
+      "date": "15 h",
+      "date_timestamp": 1776880179.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119289",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Messi",
+      "date": "15 h",
+      "date_timestamp": 1776880178.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119288",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Prince",
+      "date": "15 h",
+      "date_timestamp": 1776880172.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119287",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Crypto",
+      "date": "15 h",
+      "date_timestamp": 1776880169.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119286",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : J",
+      "date": "15 h",
+      "date_timestamp": 1776880158.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119285",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Kevin Durant",
+      "date": "15 h",
+      "date_timestamp": 1776880125.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119284",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Porsche 911",
+      "date": "15 h",
+      "date_timestamp": 1776880119.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119283",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Harry Styles",
+      "date": "15 h",
+      "date_timestamp": 1776880072.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119282",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Hack",
+      "date": "15 h",
+      "date_timestamp": 1776880069.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119281",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Walmart",
+      "date": "15 h",
+      "date_timestamp": 1776880019.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119280",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : D",
+      "date": "15 h",
+      "date_timestamp": 1776880011.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119279",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Emmanuel Macron",
+      "date": "15 h",
+      "date_timestamp": 1776879981.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119278",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Electric Vehicles",
+      "date": "15 h",
+      "date_timestamp": 1776879980.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119277",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Apple",
+      "date": "15 h",
+      "date_timestamp": 1776879979.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119276",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : XI Jinping",
+      "date": "15 h",
+      "date_timestamp": 1776879973.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "119275",
+      "folder": "Inbox",
+      "from_name": "Google Alerts",
+      "from_email": "googlealerts-noreply@google.com",
+      "subject": "Alerte Google : Ai",
+      "date": "15 h",
+      "date_timestamp": 1776879945.0,
+      "folder_name": "Inbox"
+    }
+  ],
+  "fetched_at": "2026-04-23T08:59:42.421050+00:00",
+  "email_count": 50,
+  "status": "idle",
+  "error": null
+}

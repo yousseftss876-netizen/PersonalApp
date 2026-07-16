@@ -1,0 +1,73 @@
+[2026-03-25 08:17:42 +0000] [128] [INFO] Starting gunicorn 25.1.0
+[2026-03-25 08:17:42 +0000] [128] [INFO] Listening at:  (128)
+[2026-03-25 08:17:42 +0000] [128] [INFO] Using worker: sync
+[2026-03-25 08:17:42 +0000] [128] [INFO] Control socket listening at /home/runner/workspace/gunicorn.ctl
+[2026-03-25 08:17:42 +0000] [141] [INFO] Booting worker with pid: 141
+[2026-03-25 08:17:42 +0000] [141] [WARNING] Reloader is on. Use in development only!
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:42 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:17:43 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:21:25 +0000] [141] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:21:25 +0000] [141] [INFO] Worker exiting (pid: 141)
+[2026-03-25 08:21:25 +0000] [275] [INFO] Booting worker with pid: 275
+[2026-03-25 08:21:25 +0000] [275] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:21:26 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:21:26 +0000] [128] [INFO] Handling signal: winch
+[2026-03-25 08:21:35 +0000] [275] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:21:35 +0000] [275] [INFO] Worker exiting (pid: 275)
+[2026-03-25 08:21:35 +0000] [300] [INFO] Booting worker with pid: 300
+[2026-03-25 08:21:35 +0000] [300] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:21:37 +0000] [300] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:21:37 +0000] [300] [INFO] Worker exiting (pid: 300)
+[2026-03-25 08:21:37 +0000] [329] [INFO] Booting worker with pid: 329
+[2026-03-25 08:21:37 +0000] [329] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:21:50 +0000] [329] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:21:50 +0000] [329] [INFO] Worker exiting (pid: 329)
+[2026-03-25 08:21:50 +0000] [349] [INFO] Booting worker with pid: 349
+[2026-03-25 08:21:50 +0000] [349] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:22:32 +0000] [349] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:22:32 +0000] [349] [INFO] Worker exiting (pid: 349)
+[2026-03-25 08:22:32 +0000] [533] [INFO] Booting worker with pid: 533
+[2026-03-25 08:22:32 +0000] [533] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:22:34 +0000] [128] [INFO] Handling signal: term
+[2026-03-25 08:22:34 +0000] [533] [INFO] Worker exiting (pid: 533)
+[2026-03-25 08:22:34 +0000] [128] [INFO] Shutting down: Master

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ext.name }} - Version History</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); min-height: 100vh; }
+        .glass-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 24px 0 rgba(99,102,241,0.10);
+        }
+        .version-card { transition: box-shadow 0.2s, transform 0.2s; }
+        .version-card:hover { box-shadow: 0 8px 32px 0 rgba(99,102,241,0.16); transform: translateY(-1px); }
+        .latest-card { border-left: 4px solid #22c55e; }
+        .old-card { border-left: 4px solid #a78bfa; }
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
+        .modal-bg { background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: filter 0.15s, opacity 0.15s; border: none; }
+        .btn:hover { filter: brightness(1.08); }
+        .btn:active { opacity: 0.85; }
+        .btn-download { background: #2563eb; color: #fff; }
+        .btn-edit    { background: #7c3aed; color: #fff; }
+        .btn-delete  { background: #dc2626; color: #fff; }
+        .desc-text { white-space: pre-line; line-height: 1.65; }
+        textarea:focus { outline: none; ring: none; }
+
+        /* Toggle switch */
+        .toggle-wrap { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .toggle-wrap input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .toggle-track {
+            width: 42px; height: 24px;
+            background: #d1d5db;
+            border-radius: 9999px;
+            transition: background 0.22s;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 18px; height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.22s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        }
+        .toggle-wrap input:checked + .toggle-track { background: #22c55e; }
+        .toggle-wrap input:checked + .toggle-track::after { transform: translateX(18px); }
+        .toggle-wrap input:disabled + .toggle-track { opacity: 0.4; cursor: not-allowed; }
+        .toggle-wrap.disabled { cursor: not-allowed; }
+        .toggle-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
+        .toggle-label.allow   { color: #16a34a; }
+        .toggle-label.disallow { color: #9ca3af; }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% set page_title = ext.name %}
+    {% set page_icon = "ph-clock-counter-clockwise" %}
+    {% set back_url = url_for('useful_extensions') %}
+    {% set back_label = "Back to Extensions" %}
+    {% include '_header.html' %}
+<div class="tssw-watermark">{{ current_user.entity }}</div>
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <!-- Extension info banner -->
+        <div class="glass-card rounded-2xl p-5 mb-7 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md flex-shrink-0">
+                <i class="fas fa-puzzle-piece text-white text-2xl"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center flex-wrap gap-2">
+                    <h1 class="text-xl font-bold text-gray-900 truncate">{{ ext.name }}</h1>
+                    <span class="badge bg-green-100 text-green-700"><i class="fas fa-sync-alt mr-1"></i>Updated Extension</span>
+                    <span class="badge bg-blue-100 text-blue-700"><i class="fas fa-globe mr-1"></i>{{ ext.browser }}</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">
+                    {% set total = ext.versions | length if ext.versions else 0 %}
+                    {{ total }} version{{ 's' if total != 1 else '' }} total
+                    {% if ext.versions %}
+                    &nbsp;&middot;&nbsp; Last updated {{ ext.versions[-1].date }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if ext.versions and ext.versions | length > 0 %}
+        {% set versions = ext.versions %}
+        {% set total_versions = versions | length %}
+
+        <!-- Versions list (latest first) -->
+        <div class="space-y-4">
+            {% for version in versions | reverse %}
+            {% set orig_idx = total_versions - 1 - loop.index0 %}
+            {% set is_latest = loop.first %}
+            {% set ver_str = version.get('version', '') %}
+            {% set ver_status = versions_status.get(ver_str, 'disallow') if ver_str else 'disallow' %}
+            {% set is_downloadable = version.get('downloadable', true) %}
+
+            {% if current_user.has_add_extensions_permission or is_downloadable %}
+            <div class="glass-card rounded-2xl p-5 version-card {{ 'latest-card' if is_latest else 'old-card' }}" id="version-card-{{ orig_idx }}">
+                <!-- Top row: badges + actions -->
+                <div class="flex items-start justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        {% if is_latest %}
+                        <span class="badge bg-green-100 text-green-700"><i class="fas fa-star mr-1"></i>Latest</span>
+                        {% else %}
+                        <span class="badge bg-purple-100 text-purple-700">Used</span>
+                        {% endif %}
+
+                        <!-- Version number badge -->
+                        {% if ver_str %}
+                        <span class="badge bg-indigo-100 text-indigo-700">
+                            <i class="fas fa-tag mr-1"></i>V{{ ver_str }}
+                        </span>
+                        {% else %}
+                        <span class="badge bg-gray-100 text-gray-400" title="No version declared">
+                            <i class="fas fa-tag mr-1"></i>No version
+                        </span>
+                        {% endif %}
+
+                        <span class="text-xs text-gray-400"><i class="fas fa-calendar-alt mr-1"></i>{{ version.date }}</span>
+                        <span class="text-xs text-gray-400"><i class="fas fa-user mr-1"></i>{{ version.uploaded_by }}</span>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        {% if version.get('filename') %}
+                        {% if current_user.has_add_extensions_permission or ((current_user.has_download_extension_permission) and can_download_ext) %}
+                        <a href="{{ url_for('download_extension_version_file', ext_id=ext.id, ver_idx=orig_idx) }}"
+                           class="btn btn-download">
+                            <i class="fas fa-download"></i>
+                            <span>{{ 'Download Latest' if is_latest else 'Download' }}</span>
+                        </a>
+                        {% elif current_user.has_download_extension_permission %}
+                        <span class="btn" style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed;" title="You don't have access to download this extension">
+                            <i class="fas fa-lock"></i> Restricted
+                        </span>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if current_user.has_add_extensions_permission %}
+                        <button class="btn btn-edit" onclick="openEditModal({{ orig_idx }}, this)" data-desc="{{ version.description | e }}">
+                            <i class="fas fa-pen"></i> Edit
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteVersion({{ orig_idx }}, '{{ 'latest' if is_latest else '' }}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-4 desc-text text-gray-700 text-sm bg-gray-50 rounded-xl px-4 py-3 border border-gray-100" id="desc-{{ orig_idx }}">{{ version.description }}</div>
+
+                <!-- Toggle (only for add_extensions users) -->
+                {% if current_user.has_add_extensions_permission %}
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-3">
+                    {% if ver_str %}
+                    <label class="toggle-wrap" id="toggle-label-{{ orig_idx }}"
+                           title="Toggle allow/disallow status for version {{ ver_str }}">
+                        <input type="checkbox"
+                               id="toggle-{{ orig_idx }}"
+                               {% if ver_status == 'allow' %}checked{% endif %}
+                               onchange="toggleStatus({{ orig_idx }}, this)">
+                        <span class="toggle-track"></span>
+                    </label>
+                    <span class="toggle-label {{ ver_status }}" id="toggle-text-{{ orig_idx }}">
+                        {% if ver_status == 'allow' %}
+                        <i class="fas fa-check-circle mr-1"></i>Allow
+                        {% else %}
+                        <i class="fas fa-ban mr-1"></i>Disallow
+                        {% endif %}
+                    </span>
+                    <span class="text-xs text-gray-400">— version access status</span>
+                    {% else %}
+                    <label class="toggle-wrap disabled" title="Cannot toggle: no version number was declared for this entry">
+                        <input type="checkbox" disabled>
+                        <span class="toggle-track"></span>
+                    </label>
+                    <span class="toggle-label disallow">
+                        <i class="fas fa-ban mr-1"></i>Disallow
+                    </span>
+                    <span class="text-xs text-gray-400">— declare a version to enable toggling</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="glass-card rounded-2xl p-10 text-center">
+            <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500 text-lg">No version history available for this extension.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Edit Description Modal -->
+    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-bg absolute inset-0" onclick="closeEditModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 z-10">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-pen text-purple-600 mr-2"></i>Edit Description</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="hidden" id="editVersionIdx">
+            <textarea id="editDescText" rows="6"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-purple-400 resize-none"
+                placeholder="Description..."></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="closeEditModal()" class="px-5 py-2 rounded-lg bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200 transition-colors">Cancel</button>
+                <button onclick="saveDescription()" class="px-5 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-save mr-1"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <div class="flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl border-l-4 border-purple-500 min-w-[220px]">
+            <i id="toastIcon" class="fas fa-check-circle text-green-400"></i>
+            <span id="toastMsg" class="text-sm font-medium"></span>
+        </div>
+    </div>
+
+    <script>
+        const EXT_ID = "{{ ext.id }}";
+
+        function showToast(msg, ok = true) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            document.getElementById('toastIcon').className = ok
+                ? 'fas fa-check-circle text-green-400'
+                : 'fas fa-exclamation-circle text-red-400';
+            t.classList.remove('translate-y-16', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-16', 'opacity-0'), 3000);
+        }
+
+        function openEditModal(idx, btn) {
+            const desc = btn.dataset.desc;
+            document.getElementById('editVersionIdx').value = idx;
+            document.getElementById('editDescText').value = desc;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        async function saveDescription() {
+            const idx = parseInt(document.getElementById('editVersionIdx').value);
+            const desc = document.getElementById('editDescText').value.trim();
+            if (!desc) { showToast('Description cannot be empty.', false); return; }
+            try {
+                const res = await fetch(`/api/extensions/${EXT_ID}/versions/${idx}/description`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: desc})
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById(`desc-${idx}`).textContent = desc;
+                    const editBtn = document.querySelector(`#version-card-${idx} button.btn-edit`);
+                    if (editBtn) editBtn.dataset.desc = desc;
+                    closeEditModal();
+                    showToast('Description updated!');
+                } else {
+                    showToast(data.error || 'Failed to save', false);
+                }
+            } catch(e) {
+                showToast('An error occurred', false);
+            }
+        }
+
+        async function deleteVersion(idx, role) {
+            const msg = role === 'latest'
+                ? `Delete the latest version? The previous version will become the latest.`
+                : `Delete this version? The file will be permanently removed.`;
+            if (!confirm(msg)) return;
+            try {
+                const res = await fetch(`/api/extensions/${EXT_ID}/versions/${idx}`, {method: 'DELETE'});
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Version deleted.');
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showToast(data.error || 'Failed to delete', false);
+                }
+            } catch(e) {
+                showToast('An error occurred', false);
+            }
+        }
+
+        async function toggleStatus(idx, checkbox) {
+            // Prevent double-click during request
+            checkbox.disabled = true;
+            try {
+                const res = await fetch(`/api/extensions/${EXT_ID}/versions/${idx}/status`, {method: 'POST'});
+                const data = await res.json();
+                if (data.success) {
+                    const isAllow = data.status === 'allow';
+                    const textEl  = document.getElementById(`toggle-text-${idx}`);
+                    if (textEl) {
+                        textEl.className = `toggle-label ${data.status}`;
+                        textEl.innerHTML = isAllow
+                            ? '<i class="fas fa-check-circle mr-1"></i>Allow'
+                            : '<i class="fas fa-ban mr-1"></i>Disallow';
+                    }
+                    // Sync checkbox state to server response (in case server flipped it)
+                    checkbox.checked = isAllow;
+                    showToast(`Status set to ${data.status}`);
+                } else {
+                    // Revert checkbox if server rejected
+                    checkbox.checked = !checkbox.checked;
+                    showToast(data.error || 'Failed to update status', false);
+                }
+            } catch(e) {
+                checkbox.checked = !checkbox.checked;
+                showToast('An error occurred', false);
+            } finally {
+                checkbox.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "status": "completed",
+  "created_at": "2026-01-30T18:52:53.067397",
+  "keywords_used": [
+    "javascript coding",
+    "python coding",
+    "php coding"
+  ],
+  "total_requested": 3,
+  "total_fetched": 3,
+  "subjects": [
+    "When a brand realized it needed a video editing service",
+    "What changed after switching to a restaurant takeout service",
+    "How a business consulting service helped a business grow fast"
+  ],
+  "images": [
+    {
+      "filename": "When_a_brand_realized_it_needed_a_video_editing_service.png",
+      "url": "https://miro.medium.com/max/1400/1*8YmyAEb3raC2gqj1AeVcvQ.png",
+      "keyword": "javascript coding",
+      "subject": "When a brand realized it needed a video editing service",
+      "size_kb": 143
+    },
+    {
+      "filename": "What_changed_after_switching_to_a_restaurant_takeout_service.jpg",
+      "url": "https://techhyme.com/wp-content/uploads/2024/05/Python-programming.jpg",
+      "keyword": "python coding",
+      "subject": "What changed after switching to a restaurant takeout service",
+      "size_kb": 113
+    },
+    {
+      "filename": "How_a_business_consulting_service_helped_a_business_grow_fast.jpg",
+      "url": "https://c8.alamy.com/comp/R740X4/colorful-programming-php-and-html-source-code-on-a-monitor-written-by-a-young-programmer-R740X4.jpg",
+      "keyword": "php coding",
+      "subject": "How a business consulting service helped a business grow fast",
+      "size_kb": 138
+    }
+  ],
+  "image_links": [
+    "When_a_brand_realized_it_needed_a_video_editing_service.png",
+    "What_changed_after_switching_to_a_restaurant_takeout_service.jpg",
+    "How_a_business_consulting_service_helped_a_business_grow_fast.jpg"
+  ]
+}

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TSSW RAPPORT - Countdown</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+  <meta name="description" content="TSSW RAPPORT countdown timer - Ready December 22, 2025">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --background: hsl(220, 20%, 97%);
+      --foreground: hsl(220, 40%, 13%);
+      --card: hsl(0, 0%, 100%);
+      --primary: hsl(220, 70%, 45%);
+      --accent: hsl(175, 70%, 40%);
+      --muted: hsl(220, 15%, 45%);
+      --border: hsl(220, 20%, 88%);
+      --success: hsl(150, 60%, 45%);
+      --danger: hsl(0, 70%, 55%);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Header */
+    .top-header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      background: hsla(220, 20%, 95%, 0.5);
+    }
+
+    .back-link:hover {
+      color: var(--foreground);
+      background: hsla(220, 20%, 92%, 0.8);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-details {
+      text-align: right;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--foreground);
+    }
+
+    .user-entity {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .btn-danger {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--danger), hsl(0, 60%, 50%));
+      color: white;
+      padding: 0.6rem 1.25rem;
+      border-radius: 0.75rem;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 4px 14px hsla(0, 70%, 55%, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px hsla(0, 70%, 55%, 0.4);
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* Background decoration */
+    .bg-decoration {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+
+    .bg-blob-1 {
+      top: 25%;
+      left: -8rem;
+      width: 24rem;
+      height: 24rem;
+      background: hsla(220, 70%, 45%, 0.05);
+    }
+
+    .bg-blob-2 {
+      bottom: 25%;
+      right: -8rem;
+      width: 24rem;
+      height: 24rem;
+      background: hsla(175, 70%, 40%, 0.1);
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 56rem;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background: hsla(220, 70%, 45%, 0.1);
+      color: var(--primary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .badge-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 2s infinite;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 3rem;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+      color: var(--foreground);
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: var(--muted);
+      max-width: 28rem;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .highlight {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Countdown Grid */
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .countdown-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .countdown-card:nth-child(1) { animation-delay: 0ms; }
+    .countdown-card:nth-child(2) { animation-delay: 100ms; }
+    .countdown-card:nth-child(3) { animation-delay: 200ms; }
+    .countdown-card:nth-child(4) { animation-delay: 300ms; }
+
+    .countdown-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .countdown-number {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(180deg, var(--foreground) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .countdown-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* Progress bar */
+    .progress-container {
+      max-width: 24rem;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease-out forwards;
+      animation-delay: 400ms;
+      opacity: 0;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      height: 0.5rem;
+      background: hsl(220, 15%, 92%);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 9999px;
+      animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 3rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      animation: fadeIn 0.6s ease-out forwards;
+      animation-delay: 500ms;
+      opacity: 0;
+    }
+
+    /* Complete state */
+    .complete-container {
+      text-align: center;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .complete-icon {
+      width: 6rem;
+      height: 6rem;
+      margin: 0 auto 2rem;
+      border-radius: 50%;
+      background: hsla(150, 60%, 45%, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .complete-icon svg {
+      width: 3rem;
+      height: 3rem;
+      color: var(--success);
+    }
+
+    .complete-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .complete-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { width: 55%; }
+      50% { width: 75%; }
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 3.75rem;
+      }
+
+      .subtitle {
+        font-size: 1.25rem;
+      }
+
+      .countdown-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+      }
+
+      .countdown-card {
+        padding: 2rem;
+      }
+
+      .countdown-number {
+        font-size: 4.5rem;
+      }
+
+      .countdown-label {
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% set page_title = "TSSW Rapport" %}
+  {% set page_icon = "ph-chart-bar" %}
+  {% include '_header.html' %}
+
+  <div class="main-content">
+    <div class="bg-decoration">
+      <div class="bg-blob bg-blob-1"></div>
+      <div class="bg-blob bg-blob-2"></div>
+    </div>
+
+    <div class="container" id="app">
+      <!-- Content will be injected by JavaScript -->
+    </div>
+  </div>
+
+  <script>
+    const targetDate = new Date('2025-12-22T08:00:00').getTime();
+
+    function formatNumber(num) {
+      return num.toString().padStart(2, '0');
+    }
+
+    function calculateTimeLeft() {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        return null;
+      }
+
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((difference % (1000 * 60)) / 1000)
+      };
+    }
+
+    function renderComplete() {
+      return `
+        <div class="complete-container">
+          <div class="complete-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 class="complete-title">TSSW RAPPORT Ready!</h1>
+          <p class="complete-subtitle">The deadline has been reached</p>
+        </div>
+      `;
+    }
+
+    function renderCountdown(timeLeft) {
+      const units = [
+        { label: 'Days', value: timeLeft.days },
+        { label: 'Hours', value: timeLeft.hours },
+        { label: 'Minutes', value: timeLeft.minutes },
+        { label: 'Seconds', value: timeLeft.seconds }
+      ];
+
+      return `
+        <div class="header">
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span>In Progress</span>
+          </div>
+          <h1>TSSW RAPPORT</h1>
+          <p class="subtitle">
+            The report will be ready on <br><span class="highlight">December 22, 2025</span> at <span class="highlight">08:00 AM</span>
+          </p>
+        </div>
+
+        <div class="countdown-grid">
+          ${units.map(unit => `
+            <div class="countdown-card">
+              <div class="countdown-number">${formatNumber(unit.value)}</div>
+              <div class="countdown-label">${unit.label}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <span>Progress</span>
+            <span>Working on it...</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+
+        <p class="footer">Stay tuned — great things take time ✨</p>
+      `;
+    }
+
+    function update() {
+      const app = document.getElementById('app');
+      const timeLeft = calculateTimeLeft();
+
+      if (timeLeft === null) {
+        app.innerHTML = renderComplete();
+      } else {
+        // Only update numbers to avoid re-rendering entire page
+        const cards = document.querySelectorAll('.countdown-number');
+        if (cards.length === 4) {
+          cards[0].textContent = formatNumber(timeLeft.days);
+          cards[1].textContent = formatNumber(timeLeft.hours);
+          cards[2].textContent = formatNumber(timeLeft.minutes);
+          cards[3].textContent = formatNumber(timeLeft.seconds);
+        } else {
+          app.innerHTML = renderCountdown(timeLeft);
+        }
+      }
+    }
+
+    // Initial render
+    update();
+
+    // Update every second
+    setInterval(update, 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Starting gunicorn 25.1.0
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Listening at:  (1023)
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Using worker: sync
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Control socket listening at /home/runner/workspace/gunicorn.ctl
+[2026-03-25 08:43:29 +0000] [1043] [INFO] Booting worker with pid: 1043
+[2026-03-25 08:43:29 +0000] [1043] [WARNING] Reloader is on. Use in development only!
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Handling signal: winch
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:29 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:30 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:31 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:32 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:32 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:32 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:43:32 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:44:58 +0000] [1023] [INFO] Handling signal: winch
+[2026-03-25 08:44:59 +0000] [1023] [INFO] Handling signal: winch

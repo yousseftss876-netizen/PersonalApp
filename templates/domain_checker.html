@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS - Domain Checker</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .user-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        .input-modern {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .input-modern:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tab-btn:not(.active):hover {
+            background: #f3f4f6;
+        }
+        .result-row {
+            transition: all 0.2s ease;
+        }
+        .result-row:hover {
+            background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+                /* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148, 163, 184, 0.3);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "Domain Checker" %}
+    {% set page_icon = "ph-globe-hemisphere-west" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="glass-card rounded-2xl shadow-xl overflow-hidden">
+            <div class="flex border-b border-gray-200">
+                <button class="tab-btn active flex-1 py-4 px-6 font-semibold text-center" data-tab="dmarc">
+                    <i class="fas fa-shield-alt mr-2"></i>DMARC
+                </button>
+                <button class="tab-btn flex-1 py-4 px-6 font-semibold text-center text-gray-600" data-tab="spf">
+                    <i class="fas fa-check-circle mr-2"></i>SPF
+                </button>
+                <button class="tab-btn flex-1 py-4 px-6 font-semibold text-center text-gray-600" data-tab="a">
+                    <i class="fas fa-server mr-2"></i>A Records
+                </button>
+                <button class="tab-btn flex-1 py-4 px-6 font-semibold text-center text-gray-600" data-tab="lookup">
+                    <i class="fas fa-search mr-2"></i>Domain Lookup
+                </button>
+            </div>
+
+            <div class="p-6">
+                <div id="tab-dmarc" class="tab-content">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-list mr-1"></i> Domains (one per line)
+                            </label>
+                            <textarea id="dmarc-domains" class="input-modern w-full h-48 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="example.com&#10;domain.org&#10;website.net"></textarea>
+                            <div class="mt-2 text-sm text-gray-500">
+                                Or <label class="text-purple-600 cursor-pointer hover:underline">
+                                    <input type="file" id="dmarc-file" accept=".txt" class="hidden">upload a .txt file
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-edit mr-1"></i> DMARC TXT Value Template
+                            </label>
+                            <textarea id="dmarc-template" class="input-modern w-full h-24 px-4 py-3 rounded-xl focus:outline-none resize-none text-sm">v=DMARC1; p=reject; rua=mailto:postmaster@[domain]; ruf=mailto:dmarc@[domain]; fo=1; pct=100</textarea>
+                            <p class="mt-2 text-xs text-gray-500">Use [domain] as placeholder for the domain name</p>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">
+                                <i class="fas fa-at mr-1"></i> Prefix (optional)
+                            </label>
+                            <input type="text" id="dmarc-prefix" class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none" placeholder="Pleas Add Your Prefix Here">
+                            <p class="mt-1 text-xs text-gray-500">Leave empty if there is no Prefix, or enter custom prefix. <span class="text-purple-600 font-medium">Auto-updates output as you type!</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-3">
+                        <button onclick="lookupDmarc()" class="btn-primary text-white px-6 py-3 rounded-xl flex items-center">
+                            <i class="fas fa-search mr-2"></i>Check DMARC Records
+                        </button>
+                    </div>
+                    <div id="dmarc-results" class="mt-6 hidden">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-lg font-bold text-gray-800">Results</h3>
+                                    <div class="flex items-center space-x-3">
+                                        <label class="text-sm font-semibold text-gray-700">Filter:</label>
+                                        <select id="dmarc-filter" onchange="filterDmarcResults()" class="input-modern px-3 py-2 rounded-lg text-sm">
+                                            <option value="all">All</option>
+                                            <option value="found">Found</option>
+                                            <option value="not_found">Not Found</option>
+                                        </select>
+                                        <button onclick="copyDmarcFilteredDomains()" class="btn-success text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                            <i class="fas fa-copy mr-2"></i>Copy Domains
+                                        </button>
+                                        <button onclick="exportDmarcCsv()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                            <i class="fas fa-file-csv mr-2"></i>Export CSV
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto max-h-64 overflow-y-auto border border-gray-200 rounded-xl">
+                                    <table class="w-full">
+                                        <thead class="sticky top-0 bg-gray-50">
+                                            <tr class="bg-gray-50">
+                                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Domain</th>
+                                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">DMARC Record</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dmarc-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <label class="text-lg font-bold text-gray-800">
+                                        <i class="fas fa-file-alt mr-1"></i> Missing DMARC Config
+                                    </label>
+                                    <button onclick="copyDmarcOutput()" class="btn-success text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                        <i class="fas fa-copy mr-2"></i>Copy
+                                    </button>
+                                </div>
+                                <textarea id="dmarc-output" class="input-modern w-full h-64 px-4 py-3 rounded-xl focus:outline-none resize-none font-mono text-sm" readonly placeholder="Missing DMARC configurations will appear here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-spf" class="tab-content hidden">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-list mr-1"></i> Domains (one per line)
+                            </label>
+                            <textarea id="spf-domains" class="input-modern w-full h-40 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="example.com&#10;domain.org&#10;website.net"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-at mr-1"></i> Subdomain
+                            </label>
+                            <div class="flex items-center space-x-3 mb-2">
+                                <input type="checkbox" id="spf-single-prefix" class="w-4 h-4 text-purple-600 rounded" onchange="toggleSinglePrefix()">
+                                <label for="spf-single-prefix" class="text-sm text-gray-600">Use single Subdomain for all domains</label>
+                            </div>
+                            <input type="text" id="spf-prefix-input" class="input-modern w-full px-4 py-3 rounded-xl focus:outline-none hidden" placeholder="Enter subdomain (e.g., mail.example.com)">
+                            <textarea id="spf-prefixed-domains" class="input-modern w-full h-32 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="mail.example.com&#10;domain.org&#10;smtp.website.net"></textarea>
+                            <p id="spf-prefix-hint" class="mt-1 text-xs text-gray-500">Match line-by-line with domains. Repeat domain if no prefix needed.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <i class="fas fa-cog mr-1"></i> SPF Record Type (choose one)
+                        </label>
+                        <div class="flex items-center space-x-6">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="spf-type" value="ips" checked class="w-4 h-4 text-purple-600" onchange="toggleSpfType('ips')">
+                                <span class="text-sm font-medium text-gray-700">IP Addresses</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="spf-type" value="a_records" class="w-4 h-4 text-purple-600" onchange="toggleSpfType('a_records')">
+                                <span class="text-sm font-medium text-gray-700">A Records</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="spf-type" value="includes" class="w-4 h-4 text-purple-600" onchange="toggleSpfType('includes')">
+                                <span class="text-sm font-medium text-gray-700">Include Records</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="spf-ips-section" class="mt-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-network-wired mr-1"></i> IP Addresses (one per line, or semicolon-separated per domain)
+                        </label>
+                        <textarea id="spf-ips" class="input-modern w-full h-32 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="1.2.3.4&#10;5.6.7.8&#10;or per domain: 1.2.3.4;5.6.7.8"></textarea>
+                        <div id="spf-distribute-row" class="mt-3 flex items-center space-x-3">
+                            <div id="spf-distribute-toggle" class="toggle-switch" onclick="toggleDistribute()"></div>
+                            <label class="text-sm font-semibold text-gray-700">Distribute IPs Equally Per Domain</label>
+                        </div>
+                        <div class="mt-3 p-4 bg-indigo-50 border border-indigo-200 rounded-xl flex items-start gap-3">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input type="checkbox" id="spf-paired-mode" onchange="toggleSpfPairedMode()"
+                                    class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                            </div>
+                            <div class="flex-1">
+                                <label for="spf-paired-mode" class="text-sm font-semibold text-indigo-800 cursor-pointer select-none">
+                                    <i class="fas fa-link mr-1"></i> One IP per Domain (Paired mode)
+                                </label>
+                                <p class="text-xs text-indigo-600 mt-0.5">Each domain is paired with the IP on the same line. Domain count must equal IP count.</p>
+                                <div id="spf-paired-counter" class="hidden mt-2 text-xs font-mono">
+                                    <span id="spf-paired-domain-count" class="text-gray-600">Domains: 0</span>
+                                    <span class="mx-2 text-gray-400">|</span>
+                                    <span id="spf-paired-ip-count" class="text-gray-600">IPs: 0</span>
+                                    <span id="spf-paired-status" class="ml-2 font-semibold"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="spf-a-section" class="mt-4 hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-server mr-1"></i> Prefix for A Records (one per line, or semicolon-separated per domain)
+                        </label>
+                        <textarea id="spf-a-subdomains" class="input-modern w-full h-32 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="mail&#10;smtp&#10;or per domain: mail;smtp"></textarea>
+                        <p class="mt-1 text-xs text-gray-500">Enter subdomain names. Output format: [domain],.subdomain.[domain],TXT,v=spf1 a:subdomain.[domain] -all</p>
+                    </div>
+                    
+                    <div id="spf-includes-section" class="mt-4 hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-link mr-1"></i> Include Domains (one per line, or semicolon-separated for multiple includes)
+                        </label>
+                        <textarea id="spf-include-domains" class="input-modern w-full h-32 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="spf.google.com&#10;or multiple: spf.google.com;spf.protection.outlook.com"></textarea>
+                        <p class="mt-1 text-xs text-gray-500">Enter include domains. Use semicolons to add multiple includes for the same domain line.</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button onclick="generateSpf()" class="btn-primary text-white px-6 py-3 rounded-xl flex items-center">
+                            <i class="fas fa-cog mr-2"></i>Generate SPF Records
+                        </button>
+                    </div>
+                    <div id="spf-results" class="mt-6 hidden">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">Generated SPF Records</h3>
+                            <button onclick="copySpfOutput()" class="btn-success text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                <i class="fas fa-copy mr-2"></i>Copy All
+                            </button>
+                        </div>
+                        <div id="spf-warning" class="hidden mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-700 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-2"></i><span></span>
+                        </div>
+                        <textarea id="spf-output" class="input-modern w-full h-48 px-4 py-3 rounded-xl focus:outline-none resize-none font-mono text-sm" readonly></textarea>
+                    </div>
+                </div>
+
+                <div id="tab-a" class="tab-content hidden">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-list mr-1"></i> Domains (one per line)
+                            </label>
+                            <textarea id="a-domains" class="input-modern w-full h-40 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="example.com&#10;domain.org"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-network-wired mr-1"></i> IP Addresses (one per line)
+                            </label>
+                            <textarea id="a-ips" class="input-modern w-full h-40 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="1.2.3.4&#10;5.6.7.8"></textarea>
+                        </div>
+                    </div>
+                    <div id="a-distribute-row" class="mt-3 flex items-center space-x-3">
+                        <div id="a-distribute-toggle" class="toggle-switch" onclick="toggleADistribute()"></div>
+                        <label class="text-sm font-semibold text-gray-700">Distribute IPs Equally Per Domain</label>
+                    </div>
+                    <div class="mt-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl flex items-start gap-3">
+                        <div class="flex items-center h-5 mt-0.5">
+                            <input type="checkbox" id="a-paired-mode" onchange="togglePairedMode()"
+                                class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <label for="a-paired-mode" class="text-sm font-semibold text-indigo-800 cursor-pointer select-none">
+                                <i class="fas fa-link mr-1"></i> One IP per domain (paired mode)
+                            </label>
+                            <p class="text-xs text-indigo-600 mt-0.5">Each domain is paired with the IP on the same line. Domain count must equal IP count.</p>
+                            <div id="a-paired-counter" class="hidden mt-2 text-xs font-mono">
+                                <span id="a-paired-domain-count" class="text-gray-600">Domains: 0</span>
+                                <span class="mx-2 text-gray-400">|</span>
+                                <span id="a-paired-ip-count" class="text-gray-600">IPs: 0</span>
+                                <span id="a-paired-status" class="ml-2 font-semibold"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-at mr-1"></i> Subdomain Prefix (optional)
+                        </label>
+                        <input type="text" id="a-subdomain" class="input-modern w-full max-w-xs px-4 py-3 rounded-xl focus:outline-none" placeholder="e.g., dns">
+                        <p class="mt-1 text-xs text-gray-500">Optional - e.g., "dns" for dns.example.com</p>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="generateA()" class="btn-primary text-white px-6 py-3 rounded-xl flex items-center">
+                            <i class="fas fa-cog mr-2"></i>Generate A Records
+                        </button>
+                    </div>
+                    <div id="a-results" class="mt-6 hidden">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">Generated A Records</h3>
+                            <button onclick="copyAOutput()" class="btn-success text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                                <i class="fas fa-copy mr-2"></i>Copy All
+                            </button>
+                        </div>
+                        <div id="a-warning" class="hidden mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-700 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-2"></i><span></span>
+                        </div>
+                        <textarea id="a-output" class="input-modern w-full h-48 px-4 py-3 rounded-xl focus:outline-none resize-none font-mono text-sm" readonly></textarea>
+                    </div>
+                </div>
+
+                <div id="tab-lookup" class="tab-content hidden">
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-list mr-1"></i> Domains (one per line)
+                            </label>
+                            <textarea id="lookup-domains" class="input-modern w-full h-48 px-4 py-3 rounded-xl focus:outline-none resize-none" placeholder="example.com&#10;domain.org&#10;website.net"></textarea>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-xl">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-check-square mr-1"></i> Select Record Types
+                                </label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" id="check-mx" class="w-4 h-4 text-purple-600 rounded">
+                                        <span class="text-sm text-gray-700">MX Records</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" id="check-txt" class="w-4 h-4 text-purple-600 rounded">
+                                        <span class="text-sm text-gray-700">TXT Records</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" id="check-spf" class="w-4 h-4 text-purple-600 rounded">
+                                        <span class="text-sm text-gray-700">SPF Records</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" id="check-a" class="w-4 h-4 text-purple-600 rounded">
+                                        <span class="text-sm text-gray-700">A Records (IP)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button onclick="unifiedLookup()" class="btn-primary text-white px-6 py-3 rounded-xl flex items-center w-full justify-center">
+                                    <i class="fas fa-search mr-2"></i>Lookup Records
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <div id="lookup-results" class="hidden">
+                                <div id="lookup-stats" class="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
+                                    <h3 class="text-sm font-bold text-gray-800 mb-2"><i class="fas fa-chart-bar mr-2"></i>Quick Stats</h3>
+                                    <div class="flex flex-wrap gap-4 text-sm" id="stats-content"></div>
+                                </div>
+                                <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" id="lookup-search" class="input-modern px-3 py-2 rounded-lg text-sm w-48" placeholder="Search domain..." oninput="filterLookupResults()">
+                                    </div>
+                                    <div class="flex items-center space-x-2 flex-wrap gap-2">
+                                        <div id="filter-toggles" class="flex items-center space-x-2 flex-wrap gap-1"></div>
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="toggleLookupColumns()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm flex items-center">
+                                                <i class="fas fa-columns mr-1"></i>Columns
+                                            </button>
+                                            <button onclick="copyLookupCsv()" class="btn-primary text-white px-3 py-2 rounded-lg text-sm flex items-center">
+                                                <i class="fas fa-copy mr-1"></i>Copy CSV
+                                            </button>
+                                            <button onclick="exportLookupCsv()" class="btn-success text-white px-3 py-2 rounded-lg text-sm flex items-center">
+                                                <i class="fas fa-download mr-1"></i>Export CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="column-toggle-panel" class="hidden mb-3 p-3 bg-gray-50 rounded-xl">
+                                    <div class="flex flex-wrap gap-3" id="column-toggles"></div>
+                                </div>
+                                <div class="border border-gray-200 rounded-xl overflow-hidden" style="height: 400px;">
+                                    <div class="overflow-auto h-full">
+                                        <table class="w-full" id="lookup-table">
+                                            <thead class="sticky top-0 bg-gray-50 z-10">
+                                                <tr id="lookup-header"></tr>
+                                            </thead>
+                                            <tbody id="lookup-table-body"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="lookup-placeholder" class="flex items-center justify-center h-64 text-gray-400">
+                                <div class="text-center">
+                                    <i class="fas fa-search text-4xl mb-3"></i>
+                                    <p>Enter domains and select record types to lookup</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass-card rounded-2xl p-8 flex flex-col items-center min-w-64">
+            <div class="loading-spinner w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full"></div>
+            <p id="loading-text" class="mt-4 text-gray-700 font-semibold">Processing...</p>
+            <p id="loading-progress" class="mt-2 text-purple-600 font-bold text-lg hidden"></p>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-16 right-4 z-[1000] space-y-2"></div>
+
+    <script>
+        let distributeIps = false;
+        let distributeAIps = false;
+        let dmarcResults = [];
+        let mxResults = [];
+        let txtResults = [];
+        let spfType = 'ips';
+        let singlePrefixMode = false;
+        let spfPairedMode = false;
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                info: 'fa-info-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 min-w-64 transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                }
+                showToast('Copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy to clipboard', 'error');
+            }
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+            });
+        });
+
+        document.getElementById('dmarc-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('dmarc-domains').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Auto-update DMARC output when prefix or template changes
+        document.getElementById('dmarc-prefix').addEventListener('input', function() {
+            if (dmarcResults.length > 0) {
+                updateDmarcOutput();
+            }
+        });
+        
+        document.getElementById('dmarc-template').addEventListener('input', function() {
+            if (dmarcResults.length > 0) {
+                updateDmarcOutput();
+            }
+        });
+
+        function toggleDistribute() {
+            distributeIps = !distributeIps;
+            document.getElementById('spf-distribute-toggle').classList.toggle('active', distributeIps);
+        }
+
+        function toggleADistribute() {
+            distributeAIps = !distributeAIps;
+            document.getElementById('a-distribute-toggle').classList.toggle('active', distributeAIps);
+        }
+
+        function toggleSpfPairedMode() {
+            spfPairedMode = document.getElementById('spf-paired-mode').checked;
+            const counter = document.getElementById('spf-paired-counter');
+            const distributeRow = document.getElementById('spf-distribute-row');
+            if (spfPairedMode) {
+                counter.classList.remove('hidden');
+                distributeRow.classList.add('opacity-40', 'pointer-events-none');
+                if (distributeIps) {
+                    distributeIps = false;
+                    document.getElementById('spf-distribute-toggle').classList.remove('active');
+                }
+                updateSpfPairedCounter();
+                document.getElementById('spf-domains').addEventListener('input', updateSpfPairedCounter);
+                document.getElementById('spf-ips').addEventListener('input', updateSpfPairedCounter);
+            } else {
+                counter.classList.add('hidden');
+                distributeRow.classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('spf-domains').removeEventListener('input', updateSpfPairedCounter);
+                document.getElementById('spf-ips').removeEventListener('input', updateSpfPairedCounter);
+            }
+        }
+
+        function updateSpfPairedCounter() {
+            const domainLines = document.getElementById('spf-domains').value.trim().split('\n').filter(l => l.trim());
+            const ipLines = document.getElementById('spf-ips').value.trim().split('\n').filter(l => l.trim());
+            const dc = domainLines.length;
+            const ic = ipLines.length;
+            document.getElementById('spf-paired-domain-count').textContent = `Domains: ${dc}`;
+            document.getElementById('spf-paired-ip-count').textContent = `IPs: ${ic}`;
+            const statusEl = document.getElementById('spf-paired-status');
+            if (dc === 0 && ic === 0) {
+                statusEl.textContent = '';
+            } else if (dc === ic) {
+                statusEl.textContent = '✓ Match';
+                statusEl.className = 'ml-2 font-semibold text-green-600';
+            } else {
+                statusEl.textContent = `✗ Mismatch (${dc} vs ${ic})`;
+                statusEl.className = 'ml-2 font-semibold text-red-600';
+            }
+        }
+
+        function showLoading(text = 'Processing...') {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-progress').classList.add('hidden');
+            document.getElementById('loading-progress').textContent = '';
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function updateLoadingProgress(current, total) {
+            const progressEl = document.getElementById('loading-progress');
+            progressEl.textContent = `Processing ${current}/${total}...`;
+            progressEl.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('loading-progress').classList.add('hidden');
+        }
+
+        function showError(message) {
+            showToast(message, 'error');
+        }
+
+        async function lookupDmarc() {
+            const domains = document.getElementById('dmarc-domains').value.trim();
+            if (!domains) {
+                showError('Please enter at least one domain');
+                return;
+            }
+
+            showLoading('Checking DMARC records...');
+            
+            try {
+                const encodedDomains = encodeURIComponent(domains);
+                const eventSource = new EventSource(`/api/domain_checker/dmarc_stream?domains=${encodedDomains}`);
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'progress') {
+                        updateLoadingProgress(data.current, data.total);
+                    } else if (data.type === 'complete') {
+                        eventSource.close();
+                        dmarcResults = data.results;
+                        document.getElementById('dmarc-filter').value = 'all';
+                        renderDmarcResults(dmarcResults);
+                        updateDmarcOutput();
+                        document.getElementById('dmarc-results').classList.remove('hidden');
+                        hideLoading();
+                        showToast(`Checked ${data.results.length} domains successfully!`, 'success');
+                    }
+                };
+                
+                eventSource.onerror = function(error) {
+                    eventSource.close();
+                    hideLoading();
+                    showError('Error connecting to server. Please try again.');
+                };
+            } catch (error) {
+                hideLoading();
+                showError('Error: ' + error.message);
+            }
+        }
+        
+        function renderDmarcResults(results) {
+            const tbody = document.getElementById('dmarc-table-body');
+            tbody.innerHTML = '';
+            
+            results.forEach(r => {
+                const row = document.createElement('tr');
+                row.className = 'result-row border-b border-gray-100';
+                const isNotFound = r.dmarc === 'Not Found';
+                row.dataset.found = isNotFound ? 'no' : 'yes';
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-sm">${r.domain}</td>
+                    <td class="px-4 py-3 text-sm ${isNotFound ? 'text-red-600' : 'text-green-600'}">
+                        ${isNotFound ? '<i class="fas fa-times-circle mr-1"></i>' : '<i class="fas fa-check-circle mr-1"></i>'}
+                        ${r.dmarc}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function filterDmarcResults() {
+            const filter = document.getElementById('dmarc-filter').value;
+            let filtered = dmarcResults;
+            if (filter === 'found') {
+                filtered = dmarcResults.filter(r => r.dmarc !== 'Not Found');
+            } else if (filter === 'not_found') {
+                filtered = dmarcResults.filter(r => r.dmarc === 'Not Found');
+            }
+            renderDmarcResults(filtered);
+        }
+        
+        function updateDmarcOutput() {
+    const template = document.getElementById('dmarc-template').value.trim();
+    const prefix = document.getElementById('dmarc-prefix').value.trim(); // no fallback
+    const missing = dmarcResults.filter(r => r.dmarc === 'Not Found');
+    
+    const output = missing.map(r => {
+        const txtValue = template.replace(/\[domain\]/g, r.domain);
+        const fullHost = prefix ? `${prefix}.${r.domain}` : r.domain;
+        const parts = r.domain.split('.');
+        const rootDomain = parts.length > 2 ? parts.slice(-2).join('.') : r.domain;
+        return `${rootDomain},${fullHost},TXT,${txtValue}`;
+    }).join('\n');
+    
+    document.getElementById('dmarc-output').value = output;
+}
+        
+        function copyDmarcOutput() {
+            const output = document.getElementById('dmarc-output').value;
+            if (!output) {
+                showToast('No missing DMARC records to copy', 'warning');
+                return;
+            }
+            copyToClipboard(output);
+        }
+        
+        function copyDmarcFilteredDomains() {
+            const filter = document.getElementById('dmarc-filter').value;
+            let filtered = dmarcResults;
+            if (filter === 'found') {
+                filtered = dmarcResults.filter(r => r.dmarc !== 'Not Found');
+            } else if (filter === 'not_found') {
+                filtered = dmarcResults.filter(r => r.dmarc === 'Not Found');
+            }
+            const domains = filtered.map(r => r.domain).join('\n');
+            if (!domains) {
+                showToast('No domains to copy', 'warning');
+                return;
+            }
+            copyToClipboard(domains);
+        }
+        
+        function exportDmarcCsv() {
+            const filter = document.getElementById('dmarc-filter').value;
+            let filtered = dmarcResults;
+            if (filter === 'found') {
+                filtered = dmarcResults.filter(r => r.dmarc !== 'Not Found');
+            } else if (filter === 'not_found') {
+                filtered = dmarcResults.filter(r => r.dmarc === 'Not Found');
+            }
+            
+            if (filtered.length === 0) {
+                showToast('No data to export', 'warning');
+                return;
+            }
+            
+            let csv = 'Domain,DMARC Record\n';
+            filtered.forEach(r => {
+                const dmarcValue = r.dmarc.replace(/"/g, '""');
+                csv += `"${r.domain}","${dmarcValue}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dmarc_results.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exported successfully!', 'success');
+        }
+        
+        function toggleSinglePrefix() {
+            singlePrefixMode = document.getElementById('spf-single-prefix').checked;
+            const prefixInput = document.getElementById('spf-prefix-input');
+            const prefixedDomains = document.getElementById('spf-prefixed-domains');
+            const prefixHint = document.getElementById('spf-prefix-hint');
+            
+            if (singlePrefixMode) {
+                prefixInput.classList.remove('hidden');
+                prefixedDomains.classList.add('hidden');
+                prefixHint.textContent = 'Leave empty for no Subdomain, or enter a Subdomain to apply to all domains.';
+            } else {
+                prefixInput.classList.add('hidden');
+                prefixedDomains.classList.remove('hidden');
+                prefixHint.textContent = 'Match line-by-line with domains. Repeat domain if no Subdomain needed.';
+            }
+        }
+        
+        function toggleSpfType(type) {
+            spfType = type;
+            document.getElementById('spf-ips-section').classList.add('hidden');
+            document.getElementById('spf-a-section').classList.add('hidden');
+            document.getElementById('spf-includes-section').classList.add('hidden');
+            
+            if (type === 'ips') {
+                document.getElementById('spf-ips-section').classList.remove('hidden');
+            } else if (type === 'a_records') {
+                document.getElementById('spf-a-section').classList.remove('hidden');
+            } else if (type === 'includes') {
+                document.getElementById('spf-includes-section').classList.remove('hidden');
+            }
+        }
+        
+        function getValidPrefixedDomains(domains, prefixedDomainsText, singlePrefix) {
+            const domainLines = domains.split('\n').filter(d => d.trim());
+            if (singlePrefix !== null && singlePrefix !== undefined) {
+                if (singlePrefix.trim()) {
+                    return domainLines.map(d => singlePrefix.trim() + '.' + d.trim()).join('\n');
+                } else {
+                    return domainLines.map(d => d.trim()).join('\n');
+                }
+            } else {
+                const prefixedLines = prefixedDomainsText.split('\n').filter(d => d.trim());
+                if (prefixedLines.length === 0) {
+                    return domainLines.map(d => d.trim()).join('\n');
+                }
+                const result = [];
+                for (let i = 0; i < domainLines.length; i++) {
+                    if (i < prefixedLines.length) {
+                        result.push(prefixedLines[i].trim());
+                    } else {
+                        result.push(domainLines[i].trim());
+                    }
+                }
+                return result.join('\n');
+            }
+        }
+
+        async function generateSpf() {
+            const domains = document.getElementById('spf-domains').value.trim();
+            
+            if (!domains) {
+                showError('Please enter at least one domain');
+                return;
+            }
+            
+            let prefixedDomains = '';
+            if (singlePrefixMode) {
+                const singlePrefix = document.getElementById('spf-prefix-input').value.trim();
+                prefixedDomains = getValidPrefixedDomains(domains, '', singlePrefix);
+            } else {
+                const prefixedDomainsText = document.getElementById('spf-prefixed-domains').value.trim();
+                prefixedDomains = getValidPrefixedDomains(domains, prefixedDomainsText, null);
+            }
+            
+            let requestData = {
+                domains,
+                prefixed_domains: prefixedDomains,
+                spf_type: spfType,
+                distribute: spfType === 'ips' ? distributeIps : false,
+                paired: spfType === 'ips' ? spfPairedMode : false
+            };
+            
+            if (spfType === 'ips') {
+                const ips = document.getElementById('spf-ips').value.trim();
+                if (!ips) {
+                    showError('Please enter IP addresses');
+                    return;
+                }
+                if (spfPairedMode) {
+                    const domainLines = domains.split('\n').filter(l => l.trim());
+                    const ipLines = ips.split('\n').filter(l => l.trim());
+                    if (domainLines.length !== ipLines.length) {
+                        showError(`Paired mode requires equal counts: ${domainLines.length} domains vs ${ipLines.length} IPs`);
+                        return;
+                    }
+                }
+                requestData.ips = ips;
+            } else if (spfType === 'a_records') {
+                const subdomains = document.getElementById('spf-a-subdomains').value.trim();
+                if (!subdomains) {
+                    showError('Please enter subdomains for A records');
+                    return;
+                }
+                requestData.a_subdomains = subdomains;
+            } else if (spfType === 'includes') {
+                const includeDomains = document.getElementById('spf-include-domains').value.trim();
+                if (!includeDomains) {
+                    showError('Please enter include domains');
+                    return;
+                }
+                requestData.include_domains = includeDomains;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/domain_checker/spf_generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                document.getElementById('spf-output').value = data.content;
+                document.getElementById('spf-results').classList.remove('hidden');
+
+                const warningEl = document.getElementById('spf-warning');
+                if (data.warning) {
+                    warningEl.querySelector('span').textContent = data.warning;
+                    warningEl.classList.remove('hidden');
+                } else {
+                    warningEl.classList.add('hidden');
+                }
+            } catch (error) {
+                showError('Error: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function copySpfOutput() {
+            const output = document.getElementById('spf-output').value;
+            if (!output) {
+                showToast('No SPF records to copy', 'warning');
+                return;
+            }
+            copyToClipboard(output);
+        }
+
+        function togglePairedMode() {
+            const enabled = document.getElementById('a-paired-mode').checked;
+            const counter = document.getElementById('a-paired-counter');
+            const distributeRow = document.getElementById('a-distribute-row');
+            if (enabled) {
+                counter.classList.remove('hidden');
+                distributeRow.classList.add('opacity-40', 'pointer-events-none');
+                if (distributeAIps) {
+                    distributeAIps = false;
+                    document.getElementById('a-distribute-toggle').classList.remove('active');
+                }
+                updatePairedCounter();
+                document.getElementById('a-domains').addEventListener('input', updatePairedCounter);
+                document.getElementById('a-ips').addEventListener('input', updatePairedCounter);
+            } else {
+                counter.classList.add('hidden');
+                distributeRow.classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('a-domains').removeEventListener('input', updatePairedCounter);
+                document.getElementById('a-ips').removeEventListener('input', updatePairedCounter);
+            }
+        }
+
+        function updatePairedCounter() {
+            const domainLines = document.getElementById('a-domains').value.trim().split('\n').filter(l => l.trim());
+            const ipLines = document.getElementById('a-ips').value.trim().split('\n').filter(l => l.trim());
+            const dc = domainLines.length;
+            const ic = ipLines.length;
+            document.getElementById('a-paired-domain-count').textContent = `Domains: ${dc}`;
+            document.getElementById('a-paired-ip-count').textContent = `IPs: ${ic}`;
+            const statusEl = document.getElementById('a-paired-status');
+            if (dc === 0 && ic === 0) {
+                statusEl.textContent = '';
+            } else if (dc === ic) {
+                statusEl.textContent = '✓ Match';
+                statusEl.className = 'ml-2 font-semibold text-green-600';
+            } else {
+                statusEl.textContent = `✗ Mismatch (${dc} vs ${ic})`;
+                statusEl.className = 'ml-2 font-semibold text-red-600';
+            }
+        }
+
+        async function generateA() {
+            const domains = document.getElementById('a-domains').value.trim();
+            const ips = document.getElementById('a-ips').value.trim();
+            const subdomain = document.getElementById('a-subdomain').value.trim();
+            const paired = document.getElementById('a-paired-mode').checked;
+
+            if (!domains || !ips) {
+                showError('Please enter domains and IP addresses');
+                return;
+            }
+
+            if (paired) {
+                const domainLines = domains.split('\n').filter(l => l.trim());
+                const ipLines = ips.split('\n').filter(l => l.trim());
+                if (domainLines.length !== ipLines.length) {
+                    showError(`Paired mode requires equal counts: ${domainLines.length} domains vs ${ipLines.length} IPs`);
+                    return;
+                }
+            }
+
+            showLoading();
+            try {
+                const response = await fetch('/api/domain_checker/a_generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domains, ips, subdomain, paired, distribute: paired ? false : distributeAIps })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                document.getElementById('a-output').value = data.content;
+                document.getElementById('a-results').classList.remove('hidden');
+
+                const warningEl = document.getElementById('a-warning');
+                if (data.warning) {
+                    warningEl.querySelector('span').textContent = data.warning;
+                    warningEl.classList.remove('hidden');
+                } else {
+                    warningEl.classList.add('hidden');
+                }
+            } catch (error) {
+                showError('Error: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function copyAOutput() {
+            const output = document.getElementById('a-output').value;
+            if (!output) {
+                showToast('No A records to copy', 'warning');
+                return;
+            }
+            copyToClipboard(output);
+        }
+
+        async function lookupMx() {
+            const domains = document.getElementById('mx-domains').value.trim();
+            if (!domains) {
+                showError('Please enter at least one domain');
+                return;
+            }
+
+            showLoading('Checking MX records...');
+            
+            try {
+                const encodedDomains = encodeURIComponent(domains);
+                const eventSource = new EventSource(`/api/domain_checker/mx_stream?domains=${encodedDomains}`);
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'progress') {
+                        updateLoadingProgress(data.current, data.total);
+                    } else if (data.type === 'complete') {
+                        eventSource.close();
+                        mxResults = data.results;
+                        document.getElementById('mx-filter').value = 'all';
+                        renderMxResults(mxResults);
+                        document.getElementById('mx-results').classList.remove('hidden');
+                        hideLoading();
+                        showToast(`Checked ${data.results.length} domains successfully!`, 'success');
+                    }
+                };
+                
+                eventSource.onerror = function(error) {
+                    eventSource.close();
+                    hideLoading();
+                    showError('Error connecting to server. Please try again.');
+                };
+            } catch (error) {
+                hideLoading();
+                showError('Error: ' + error.message);
+            }
+        }
+        
+        function renderMxResults(results) {
+            const tbody = document.getElementById('mx-table-body');
+            tbody.innerHTML = '';
+            
+            results.forEach(r => {
+                const row = document.createElement('tr');
+                row.className = 'result-row border-b border-gray-100';
+                const isNotFound = r.mx.length === 1 && r.mx[0] === 'Not Found';
+                row.dataset.found = isNotFound ? 'no' : 'yes';
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-sm">${r.domain}</td>
+                    <td class="px-4 py-3 text-sm ${isNotFound ? 'text-red-600' : ''}">
+                        ${r.mx.map(m => `<div>${m}</div>`).join('')}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function filterMxResults() {
+            const filter = document.getElementById('mx-filter').value;
+            let filtered = mxResults;
+            if (filter === 'found') {
+                filtered = mxResults.filter(r => !(r.mx.length === 1 && r.mx[0] === 'Not Found'));
+            } else if (filter === 'not_found') {
+                filtered = mxResults.filter(r => r.mx.length === 1 && r.mx[0] === 'Not Found');
+            }
+            renderMxResults(filtered);
+        }
+        
+        function copyMxDomains() {
+            const filter = document.getElementById('mx-filter').value;
+            let filtered = mxResults;
+            if (filter === 'found') {
+                filtered = mxResults.filter(r => !(r.mx.length === 1 && r.mx[0] === 'Not Found'));
+            } else if (filter === 'not_found') {
+                filtered = mxResults.filter(r => r.mx.length === 1 && r.mx[0] === 'Not Found');
+            }
+            const domains = filtered.map(r => r.domain).join('\n');
+            if (!domains) {
+                showToast('No domains to copy', 'warning');
+                return;
+            }
+            copyToClipboard(domains);
+        }
+
+        async function lookupTxt() {
+            const domains = document.getElementById('txt-domains').value.trim();
+            if (!domains) {
+                showError('Please enter at least one domain');
+                return;
+            }
+
+            showLoading('Checking TXT records...');
+            
+            try {
+                const encodedDomains = encodeURIComponent(domains);
+                const eventSource = new EventSource(`/api/domain_checker/txt_stream?domains=${encodedDomains}`);
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'progress') {
+                        updateLoadingProgress(data.current, data.total);
+                    } else if (data.type === 'complete') {
+                        eventSource.close();
+                        txtResults = data.results;
+                        document.getElementById('txt-filter').value = 'all';
+                        renderTxtResults(txtResults);
+                        document.getElementById('txt-results').classList.remove('hidden');
+                        hideLoading();
+                        showToast(`Checked ${data.results.length} domains successfully!`, 'success');
+                    }
+                };
+                
+                eventSource.onerror = function(error) {
+                    eventSource.close();
+                    hideLoading();
+                    showError('Error connecting to server. Please try again.');
+                };
+            } catch (error) {
+                hideLoading();
+                showError('Error: ' + error.message);
+            }
+        }
+        
+        function renderTxtResults(results) {
+            const tbody = document.getElementById('txt-table-body');
+            tbody.innerHTML = '';
+            
+            results.forEach(r => {
+                const row = document.createElement('tr');
+                row.className = 'result-row border-b border-gray-100';
+                const isNotFound = r.txt.length === 1 && r.txt[0] === 'Not Found';
+                row.dataset.found = isNotFound ? 'no' : 'yes';
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-sm">${r.domain}</td>
+                    <td class="px-4 py-3 text-sm ${isNotFound ? 'text-red-600' : ''}">
+                        ${r.txt.map(t => `<div class="mb-1 p-2 bg-gray-50 rounded text-xs break-all">${t}</div>`).join('')}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function filterTxtResults() {
+            const filter = document.getElementById('txt-filter').value;
+            let filtered = txtResults;
+            if (filter === 'found') {
+                filtered = txtResults.filter(r => !(r.txt.length === 1 && r.txt[0] === 'Not Found'));
+            } else if (filter === 'not_found') {
+                filtered = txtResults.filter(r => r.txt.length === 1 && r.txt[0] === 'Not Found');
+            }
+            renderTxtResults(filtered);
+        }
+        
+        function copyTxtDomains() {
+            const filter = document.getElementById('txt-filter').value;
+            let filtered = txtResults;
+            if (filter === 'found') {
+                filtered = txtResults.filter(r => !(r.txt.length === 1 && r.txt[0] === 'Not Found'));
+            } else if (filter === 'not_found') {
+                filtered = txtResults.filter(r => r.txt.length === 1 && r.txt[0] === 'Not Found');
+            }
+            const domains = filtered.map(r => r.domain).join('\n');
+            if (!domains) {
+                showToast('No domains to copy', 'warning');
+                return;
+            }
+            copyToClipboard(domains);
+        }
+
+        let lookupResults = [];
+        let lookupFilters = { mx: 'all', txt: 'all', spf: 'all', a: 'all' };
+        let lookupColumns = { mx: true, txt: true, spf: true, a: true };
+        let activeRecordTypes = [];
+
+        async function unifiedLookup() {
+            const domains = document.getElementById('lookup-domains').value.trim();
+            const checkMx = document.getElementById('check-mx').checked;
+            const checkTxt = document.getElementById('check-txt').checked;
+            const checkSpf = document.getElementById('check-spf').checked;
+            const checkA = document.getElementById('check-a').checked;
+
+            if (!domains) {
+                showError('Please enter at least one domain');
+                return;
+            }
+            if (!checkMx && !checkTxt && !checkSpf && !checkA) {
+                showError('Please select at least one record type');
+                return;
+            }
+
+            activeRecordTypes = [];
+            if (checkMx) activeRecordTypes.push('mx');
+            if (checkTxt) activeRecordTypes.push('txt');
+            if (checkSpf) activeRecordTypes.push('spf');
+            if (checkA) activeRecordTypes.push('a');
+            
+            lookupColumns = { mx: checkMx, txt: checkTxt, spf: checkSpf, a: checkA };
+            lookupFilters = { mx: 'all', txt: 'all', spf: 'all', a: 'all' };
+
+            showLoading('Looking up records...');
+            
+            try {
+                const encodedDomains = encodeURIComponent(domains);
+                const url = `/api/domain_checker/unified_lookup?domains=${encodedDomains}&check_mx=${checkMx}&check_txt=${checkTxt}&check_spf=${checkSpf}&check_a=${checkA}`;
+                const eventSource = new EventSource(url);
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'progress') {
+                        updateLoadingProgress(data.current, data.total);
+                    } else if (data.type === 'complete') {
+                        eventSource.close();
+                        lookupResults = data.results;
+                        renderLookupUI();
+                        document.getElementById('lookup-results').classList.remove('hidden');
+                        document.getElementById('lookup-placeholder').classList.add('hidden');
+                        hideLoading();
+                        showToast(`Checked ${data.results.length} domains successfully!`, 'success');
+                    }
+                };
+                
+                eventSource.onerror = function(error) {
+                    eventSource.close();
+                    hideLoading();
+                    showError('Error connecting to server. Please try again.');
+                };
+            } catch (error) {
+                hideLoading();
+                showError('Error: ' + error.message);
+            }
+        }
+
+        function renderLookupUI() {
+            renderLookupStats();
+            renderFilterToggles();
+            renderColumnToggles();
+            renderLookupTable();
+        }
+
+        function renderLookupStats() {
+            const stats = document.getElementById('stats-content');
+            let html = `<span class="font-semibold">Total: ${lookupResults.length}</span>`;
+            activeRecordTypes.forEach(type => {
+                const found = lookupResults.filter(r => r[type + '_found']).length;
+                const notFound = lookupResults.length - found;
+                const label = type.toUpperCase();
+                html += `<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>${label} Found: ${found}</span>`;
+                html += `<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>${label} Not Found: ${notFound}</span>`;
+            });
+            stats.innerHTML = html;
+        }
+
+        function renderFilterToggles() {
+            const container = document.getElementById('filter-toggles');
+            let html = '';
+            activeRecordTypes.forEach(type => {
+                const label = type.toUpperCase();
+                html += `<select id="filter-${type}" onchange="updateLookupFilter('${type}', this.value)" class="input-modern px-2 py-1 rounded text-xs">
+                    <option value="all">${label}: All</option>
+                    <option value="found">${label}: Found</option>
+                    <option value="not_found">${label}: Not Found</option>
+                </select>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderColumnToggles() {
+            const container = document.getElementById('column-toggles');
+            let html = '';
+            activeRecordTypes.forEach(type => {
+                const label = type.toUpperCase();
+                const checked = lookupColumns[type] ? 'checked' : '';
+                html += `<label class="flex items-center space-x-1 cursor-pointer">
+                    <input type="checkbox" ${checked} onchange="toggleColumn('${type}', this.checked)" class="w-3 h-3">
+                    <span class="text-xs">${label}</span>
+                </label>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleLookupColumns() {
+            document.getElementById('column-toggle-panel').classList.toggle('hidden');
+        }
+
+        function toggleColumn(type, visible) {
+            lookupColumns[type] = visible;
+            renderLookupTable();
+        }
+
+        function updateLookupFilter(type, value) {
+            lookupFilters[type] = value;
+            filterLookupResults();
+        }
+
+        function filterLookupResults() {
+            renderLookupTable();
+        }
+
+        function getFilteredResults() {
+            const searchTerm = document.getElementById('lookup-search').value.toLowerCase();
+            return lookupResults.filter(r => {
+                if (searchTerm && !r.domain.toLowerCase().includes(searchTerm)) return false;
+                for (const type of activeRecordTypes) {
+                    const filter = lookupFilters[type];
+                    if (filter === 'found' && !r[type + '_found']) return false;
+                    if (filter === 'not_found' && r[type + '_found']) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderLookupTable() {
+            const filtered = getFilteredResults();
+            const header = document.getElementById('lookup-header');
+            const tbody = document.getElementById('lookup-table-body');
+            
+            let headerHtml = `<th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50">
+                <span class="flex items-center gap-2">
+                    Domain
+                    <button onclick="copyLookupColumnValues('domain')" title="Copy all domains" class="text-gray-400 hover:text-indigo-600 transition-colors"><i class="fas fa-copy text-xs"></i></button>
+                </span>
+            </th>`;
+            activeRecordTypes.forEach(type => {
+                if (lookupColumns[type]) {
+                    headerHtml += `<th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <span class="flex items-center gap-2">
+                            ${type.toUpperCase()}
+                            <button onclick="copyLookupColumnValues('${type}')" title="Copy all ${type.toUpperCase()} values" class="text-gray-400 hover:text-indigo-600 transition-colors"><i class="fas fa-copy text-xs"></i></button>
+                        </span>
+                    </th>`;
+                }
+            });
+            header.innerHTML = headerHtml;
+            
+            tbody.innerHTML = '';
+            filtered.forEach(r => {
+                const row = document.createElement('tr');
+                row.className = 'result-row border-b border-gray-100';
+                let rowHtml = `<td class="px-4 py-3 font-mono text-sm sticky left-0 bg-white">${r.domain}</td>`;
+                activeRecordTypes.forEach(type => {
+                    if (lookupColumns[type]) {
+                        const found = r[type + '_found'];
+                        const badge = found ? 
+                            '<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Found</span>' :
+                            '<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Not Found</span>';
+                        let content = badge;
+                        if (found && r[type]) {
+                            if (Array.isArray(r[type])) {
+                                content += `<div class="mt-1 text-xs text-gray-600">${r[type].slice(0,3).join(', ')}${r[type].length > 3 ? '...' : ''}</div>`;
+                            } else {
+                                content += `<div class="mt-1 text-xs text-gray-600 truncate max-w-xs" title="${r[type]}">${r[type].substring(0, 50)}${r[type].length > 50 ? '...' : ''}</div>`;
+                            }
+                        }
+                        rowHtml += `<td class="px-4 py-3 text-sm">${content}</td>`;
+                    }
+                });
+                row.innerHTML = rowHtml;
+                tbody.appendChild(row);
+            });
+        }
+
+        function buildLookupCsvContent() {
+            const filtered = getFilteredResults();
+            let headers = ['Domain'];
+            activeRecordTypes.forEach(type => {
+                if (lookupColumns[type]) headers.push(type.toUpperCase());
+            });
+            let csv = headers.join(',') + '\n';
+            filtered.forEach(r => {
+                let row = [`"${r.domain}"`];
+                activeRecordTypes.forEach(type => {
+                    if (lookupColumns[type]) {
+                        const val = r[type];
+                        if (val === null) {
+                            row.push('"Not Found"');
+                        } else if (Array.isArray(val)) {
+                            row.push(`"${val.join('; ')}"`);
+                        } else {
+                            row.push(`"${String(val).replace(/"/g, '""')}"`);
+                        }
+                    }
+                });
+                csv += row.join(',') + '\n';
+            });
+            return csv;
+        }
+
+        function copyLookupColumnValues(type) {
+            const filtered = getFilteredResults();
+            if (filtered.length === 0) {
+                showToast('No data to copy', 'warning');
+                return;
+            }
+            let text = '';
+            if (type === 'domain') {
+                text = filtered.map(r => r.domain).join('\n');
+            } else {
+                text = filtered.map(r => {
+                    const val = r[type];
+                    if (val === null || val === undefined) return 'Not Found';
+                    if (Array.isArray(val)) return val.join('; ');
+                    return String(val);
+                }).join('\n');
+            }
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => showToast('Column copied!', 'success')).catch(() => {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        showToast('Column copied!', 'success');
+                    });
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('Column copied!', 'success');
+                }
+            } catch(e) {
+                showToast('Failed to copy column', 'error');
+            }
+        }
+
+        function copyLookupCsv() {
+            const filtered = getFilteredResults();
+            if (filtered.length === 0) {
+                showToast('No data to copy', 'warning');
+                return;
+            }
+            const csv = buildLookupCsvContent();
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(csv).then(() => showToast('CSV copied to clipboard!', 'success')).catch(() => {
+                        const ta = document.createElement('textarea');
+                        ta.value = csv;
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        showToast('CSV copied to clipboard!', 'success');
+                    });
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = csv;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('CSV copied to clipboard!', 'success');
+                }
+            } catch(e) {
+                showToast('Failed to copy CSV', 'error');
+            }
+        }
+
+        function exportLookupCsv() {
+            const filtered = getFilteredResults();
+            if (filtered.length === 0) {
+                showToast('No data to export', 'warning');
+                return;
+            }
+            const csv = buildLookupCsvContent();
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'domain_lookup_results.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exported successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,4485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSSW Domain Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            primary: '#4f46e5', // Indigo 600
+                            secondary: '#9333ea', // Purple 600
+                            accent: '#db2777', // Pink 600
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'bounce-slow': 'bounce 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Light Mode Base */
+        body {
+            background-color: #f8fafc; /* Slate 50 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,90%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,95%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,90%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #1e293b; /* Slate 800 */
+        }
+
+        /* Glassmorphism Light */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Table Styles */
+        thead th { background: rgba(241, 245, 249, 0.8); }
+        tr:hover td { background: rgba(248, 250, 252, 0.8); }
+        
+        .tab-btn.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        
+        /* Traffic Pulse Animation */
+        .traffic-pulse {
+            position: relative;
+        }
+        .traffic-pulse::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.3;
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        .code-block {
+            font-family: 'Fira Code', monospace;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .code-keyword { color: #c678dd; }
+        .code-string { color: #98c379; }
+        .code-function { color: #61afef; }
+        .code-comment { color: #5c6370; font-style: italic; }
+        .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+.text-white {
+  color: white !important;
+}
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+
+
+
+    
+<!-- Navigation -->
+<nav class="nav-glass fixed w-full z-50 top-0 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <!-- Left side: Logo & title -->
+            <div class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white transition-transform group-hover:scale-105">
+                    <i class="ph ph-chart-polar text-xl"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-slate-800">Domain<span class="text-indigo-600">Project</span></span>
+            </div>
+            
+            <!-- Right side: Tabs + Links + User Profile -->
+            <div class="hidden md:flex items-center gap-6">
+                <!-- Tabs -->
+                <div class="flex p-1 bg-slate-100 rounded-lg border border-slate-200">
+                    <button onclick="switchTab('domains')" id="tab-domains" class="tab-btn active px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200">Domains</button>
+                    <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 transition-all duration-200">Google Analytics</button>
+                    <button onclick="switchTab('infrastructure')" id="tab-infrastructure" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 transition-all duration-200">Web Traffic</button>
+                </div>
+                
+                <div class="h-6 w-px bg-slate-200 mx-2"></div>
+                
+                <a href="{{ url_for('tssw_rapport_warmup') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-fire text-orange-500"></i> Warmup
+                </a>
+                <a href="{{ url_for('tssw_rapport_offer') }}" class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="ph ph-paper-plane-tilt text-emerald-500"></i> Offers
+                </a>
+
+                <!-- User Profile Dropdown (new) -->
+                <div class="relative ml-4">
+                    <button id="userMenuButton" class="flex items-center gap-3 focus:outline-none group">
+                        <!-- Circular Avatar -->
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white font-medium shadow-lg transition-transform group-hover:scale-105">
+                            <span class="text-sm"><i class="fas fa-user text-white"></i></span> <!-- Replace with user initials or <img src="..." class="w-full h-full rounded-full object-cover"> -->
+                        </div>
+                        <!-- Optional: name on larger screens -->
+                        <span class="hidden lg:block font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">{{ current_user.name }}</span>
+                        <i class="ph ph-caret-down text-slate-500 text-sm transition-transform duration-200" id="chevron"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="userDropdown" class="absolute right-0 mt-3 w-64 glass-card rounded-xl shadow-2xl py-2 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right z-50">
+                        <!-- User Info -->
+                        <div class="px-4 py-3 border-b border-slate-200/50">
+                            <p class="font-semibold text-slate-800">{{ current_user.name }}</p>
+                            <p class="text-sm text-slate-500">{{ current_user.entity }}</p>
+                            <!-- If multiple entities: -->
+                            <!-- <p class="text-xs text-slate-400 mt-1">Entities: TSSW, TSS1</p> -->
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="py-1">
+                           <a href="{{ url_for('tssw_rapport_index') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-sky-50/70 hover:text-sky-600 transition-colors">
+                            <i class="fas fa-th-large w-5 mr-3 text-slate-500"></i>
+                            Other Project
+                        </a>
+                        <a href="{{ url_for('services') }}" class="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-sky-50/70 hover:text-sky-600 transition-colors">
+                          <i class="fas fa-cloud w-5 mr-3 text-slate-500"></i>
+                            Back to Services
+                        </a>
+                            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50/70 transition-colors">
+                                <i class="ph ph-sign-out w-5 mr-3"></i>
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+        
+        <!-- Tab: Domains -->
+        <div id="view-domains" class="animate-fade-in space-y-8">
+            
+            <!-- Hero Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 rounded-full group-hover:bg-indigo-100 transition-colors"></div>
+                    <p class="text-slate-500 text-sm font-medium uppercase tracking-wider mb-1 relative z-10">Total Domains</p>
+                    <h2 class="text-4xl font-display font-bold text-slate-800 relative z-10" id="stat-total">0</h2>
+                    <i class="ph ph-globe text-indigo-500 text-2xl absolute bottom-6 right-6"></i>
+                </div>
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:bg-emerald-100 transition-colors"></div>
+                    <p class="text-slate-500 text-sm font-medium uppercase tracking-wider mb-1 relative z-10">Active & Indexed</p>
+                    <h2 class="text-4xl font-display font-bold text-slate-800 relative z-10" id="stat-active">0</h2>
+                     <i class="ph ph-check-circle text-emerald-500 text-2xl absolute bottom-6 right-6"></i>
+                </div>
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-50 rounded-full group-hover:bg-purple-100 transition-colors"></div>
+                    <p class="text-slate-500 text-sm font-medium uppercase tracking-wider mb-1 relative z-10">Total Traffic Views</p>
+                    <h2 class="text-4xl font-display font-bold text-slate-800 relative z-10">142.5K</h2>
+                     <i class="ph ph-eye text-purple-500 text-2xl absolute bottom-6 right-6"></i>
+                </div>
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-50 rounded-full group-hover:bg-orange-100 transition-colors"></div>
+                    <p class="text-slate-500 text-sm font-medium uppercase tracking-wider mb-1 relative z-10">Avg Engagement</p>
+                    <h2 class="text-4xl font-display font-bold text-slate-800 relative z-10">2m 14s</h2>
+                     <i class="ph ph-timer text-orange-500 text-2xl absolute bottom-6 right-6"></i>
+                </div>
+            </div>
+
+            <!-- SEO Action Cards (Compact) -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="ph ph-sparkle text-indigo-500"></i> SEO Optimizations
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                     <!-- Card Loop -->
+                    <div onclick="showPopup('Web Design', 'My custom-tailored layouts are engineered for maximum user retention. I prioritize clean aesthetics, intuitive navigation, and visual hierarchy to reduce bounce rates and increase session duration.', 'ph-paint-brush-broad')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-paint-brush-broad text-2xl text-blue-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Web Design</span>
+                    </div>
+                    <div onclick="showPopup('Responsive', 'I implement a mobile-first architecture that ensures 100% compatibility across all viewports. Whether on iPhone, iPad, or 4K Desktop monitors, The domains content scales perfectly without breaking layout.', 'ph-device-mobile')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-device-mobile text-2xl text-purple-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Responsive</span>
+                    </div>
+                    <div onclick="showPopup('Handwritten', 'All content is 100% human-written and manually verified. I strictly avoid AI-generated text to ensure passing AI detectors (like QuillBot) and providing genuine value to readers, which is crucial for long-term SEO ranking.', 'ph-pencil-circle')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-pencil-circle text-2xl text-pink-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Handwritten</span>
+                    </div>
+                    <div onclick="showPopup('Privacy', 'Every domain comes with automatically generated, GDPR and CCPA compliant privacy policy pages. This builds trust with visitors and search engines, ensuring My site meets legal requirements for data protection.', 'ph-shield-check')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-shield-check text-2xl text-green-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Privacy</span>
+                    </div>
+                    <div onclick="showPopup('Links', 'My continuous crawler monitors link health 24/7. I ensure zero broken internal or external links (404 errors), which improves user experience and prevents search engine penalties related to crawlability.', 'ph-link-break')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-link-break text-2xl text-yellow-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Link Health</span>
+                    </div>
+                    <div onclick="showPopup('Schema', 'I implement advanced JSON-LD Schema markup (Organization, Website, Article) to help search engines understand The Website content. This increases the likelihood of appearing in Rich Snippets and Knowledge Graphs.', 'ph-code')" class="p-4 rounded-xl bg-slate-50 hover:bg-white hover:shadow-md cursor-pointer transition-all border border-slate-100 text-center group">
+                        <i class="ph ph-code text-2xl text-cyan-500 mb-2 group-hover:scale-110 transition-transform block"></i>
+                        <span class="text-xs font-semibold text-slate-600">Schema</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domain List -->
+            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
+                <div class="p-5 border-b border-slate-100 bg-white/50 flex flex-wrap gap-4 justify-between items-center">
+                    <h3 class="text-lg font-bold text-slate-800">Domain Website Info</h3>
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-full max-w-sm">
+                            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+                            <input type="text" id="domainSearch" class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-white/80 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-shadow" placeholder="Search domains...">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="prevPage()" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600 disabled:opacity-50" id="btnPrev">
+                                <i class="ph ph-caret-left"></i>
+                            </button>
+                            <button onclick="nextPage()" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600 disabled:opacity-50" id="btnNext">
+                                <i class="ph ph-caret-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200">
+                                <th class="px-6 py-4">Domain Name</th>
+                                <th class="px-6 py-4">Type</th>
+                                <th class="px-6 py-4">Blog Account</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Launch Date</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="domainTableBody" class="divide-y divide-slate-100 bg-white/30">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500 flex justify-between">
+                    <span>Showing <span id="pageStart">1</span>-<span id="pageEnd">8</span> of <span id="totalItems">0</span></span>
+                    <span id="pageInfo">Page 1</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Analytics Hub -->
+        <div id="view-analytics" class="hidden animate-fade-in space-y-8">
+            
+            <!-- Blog Entities Section (New) -->
+            <div class="glass-card p-8 rounded-2xl border-l-4 border-l-brand-primary">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                    <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600"><i class="ph ph-buildings"></i></div>
+                    Blog Entities Performance
+                </h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <!-- Entity Distribution Chart -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+                        <h4 class="font-bold text-slate-600 mb-4 w-full text-left">Traffic Share by Entity</h4>
+                        <div class="relative h-64 w-full flex justify-center">
+                            <canvas id="entityShareChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Entity Engagement Chart -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+                        <h4 class="font-bold text-slate-600 mb-4">Engagement of Domains by Entity</h4>
+                        <div class="relative h-64 w-full">
+                            <canvas id="entityEngagementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entity Stats Table -->
+                <div class="overflow-hidden rounded-xl border border-slate-200">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold">
+                            <tr>
+                                <th class="px-6 py-4">Blog Entity</th>
+                                <th class="px-6 py-4">Total Domains</th>
+                                <th class="px-6 py-4">Active</th>
+                                <th class="px-6 py-4">Avg. Daily Traffic</th>
+                                <th class="px-6 py-4 text-right">Performance Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entityTableBody" class="divide-y divide-slate-100 bg-white">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Existing Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Country Traffic -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-800">Traffic by Country</h3>
+                        <div class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">Top 5 Regions</div>
+                    </div>
+                    <div class="relative h-64">
+                        <canvas id="countryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Traffic Channels -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-800">Acquisition Channels</h3>
+                        <div class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">Last 30 Days</div>
+                    </div>
+                    <div class="relative h-64 flex justify-center">
+                        <canvas id="channelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OS & System Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-6 rounded-2xl lg:col-span-1">
+                    <div class="flex justify-between items-center mb-6">
+                         <h3 class="font-bold text-lg text-slate-800">OS Distribution</h3>
+                         <i class="ph ph-desktop text-slate-400 text-xl"></i>
+                    </div>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="osDoughnutChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Detailed Stats Table -->
+                 <div class="glass-card rounded-2xl overflow-hidden border border-slate-200 lg:col-span-2">
+                    <div class="p-5 border-b border-slate-100 bg-white/50">
+                        <h3 class="font-bold text-slate-800">Comprehensive Engagement Metrics</h3>
+                        <p class="text-sm text-slate-500">Detailed breakdown by channel and user type</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-600">
+                                <tr>
+                                    <th class="px-6 py-3 font-semibold">Channel</th>
+                                    <th class="px-6 py-3 font-semibold">Users</th>
+                                    <th class="px-6 py-3 font-semibold">New Users</th>
+                                    <th class="px-6 py-3 font-semibold">Engagement Rate</th>
+                                    <th class="px-6 py-3 font-semibold text-right">Avg Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="engagementTableBody" class="divide-y divide-slate-100 bg-white">
+                                <!-- Populated JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Infrastructure -->
+        <div id="view-infrastructure" class="hidden animate-fade-in space-y-8">
+            <div class="glass-card p-8 rounded-2xl bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-indigo-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-display font-bold text-slate-800 mb-2">Traffic Generation Process</h2>
+                        <p class="text-slate-500">Automated multi-threaded browsing simulation network</p>
+                    </div>
+                    <div class="flex gap-3 mt-4 md:mt-0">
+                        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-bold text-slate-700">30 Palemoon Profiles Active</span>
+                        </div>
+                        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
+                            <i class="ph ph-clock text-indigo-500"></i>
+                            <span class="font-bold text-slate-700">75 Min Sessions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div onclick="showProxiesPopup()" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-lg transition-all cursor-pointer group">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-globe-hemisphere-west"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">3,924 Proxies</h3>
+                        <p class="text-sm text-slate-500">Rotating residential IP pool from 12 distinct geolocation classes.</p>
+                        <div class="mt-4 flex items-center gap-2 text-xs font-semibold text-blue-600">
+                            <span>View Classes</span>
+                            <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                    <div onclick="showUAPopup()" class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-lg transition-all cursor-pointer group">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-devices"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">Multi-Agent UA</h3>
+                        <p class="text-sm text-slate-500">7 device types x 30 unique UserAgents (Brave, Chrome, Firefox, Safari, etc.)</p>
+                         <div class="mt-4 flex items-center gap-2 text-xs font-semibold text-purple-600">
+                            <span>View User Agents</span>
+                            <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-lg transition-all cursor-pointer group opacity-90">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mb-4">
+                            <i class="ph ph-code-block"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">3 Core Scripts</h3>
+                        <p class="text-sm text-slate-500">Intelligent automation for Direct, Backlink, and Organic Keyword search patterns.</p>
+                        <div class="mt-4 text-xs font-semibold text-orange-600">
+                            <span>Active System</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    <!-- Script 1 -->
+                    <div onclick="showScriptPopup('direct')" class="glass-card p-6 rounded-2xl border-l-4 border-l-blue-500 hover:shadow-xl transition-shadow cursor-pointer relative overflow-hidden group">
+                         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                             <i class="ph ph-arrow-square-out text-6xl text-blue-500"></i>
+                         </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-slate-800 text-lg">Multiple Direct Search</h4>
+                            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">Direct</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-6">Simulates users typing the domain directly. Executes internal navigation, mouse movements, and dwell time.</p>
+                        <div class="mt-auto">
+                            <div class="flex justify-between text-xs font-medium text-slate-500 mb-2">
+                                <span>Automation Logic</span>
+                                <span>View Code</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 w-3/4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Script 2 -->
+                    <div onclick="showScriptPopup('backlink')" class="glass-card p-6 rounded-2xl border-l-4 border-l-purple-500 hover:shadow-xl transition-shadow cursor-pointer relative overflow-hidden group">
+                         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                             <i class="ph ph-link text-6xl text-purple-500"></i>
+                         </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-slate-800 text-lg">Backlink Referral</h4>
+                            <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">Referral</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-6">Navigates to known backlinks, finds the domain anchor, and clicks through to simulate authority transfer.</p>
+                        <div class="mt-auto">
+                            <div class="flex justify-between text-xs font-medium text-slate-500 mb-2">
+                                <span>Link Discovery</span>
+                                <span>View Code</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-purple-500 w-1/2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Script 3 -->
+                    <div onclick="showScriptPopup('keyword')" class="glass-card p-6 rounded-2xl border-l-4 border-l-orange-500 hover:shadow-xl transition-shadow cursor-pointer relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                             <i class="ph ph-magnifying-glass text-6xl text-orange-500"></i>
+                         </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-slate-800 text-lg">Keyword Organic</h4>
+                            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded">Organic</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-6">Searches specific keywords on Google, finds the domain in SERPs, and executes a high-intent click.</p>
+                         <div class="mt-auto">
+                            <div class="flex justify-between text-xs font-medium text-slate-500 mb-2">
+                                <span>SERP Analysis</span>
+                                <span>View Code</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 w-2/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Traffic Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Daily Traffic Logs</h3>
+                            <p class="text-sm text-slate-500">Detailed breakdown of traffic execution per day</p>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <!-- Date Range -->
+                             <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="ph ph-calendar-blank text-slate-400"></i>
+                                </div>
+                                <input type="date" class="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none w-full sm:w-auto" value="2025-12-20">
+                            </div>
+                            
+                            <!-- Search -->
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="ph ph-magnifying-glass text-slate-400"></i>
+                                </div>
+                                <input type="text" id="trafficSearch" class="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none w-full sm:w-64" placeholder="Search logs...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                         <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-100">
+                                <tr>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Domain</th>
+                                    <th class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Direct
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-orange-500"></span> Keyword
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-purple-500"></span> Backlink
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-right">Total Hits</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trafficTableBody" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                        <span class="text-sm text-slate-500">Showing <span id="trafStart">1</span>-<span id="trafEnd">10</span> of <span id="trafTotal">0</span></span>
+                        <div class="flex gap-2">
+                             <button onclick="prevTrafficPage()" id="btnTrafPrev" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
+                             <button onclick="nextTrafficPage()" id="btnTrafNext" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Details Modal -->
+    <div id="infoModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-white/50 max-h-[90vh] flex flex-col" id="modalContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
+                <h2 id="modalTitle" class="text-xl font-display font-bold text-slate-800">Details</h2>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div id="modalBody" class="p-6 overflow-y-auto bg-white text-slate-600 flex-1"></div>
+        </div>
+    </div>
+    
+    <!-- Large Code Modal -->
+    <div id="codeModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity opacity-0" id="codeModalBackdrop"></div>
+        <div class="relative bg-[#0f172a] rounded-2xl shadow-2xl w-full max-w-4xl transform scale-95 opacity-0 transition-all duration-300 overflow-hidden border border-white/10 max-h-[90vh] flex flex-col" id="codeModalContent">
+            <div class="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                     <div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                        <i id="codeModalIcon" class="ph ph-code"></i>
+                     </div>
+                     <div>
+                        <h2 id="codeModalTitle" class="text-xl font-display font-bold text-white">Script Source</h2>
+                        <p id="codeModalSubtitle" class="text-xs text-gray-400">JavaScript Automation Logic</p>
+                     </div>
+                </div>
+                <button onclick="closeCodeModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto bg-[#0f172a] text-gray-300 flex-1">
+                <div class="mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-2">How it works</h3>
+                    <p id="codeModalDesc" class="text-sm text-gray-400 leading-relaxed"></p>
+                </div>
+                <div class="relative">
+                    <div class="absolute top-2 right-2 px-2 py-1 bg-white/10 rounded text-xs text-gray-400">JavaScript</div>
+                    <pre id="codeModalBlock" class="code-block"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    {% raw %}
+        document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('userMenuButton');
+    const dropdown = document.getElementById('userDropdown');
+    const chevron = document.getElementById('chevron');
+
+    if (button && dropdown) {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('opacity-0');
+            dropdown.classList.toggle('scale-95');
+            dropdown.classList.toggle('pointer-events-none');
+            chevron.classList.toggle('rotate-180');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target)) {
+                dropdown.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+    }
+});
+        // Data & Logic
+        const domainKeywords = {
+            "wittyforge.com": "witty forge",
+            "scootabaker.com": "scoota baker",
+            "assemblycoffeeroasters.com": "assembly coffee roasters",
+            "handsfreecarry.com": "handsfreecarry",
+            "thefitnessbuster.com": "thefitnessbuster",
+            "review-zone.net": "review zone",
+            "velocifashion.com": "veloci fashion",
+            "onewestsidehpp.com": "one westside hpp",
+            "consciousnessexplorersclub.com": "consciousnessexplorersclub",
+            "whityrose.com": "whityrose",
+            "shelahdavis.com": "shelahdavis",
+            "mindcarefocus.com": "mindcarefocus",
+            "snappycats.com": "snappycats",
+            "lunacooperative.com": "lunacooperative",
+            "randomtraveller.net": "randomtraveller",
+            "juliegoodwinlmt.com": "julie goodwin lmt",
+            "frozenblinks.com": "frozenblinks",
+            "nexmeapp.com": "nexmeapp",
+            "conscioushunter.com": "conscioushunter",
+            "tenyearsofgreenpan.com": "tenyearsofgreenpan",
+            "sicilyaofficial.com": "sicilyaofficial",
+            "legendaryoscar.com": "legendaryoscar",
+            "datagiene.com": "datagiene",
+            "elixitea.com": "elixitea",
+            "organizinglifewithless.com": "organizinglifewithless",
+            "solobizcoach.com": "solobizcoach",
+            "magicfee.com": "magicfee",
+            "idolebylancome.com": "Lancome Original Perfumes",
+            "musicmindtheory.com": "musicmindtheory",
+            "sprighealth.com": "site:sprighealth.com"
+        };
+        
+        const domainData = [
+             {"LAUNCHEDATE": "27/05/2025","DOMAIN NAME": "assemblycoffeeroasters.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "m2zuimz2aoat","Value": "gv-qqzuvwj32nrkxj.dv.googlehosted.com","Website Blogger link": "https://coffee223roasters.blogspot.com/" },
+{"LAUNCHEDATE": "28/05/2025","DOMAIN NAME": "idolebylancome.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "ufr7acqrtxcy","Value": "gv-mgs23kg6rzt3fq.dv.googlehosted.com","Website Blogger link": "https://idole1042by1142lancome.blogspot.com/" },
+{"LAUNCHEDATE": "28/05/2025","DOMAIN NAME": "juliegoodwinlmt.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "zwoff2wg7bsf","Value": "gv-zja4lwuiuyuzus.dv.googlehosted.com","Website Blogger link": "https://julie15good114winlmt.blogspot.com/" },
+{"LAUNCHEDATE": "29/05/2025","DOMAIN NAME": "scootabaker.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "6c3xfnfdcerf","Value": "gv-nznte56xzk7gkr.dv.googlehosted.com","Website Blogger link": "https://harmin14253lawyer.blogspot.com/" },
+{"LAUNCHEDATE": "30/05/2025","DOMAIN NAME": "datagiene.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "oalgra463ppm","Value": "gv-46zozohnvkhxzt.dv.googlehosted.com","Website Blogger link": "https://data1142usage.blogspot.com/" },
+{"LAUNCHEDATE": "02/06/2025","DOMAIN NAME": "nexmeapp.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "zevkuifufyjd","Value": "gv-zs57mclsboujfv.dv.googlehosted.com","Website Blogger link": "https://android1142app.blogspot.com/" },
+{"LAUNCHEDATE": "03/06/2025","DOMAIN NAME": "sprighealth.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "kcr4icqwwhv4","Value": "gv-ghkpeifrtsdnoz.dv.googlehosted.com","Website Blogger link": "https://darwin1142politics.blogspot.com/" },
+{"LAUNCHEDATE": "04/06/2025","DOMAIN NAME": "onewestsidehpp.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "uf3esiuenza5","Value": "gv-7cys6oq43dvwen.dv.googlehosted.com","Website Blogger link": "https://june142536garllet.blogspot.com/" },
+{"LAUNCHEDATE": "05/06/2025","DOMAIN NAME": "handsfreecarry.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "rfxqbfsquh7k","Value": "gv-uf67tnrvej4shm.dv.googlehosted.com","Website Blogger link": "https://gadwin114253lolitoo.blogspot.com/" },
+{"LAUNCHEDATE": "06/06/2025","DOMAIN NAME": "randomtraveller.net","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS1","CNAME" : "7ci4clcndxnr","Value": "gv-lqim7yq2ebhgfw.dv.googlehosted.com","Website Blogger link": "https://taywin5523641lanister.blogspot.com/" },
+{"LAUNCHEDATE": "09/06/2025","DOMAIN NAME": "review-zone.net","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "3flvtlz6yuu4","Value": "gv-iw6k4rdcztsvft.dv.googlehosted.com","Website Blogger link": "https://harwin145226laylo.blogspot.com/" },
+{"LAUNCHEDATE": "10/06/2025","DOMAIN NAME": "thefitnessbuster.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "pxkhynlwuhw4","Value": "gv-6ubind5mt4atfm.dv.googlehosted.com","Website Blogger link": "https://layllo55213karmin.blogspot.com/" },
+{"LAUNCHEDATE": "11/06/2025","DOMAIN NAME": "tenyearsofgreenpan.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "xxh3d5ctf7fk","Value": "gv-afacc4tyn4pj5n.dv.googlehosted.com","Website Blogger link": "https://jk117963pan.blogspot.com/" },
+{"LAUNCHEDATE": "12/06/2025","DOMAIN NAME": "shelahdavis.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "ejwfvr33zr3p","Value": "gv-vz55xeppxokn6m.dv.googlehosted.com","Website Blogger link": "https://layli1142536harlerin.blogspot.com/" },
+{"LAUNCHEDATE": "13/06/2025","DOMAIN NAME": "conscioushunter.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "uaa7b7os5rgh","Value": "gv-moeywkzxn4zhd2.dv.googlehosted.com","Website Blogger link": "https://margin77452136dd.blogspot.com/" },
+{"LAUNCHEDATE": "13/06/2025","DOMAIN NAME": "consciousnessexplorersclub.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "eowuny6lqo5p","Value": "gv-lqo7kmeylgtvcd.dv.googlehosted.com","Website Blogger link": "https://mediation115243website.blogspot.com/" },
+{"LAUNCHEDATE": "13/06/2025","DOMAIN NAME": "lunacooperative.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "cjlcet63w5yc","Value": "gv-ep4gw6eee3yv5q.dv.googlehosted.com","Website Blogger link": "https://event77584623workshop.blogspot.com/" },
+{"LAUNCHEDATE": "16/06/2025","DOMAIN NAME": "organizinglifewithless.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "ftngvzvpghqw","Value": "gv-42eoqftnox7b2o.dv.googlehosted.com","Website Blogger link": "https://rvsfdvsv1452463lkeivuh.blogspot.com/" },
+{"LAUNCHEDATE": "17/06/2025","DOMAIN NAME": "solobizcoach.com","From Which Type": "Domain hunted","Which Account Blog": "Blogger TSS2","CNAME" : "t47ud5pbcniz","Value": "gv-kxwysrllre2yqv.dv.googlehosted.com","Website Blogger link": "https://karma1455243kjfnknief.blogspot.com/" },
+{"LAUNCHEDATE": "18/06/2025","DOMAIN NAME": "wittyforge.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "w7lcqwedpaq7","Value": "gv-qofulkohry74f4.dv.googlehosted.com","Website Blogger link": "https://karmlin114523haycenberg.blogspot.com/" },
+{"LAUNCHEDATE": "19/06/2025","DOMAIN NAME": "elixitea.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "2qlpdf2hpcdc","Value": "gv-ssrhxsovsffklp.dv.googlehosted.com","Website Blogger link": "https://tea2254136sali.blogspot.com/" },
+{"LAUNCHEDATE": "20/06/2025","DOMAIN NAME": "legendaryoscar.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "dqgoiozrawrm","Value": "gv-gq7aasihpkzpsk.dv.googlehosted.com","Website Blogger link": "https://karma8465lilwayn.blogspot.com/" },
+{"LAUNCHEDATE": "23/06/2025","DOMAIN NAME": "snappycats.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "ifqup3inwnn4","Value": "gv-7oxxcyl4uhzz44.dv.googlehosted.com","Website Blogger link": "https://btdgfr114253mmlspop.blogspot.com/" },
+{"LAUNCHEDATE": "24/06/2025","DOMAIN NAME": "sicilyaofficial.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "gzfg35fet62z","Value": "gv-73abhbh7qzpujj.dv.googlehosted.com","Website Blogger link": "https://llfhtgeue997546zrvdc.blogspot.com/" },
+{"LAUNCHEDATE": "25/06/2025","DOMAIN NAME": "frozenblinks.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "3e5m7trxgq2q","Value": "gv-efrenqtgveey46.dv.googlehosted.com","Website Blogger link": "https://hhdytg11436lfknjh.blogspot.com/" },
+{"LAUNCHEDATE": "25/06/2025","DOMAIN NAME": "velocifashion.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "gvnoo2z73x6z","Value": "gv-erdrinvgicv74r.dv.googlehosted.com","Website Blogger link": "https://hardin114523dddazfec.blogspot.com/" },
+{"LAUNCHEDATE": "26/06/2025","DOMAIN NAME": "mindcarefocus.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "d2ufgqgdtlez","Value": "gv-gcygfh3mp2vftk.dv.googlehosted.com","Website Blogger link": "https://bdhvzk19842zevohs.blogspot.com/" },
+{"LAUNCHEDATE": "26/06/2025","DOMAIN NAME": "musicmindtheory.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "pvvfq7t5jp25","Value": "gv-2dobyhepsilkci.dv.googlehosted.com","Website Blogger link": "https://tgynhyt134627.blogspot.com/" },
+{"LAUNCHEDATE": "27/06/2025","DOMAIN NAME": "whityrose.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "2wwanxolamrv","Value": "gv-jbr7nontsg4x7j.dv.googlehosted.com","Website Blogger link": "https://gtdfrsvbhg112335llokbehtg.blogspot.com/" },
+{"LAUNCHEDATE": "27/06/2025","DOMAIN NAME": "magicfee.com","From Which Type": "New Domain","Which Account Blog": "Blogger TSS3","CNAME" : "mwdmiugv457c","Value": "gv-cpcje5m5utneus.dv.googlehosted.com","Website Blogger link": "https://erwin784516smith.blogspot.com/" }
+        ];
+
+        // Mock Analytics Data
+        const mockAnalytics = {
+            os: { labels: ['Windows', 'iOS', 'Android', 'Macintosh', 'Linux'], data: [45, 25, 15, 10, 5] },
+            countries: { labels: ['United States', 'Germany', 'France', 'United Kingdom', 'Canada'], data: [309, 145, 80, 45, 12] },
+            channels: { labels: ['Organic Search', 'Direct', 'Referral', 'Social', 'Email'], data: [45, 20, 25, 8, 2] },
+            engagement: [
+                { channel: 'Organic Search', users: '12.5K', new: '8.2K', rate: '68%', time: '2m 45s' },
+                { channel: 'Referral', users: '5.1K', new: '1.2K', rate: '75%', time: '3m 20s' },
+                { channel: 'Direct', users: '3.8K', new: '0.5K', rate: '82%', time: '1m 50s' },
+                { channel: 'Social', users: '2.2K', new: '1.8K', rate: '45%', time: '0m 45s' }
+            ]
+        };
+
+        // Scripts Content (Mock)
+        const scriptsContent = {
+            direct: {
+                title: "Multiple Direct Search",
+                desc: "This script simulates high-intent direct traffic by navigating directly to the domain without a referrer. It includes random wait times, scrolling behavior to simulate reading, and internal link clicking to reduce bounce rates. It uses a pool of profiles to ensure diverse session data.",
+                code: `// TraiteWebsite Function that do the Main Important Task
+
+function TraiteWebsite(domaine) {
+    var dm = domaine.domain;
+    var domainss = domaine.domain;
+    
+    const randomInt = getRandomIntInclusive(50, 70);
+    const randomInt3 = getRandomIntInclusive(50, 70);
+    const waiit = getRandomIntInclusive(60, 80);
+    const randomInt11 = getRandomIntInclusive(60, 70);
+    const randomInt31 = getRandomIntInclusive(15, 25);
+
+    var list_ref = [
+        "/?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_digest",
+        "/?utm_source=customer_email&utm_medium=email&utm_campaign=order_confirmation",
+        "/?utm_source=loyalty_email&utm_medium=email&utm_campaign=member_rewards",
+        "/?utm_source=promo_email&utm_medium=email&utm_campaign=flash_sale_24h",
+        "/?utm_source=drip_series&utm_medium=email&utm_campaign=onboarding_day1",
+        "/?utm_source=reminder_email&utm_medium=email&utm_campaign=renew_subscription",
+        "/?utm_source=followup_email&utm_medium=email&utm_campaign=feedback_request",
+        "/?utm_source=alert_email&utm_medium=email&utm_campaign=password_reset",
+        "/?utm_source=abandoned_cart&utm_medium=email&utm_campaign=cart_recovery",
+        "/?utm_source=event_email&utm_medium=email&utm_campaign=webinar_invite",
+        "/?utm_source=survey_email&utm_medium=email&utm_campaign=user_satisfaction",
+        "/?utm_source=holiday_email&utm_medium=email&utm_campaign=black_friday_2025",
+        "/?utm_source=transactional_email&utm_medium=email&utm_campaign=shipping_update",
+        "/?utm_source=marketing_email&utm_medium=email&utm_campaign=new_product_launch",
+        "/?utm_source=internal_email&utm_medium=email&utm_campaign=employee_announcement",
+        "/?utm_source=udemy&utm_medium=referral&utm_campaign=course_link",
+        "/?utm_source=quora&utm_medium=referral&utm_campaign=qa_answer",
+        "/?utm_source=ai_blog&utm_medium=referral&utm_campaign=example",
+        "/?utm_source=mailchimp&utm_medium=email&utm_campaign=monthly_newsletter",
+        "/?utm_source=slack&utm_medium=referral&utm_campaign=team_recommendation",
+        "/?utm_source=reddit&utm_medium=social&utm_campaign=discussion_thread",
+        "/?utm_source=email_blast&utm_medium=email&utm_campaign=summer_sale",
+        "/?utm_source=techpartners&utm_medium=referral&utm_campaign=integration",
+        "/?utm_source=stackoverflow&utm_medium=referral&utm_campaign=solution_link",
+        "/?utm_source=eventbrite&utm_medium=referral&utm_campaign=webinar_signup",
+        "/?utm_source=medium_writer&utm_medium=referral&utm_campaign=guest_article",
+        "/?utm_source=Reddit&utm_medium=social",
+        "/",
+        "/",
+        "/",
+        "/"
+    ];
+
+    var lenght = list_ref.length - 1;
+    const randoooom = getRandomIntInclusive(0, lenght);
+    domainss = domainss + list_ref[randoooom];
+
+    var startTime = Date.now();
+    iimDisplay("Visiting: " + domainss);
+    iimSet("URL", domainss);
+    iimPlayCode(\`
+        TAB OPEN
+        TAB T=2
+        TAB CLOSEALLOTHERS
+        URL GOTO={{URL}}
+        WAIT SECONDS=\${randomInt}
+    \`);
+
+    iimPlayCode(\`
+        TAG POS=1 TYPE=A ATTR=ID:cookieChoiceDismiss
+        WAIT SECONDS=\${randomInt3}
+    \`);
+
+    var b = 1;
+    var cc = getRandomIntInclusive(3, 10);
+    while (b <= cc) {
+        var hrefposition = getRandomIntInclusive(1, 12);
+        const randomInt2 = getRandomIntInclusive(50, 70);
+        iimPlayCode(\`
+            SET !TIMEOUT_STEP 1
+            SET !ERRORIGNORE YES
+            TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#* CONTENT=EVENT:MOUSEOVER
+            WAIT SECONDS=1
+            TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#*
+            WAIT SECONDS=\${randomInt2}
+        \`);
+        b++;
+    }
+
+    iimPlayCode(\`
+        URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+        WAIT SECONDS=\${waiit}
+    \`);
+
+    const waiitt = getRandomIntInclusive(60, 70);
+    const checkpricavy = getRandomIntInclusive(1, 5);
+
+    if (checkpricavy == 3) {
+        iimPlayCode(\`
+            SET !TIMEOUT_STEP 1
+            SET !ERRORIGNORE YES
+            TAG POS=1 TYPE=A ATTR=TXT:*Privacy*
+            WAIT SECONDS=\${randomInt11}
+            URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+            WAIT SECONDS=\${waiitt}
+        \`);
+    }
+
+    b = 1;
+    cc = getRandomIntInclusive(3, 10);
+    while (b <= cc) {
+        var hrefposition = getRandomIntInclusive(1, 6);
+        const randomInt2 = getRandomIntInclusive(60, 80);
+        iimPlayCode(\`
+            SET !TIMEOUT_STEP 1
+            SET !ERRORIGNORE YES
+            TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#* CONTENT=EVENT:MOUSEOVER
+            WAIT SECONDS=1
+            TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#*
+            WAIT SECONDS=\${randomInt2}
+        \`);
+        b++;
+    }
+
+    var endTime = Date.now();
+    var currenttUrl = window.content.location.href;
+    currenttUrl = currenttUrl.replace("https://www.", "").replace("http://www.", "").replace(".com", "").replace(".net", "");
+    var currenttUrls = currenttUrl.split("/");
+    dm = dm.replace("https://www.", "").replace(".com", "").replace(".net", "");
+
+    iimPlayCode(\`
+        WAIT SECONDS=2
+    \`);
+
+    iimPlayCode(\`
+        VERSION BUILD=9030808 RECORDER=FX
+        TAB T=1
+        URL GOTO=https://api.ipify.org?format=text
+        TAG POS=1 TYPE=BODY ATTR=* EXTRACT=TXT
+    \`);
+    var proxy = iimGetLastExtract(1);
+
+    var elapsedSec = ((endTime - startTime) / 1000 / 60).toFixed(2);
+
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    var formattedDate = yyyy + '/' + mm + '/' + dd;
+
+    var now = new Date();
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = String(minutes).padStart(2, '0');
+    var timeString = hours + ':' + minutes + ' ' + ampm;
+
+    domainss = domainss.replace(/^https?:\\/\\//i, '');
+    domainss = domainss.replace(/^www\\./i, '');
+    domainss = domainss.split(/[/?#]/)[0];
+    var profiledomain = domainss;
+    domainss = domainss.replace(/\\.(com|net)$/i, '');
+
+    if (currenttUrls[0] == dm) {
+        var cleanName = domainss;
+        contentrep = "Traffic Domain Direct ; " + formattedDate + " ; " + timeString + " ; " + elapsedSec + " Minutes ; " + proxy + " ; Profile N° " + iniprofile + "; ID of Script: " + Conter;
+        iimSet("REP", contentrep);
+        iimSet("FILENAME", cleanName + ".txt");
+        var reportfileMacro = \`
+            SET !EXTRACT {{REP}}
+            SAVEAS TYPE=EXTRACT FOLDER=\${reportPath} FILE={{FILENAME}}
+        \`;
+        iimPlayCode(reportfileMacro);
+
+        iimPlayCode(\`
+            WAIT SECONDS=3
+        \`);
+
+        contentpro = "Traffic Domain Direct ; " + profiledomain + " ; " + formattedDate + " ; " + timeString + " ; " + proxy + "; ID of Script: " + Conter;
+        iimSet("REPP", contentpro);
+        iimSet("PROFILENAME", iniprofile + ".txt");
+        var reportprofileMacro = \`
+            SET !EXTRACT {{REPP}}
+            SAVEAS TYPE=EXTRACT FOLDER=\${reportPathProfiles} FILE={{PROFILENAME}}
+        \`;
+        iimPlayCode(reportprofileMacro);
+
+        iimPlayCode(\`
+            WAIT SECONDS=3
+        \`);
+
+        trafficrepo = profiledomain + " ; Profile N°" + iniprofile + " ; " + proxy + " ; " + timeString + " ; " + formattedDate + "; ID of Script: " + Conter;
+        iimSet("SCRIP", trafficrepo);
+        iimSet("SCRIPTNAME", "Domain_Direct_search.txt");
+        var reportscriptMacro = \`
+            SET !EXTRACT {{SCRIP}}
+            SAVEAS TYPE=EXTRACT FOLDER=\${reportPathScript} FILE={{SCRIPTNAME}}
+        \`;
+        iimPlayCode(reportscriptMacro);
+
+        iimPlayCode(\`
+            WAIT SECONDS=3
+        \`);
+
+        var messsage = profiledomain + " ; Traffic Domain Direct" + " ; Profile N° " + iniprofile + " ; " + proxy + " ; ID of Script: " + Conter;
+        iimSet("MESSAGE", messsage);
+        iimSet("BATCONTER", Conter + ".txt");
+        var RecordBatSession = \`
+            SET !EXTRACT {{MESSAGE}}
+            SAVEAS TYPE=EXTRACT FOLDER=\${BatNowPath} FILE={{BATCONTER}}
+        \`;
+        iimPlayCode(RecordBatSession);
+
+        iimPlayCode(\`
+            WAIT SECONDS=3
+        \`);
+    }
+
+    iimPlayCode(\`
+        TAB OPEN
+        TAB T=2
+        TAB CLOSEALLOTHERS
+    \`);
+}`
+            },
+            backlink: {
+                title: "Backlink Referral",
+                desc: "This script strengthens domain authority by simulating referral traffic. It visits URLs where Our backlinks are placed, searches for the anchor link to my domain, and performs a click-through. It verifies the link exists and logs any broken backlinks.",
+                code: `// BacklinksTraffic Function that Used Backlinks Given for each domain and then search for our main domain
+
+function BacklinksTraffic(websitee) {
+        
+        var dm=websitee.domain;
+        var domain = websitee.domain;
+        var profiledomain = domain.replace("https://www.", "").replace("http://www.", "");
+        domain = domain.replace("https://www.", "").replace("http://www.", "").replace(".com", "").replace(".net", "");
+        var liness = 1;
+        var Conter=0;
+        var broken_link=0;
+        var backlinkslist = [];
+        var backlinkslistRandom = [];
+        while (true) {
+                macro = "CODE:";
+                macro += "SET !DATASOURCE "+domain+".txt\\n"
+                macro += "SET !DATASOURCE_COLUMNS 1\\n";
+                macro += "SET !DATASOURCE_LINE " + liness + "\\n";
+                macro += "SET !VAR1 {{!COL1}}\\n";
+                macro += "ADD !EXTRACT {{!VAR1}}\\n";
+                
+                var ret = iimPlay(macro);
+                if (ret < 0) {
+                        break;
+                }
+                var r1=getRandomIntInclusive(60,70);
+                var r2=getRandomIntInclusive(80,100);
+                var r3=getRandomIntInclusive(100,120);
+                var r4=getRandomIntInclusive(120,150);
+                var r5=getRandomIntInclusive(120,130);
+                var backlink = iimGetLastExtract(1);
+                if (!backlink) break;
+                backlinkslist.push(backlink.trim());
+                liness++;
+        }
+        
+        if (backlinkslist.length <= numbrebacklinks) {
+                backlinkslistRandom = backlinkslist.slice();
+        } else {
+                var temp = backlinkslist.slice();
+                while (backlinkslistRandom.length < numbrebacklinks) {
+                        var index = Math.floor(Math.random() * temp.length);
+                        backlinkslistRandom.push(temp.splice(index, 1)[0]);
+                }
+        }
+        
+        for(r=0; r<backlinkslistRandom.length; r++){
+                
+                backlink=backlinkslistRandom[r];
+                var waiiit=getRandomIntInclusive(1,5);
+                iimPlayCode(\`
+                        TAB OPEN
+                        TAB T=2
+                        TAB CLOSEALLOTHERS
+                        URL GOTO=https://www.google.com/
+                        WAIT SECONDS=\${waiiit}
+                        TAG POS=1 TYPE=BUTTON ATTR=ID:L2AGLb';
+                \`);
+                
+                iimPlayCode(\`
+                        WAIT SECONDS=2
+                        URL GOTO=\${backlink}
+                \`);
+                
+                var aa1=getRandomIntInclusive(20,40);
+                var aa2=getRandomIntInclusive(5,10);
+                var aa3=getRandomIntInclusive(40,60);
+                iimPlayCode(\`
+                        SET !TIMEOUT_STEP 1
+                        SET !ERRORIGNORE YES
+                        WAIT SECONDS=\${aa1}
+                        URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+                        WAIT SECONDS=\${aa2}
+                \`);
+                
+                var resultt = iimPlayCode(\`
+                        TAG POS=1 TYPE=A ATTR=HREF:*\${\domain}* CONTENT=EVENT:MOUSEOVER
+                        WAIT SECONDS=1
+                        TAG POS=1 TYPE=A ATTR=HREF:*\${\domain}*
+                \`);
+                
+                if (resultt > 0){
+                        
+                        var foundOups = false;
+                        for (let tt = 1; tt <= 3; tt++) {
+                                iimPlayCode(\`
+                                        SET !ERRORIGNORE YES
+                                        SET !TIMEOUT_STEP 1
+                                        TAG POS=\${tt} TYPE=DIV ATTR=CLASS:error-container EXTRACT=HTM
+                                \`);
+                                let html = iimGetLastExtract();
+                                if (html !== "#EANF#" && html.toLowerCase().includes("oups")) {
+                                        foundOups = true;
+                                        break;
+                                }
+                        }
+                        
+                        if (foundOups) {
+                                var rec = 1;
+                                var macro;
+                                var t = 1;
+                                var brokenfolderNames = [];
+                                while (true) {
+                                        var macro = "CODE:";
+                                        macro += "SET !DATASOURCE backlinksbroken.csv\\n";
+                                        macro += "SET !DATASOURCE_COLUMNS 1\\n";
+                                        macro += "SET !DATASOURCE_LINE " + t + "\\n";
+                                        macro += "ADD !EXTRACT {{!COL1}}\\n";
+                                        var rett = iimPlay(macro);
+                                        if (rett < 0) break;
+                                        var brokenfolder = iimGetLastExtract(1);
+                                        if (!brokenfolder) break;
+                                        brokenfolderNames.push(brokenfolder.trim());
+                                        t++;
+                                }
+                                iimPlayCode(\`
+                                        SET !EXTRACT {{!URLCURRENT}}
+                                \`);
+                                var chekbacklinks = iimGetLastExtract(1);
+                                
+                                if(brokenfolderNames.length > 0){
+                                        if (!brokenfolderNames.includes(chekbacklinks)) {
+                                                var writeMacro = \`
+                                                        SET !EXTRACT {{!URLCURRENT}}
+                                                        SAVEAS TYPE=EXTRACT FOLDER=\${basePath} FILE=backlinksbroken.csv
+                                                \`;
+                                                iimPlayCode(writeMacro);
+                                                contentrep=websitee.ent+" | "+chekbacklinks;
+                                                iimSet("REP", contentrep);
+                                                iimSet("FILENAMEE", "brokenlinksent.txt");
+                                                var reportfileMacroo = \`
+                                                        SET !EXTRACT {{REP}}
+                                                        SAVEAS TYPE=EXTRACT FOLDER=\${basePath} FILE={{FILENAMEE}}
+                                                \`;
+                                                iimPlayCode(reportfileMacroo);
+                                        }
+                                } else {
+                                        var writeMacro = \`
+                                                SET !EXTRACT {{!URLCURRENT}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${basePath} FILE=backlinksbroken.csv
+                                        \`;
+                                        iimPlayCode(writeMacro);
+                                        contentrep=websitee.ent+" | "+chekbacklinks;
+                                        iimSet("REP", contentrep);
+                                        iimSet("FILENAMEE", "brokenlinksent.txt");
+                                        var reportfileMacroo = \`
+                                                SET !EXTRACT {{REP}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${basePath} FILE={{FILENAMEE}}
+                                        \`;
+                                        iimPlayCode(reportfileMacroo);
+                                }
+                                broken_link++;
+                        } else {
+                                var startTime = Date.now();
+                                const hrefsection = getRandomIntInclusive(4, 6);
+                                iimPlayCode(\`
+                                        WAIT SECONDS=10
+                                        TAG POS=1 TYPE=A ATTR=ID:cookieChoiceDismiss
+                                \`);
+                                var b=1;
+                                var cc = getRandomIntInclusive(2, 10);
+                                while(b <= cc){
+                                        var hrefposition = getRandomIntInclusive(1, 12);
+                                        const randomInt2 = getRandomIntInclusive(10, 15);
+                                        iimPlayCode(\`
+                                                SET !TIMEOUT_STEP 1
+                                                SET !ERRORIGNORE YES
+                                                TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#* CONTENT=EVENT:MOUSEOVER
+                                                WAIT SECONDS=1
+                                                TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#*
+                                                WAIT SECONDS=\${randomInt2}
+                                        \`);
+                                        b++;
+                                }
+                                iimPlayCode(\`
+                                        URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+                                        WAIT SECONDS=18
+                                \`);
+                                const checkpricavy = getRandomIntInclusive(1, 5);
+                                if(checkpricavy == 3){
+                                        iimPlayCode(\`
+                                                SET !TIMEOUT_STEP 1
+                                                SET !ERRORIGNORE YES
+                                                TAG POS=1 TYPE=A ATTR=TXT:*Privacy*
+                                                WAIT SECONDS=20
+                                                URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+                                                WAIT SECONDS=10
+                                        \`);
+                                }
+                                b=1;
+                                cc = getRandomIntInclusive(2, 10);
+                                while(b <= cc){
+                                        var hrefposition = getRandomIntInclusive(1, 6);
+                                        const randomInt2 = getRandomIntInclusive(10, 15);
+                                        iimPlayCode(\`
+                                                SET !TIMEOUT_STEP 1
+                                                SET !ERRORIGNORE YES
+                                                TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#* CONTENT=EVENT:MOUSEOVER
+                                                WAIT SECONDS=1
+                                                TAG POS=\${hrefposition} TYPE=A ATTR=HREF:*#*
+                                                WAIT SECONDS=\${randomInt2}
+                                        \`);
+                                        b++;
+                                }
+                                var currenttUrl = window.content.location.href;
+                                currenttUrl = currenttUrl.replace("https://www.", "").replace("http://www.", "").replace(".com", "").replace(".net", "");
+                                var currenttUrls = currenttUrl.split("/");
+                                dm = dm.replace("https://www.", "").replace(".com", "").replace(".net", "");
+                                iimPlayCode(\`
+                                        WAIT SECONDS=2
+                                \`);
+                                iimPlayCode(\`
+                                        VERSION BUILD=9030808 RECORDER=FX
+                                        TAB T=1
+                                        URL GOTO=https://api.ipify.org?format=text
+                                        TAG POS=1 TYPE=BODY ATTR=* EXTRACT=TXT
+                                \`);
+                                var proxy = iimGetLastExtract(1);
+                                var endTime = Date.now();
+                                var elapsedSec = ((endTime - startTime) / 1000 / 60).toFixed(2);
+                                var today = new Date();
+                                var yyyy = today.getFullYear();
+                                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var formattedDate = yyyy + '/' + mm + '/' + dd;
+                                var now = new Date();
+                                var hours = now.getHours();
+                                var minutes = now.getMinutes();
+                                var ampm = hours >= 12 ? 'PM' : 'AM';
+                                hours = hours % 12;
+                                hours = hours ? hours : 12;
+                                minutes = String(minutes).padStart(2, '0');
+                                var timeString = hours + ':' + minutes + ' ' + ampm;
+                                if(currenttUrls[0] == dm){
+                                        contentrep = "Script Backlinks Domain ; " + formattedDate + " ; " + timeString + " ; " + elapsedSec + " Minutes ; " + proxy + " ; " + websitee.ent + " ; Profile N° " + iniprofile + "; ID of Script: " + Conterr;
+                                        iimSet("REP", contentrep);
+                                        iimSet("FILENAME", domain + ".txt");
+                                        var reportfileMacro = \`
+                                                SET !EXTRACT {{REP}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${reportPath} FILE={{FILENAME}}
+                                        \`;
+                                        iimPlayCode(reportfileMacro);
+                                        iimPlayCode(\`
+                                                WAIT SECONDS=3
+                                        \`);
+                                        contentpro = "Script Backlinks Domain ; " + profiledomain + " ; " + formattedDate + " ; " + timeString + " ; " + proxy + "; ID of Script: " + Conterr;
+                                        iimSet("REPP", contentpro);
+                                        iimSet("PROFILENAME", iniprofile + ".txt");
+                                        var reportprofileMacro = \`
+                                                SET !EXTRACT {{REPP}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${reportPathProfiles} FILE={{PROFILENAME}}
+                                        \`;
+                                        iimPlayCode(reportprofileMacro);
+                                        iimPlayCode(\`
+                                                WAIT SECONDS=3
+                                        \`);
+                                        trafficrepo = profiledomain + " ; Profile N°" + iniprofile + " ; " + proxy + " ; " + formattedDate + "; ID of Script: " + Conterr;
+                                        iimSet("SCRIP", trafficrepo);
+                                        iimSet("SCRIPTNAME", "Domain_backlink_search.txt");
+                                        var reportscriptMacro = \`
+                                                SET !EXTRACT {{SCRIP}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${reportPathScript} FILE={{SCRIPTNAME}}
+                                        \`;
+                                        iimPlayCode(reportscriptMacro);
+                                        iimPlayCode(\`
+                                                WAIT SECONDS=3
+                                        \`);
+                                        var messsage = profiledomain + " ; Script Backlinks Domain" + " ; Profile N° " + iniprofile + " ; " + proxy + " ; ID of Script: " + Conterr;
+                                        iimSet("MESSAGE", messsage);
+                                        iimSet("BATCONTER", Conterr + ".txt");
+                                        var RecordBatSession = \`
+                                                SET !EXTRACT {{MESSAGE}}
+                                                SAVEAS TYPE=EXTRACT FOLDER=\${BatNowPath} FILE={{BATCONTER}}
+                                        \`;
+                                        iimPlayCode(RecordBatSession);
+                                }
+                                iimPlayCode(\`
+                                        TAB OPEN
+                                        TAB T=2
+                                        TAB CLOSEALLOTHERS
+                                \`);
+                        }
+                }
+        }
+}`
+            },
+            keyword: {
+                title: "Organic Keyword Search",
+                desc: "This script boosts SEO rankings (CTR manipulation) by searching for my specific keywords on Google, scanning the SERP (Search Engine Results Page) for our domain, and clicking it. It simulates a user preferring my Web-sites over competitors.",
+                code: `// Domain_Keywords script - Full code stored that Use keyword given by each domain
+
+var macro;
+var sites = [];
+var i = 1;
+var reportPath = "C:\\\\Users\\\\Domains\\\\Documents\\\\iMacros\\\\Datasources\\\\report"; 
+var ProfD = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile).path;
+var parts = ProfD.split('\\\\');
+var part = parts[parts.length - 1];
+var profile = 0;
+if (part.includes('.')) {
+    var p = part.split('.');
+    profile = p[p.length - 1];
+} else {
+    profile = part;
+}
+
+while (true) {
+    macro = "CODE:";
+    macro += "TAB T=1" + "\\n";
+    macro += "SET !DATASOURCE KeywordDomainTss4.csv" + "\\n";
+    macro += "SET !DATASOURCE_COLUMNS 2" + "\\n";
+    macro += "SET !DATASOURCE_LINE " + i + "\\n";
+    macro += "SET !VAR1 {{!COL1}}" + "\\n";
+    macro += "SET !VAR2 {{!COL2}}" + "\\n";
+    macro += "ADD !EXTRACT {{!VAR1}}" + "\\n";
+    macro += "ADD !EXTRACT {{!VAR2}}" + "\\n";
+    var ret = iimPlay(macro);
+    if (ret < 0) {
+        iimDisplay("Error at line " + i + ": " + iimGetErrorText());
+        break;
+    }
+    var keyword = iimGetLastExtract(1);
+    var domain = iimGetLastExtract(2);
+    if (!keyword || !domain) {
+        break;
+    }
+    sites.push({ keyword: keyword, domain: domain });
+    i++; 
+}
+
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function typeKeyword(keyword) {
+    const randomInt = getRandomIntInclusive(5, 12);
+    const randomInt2 = getRandomIntInclusive(50, 60);
+    const formattedKeyword = keyword.replace(/ /g, "<SP>");
+    return \`
+        TAB OPEN
+        TAB T=2
+        URL GOTO=https://www.google.com/
+        WAIT SECONDS=2
+        TAG POS=1 TYPE=TEXTAREA FORM=ACTION:/search ATTR=TITLE:Search CONTENT=\${formattedKeyword}
+        WAIT SECONDS=\${randomInt}
+        TAG POS=1 TYPE=INPUT:SUBMIT FORM=ACTION:/search ATTR=NAME:btnK
+        WAIT SECONDS=\${randomInt2}
+    \`;
+}
+
+var message;
+var notdomainfound = 6;
+
+for (var i = 0; i < sites.length; i++) {
+    if (i == profile - 1) {
+        const randomInt = getRandomIntInclusive(20, 35);
+        const randomInt3 = getRandomIntInclusive(120, 150);
+        var site = sites[i];
+
+        iimPlayCode(typeKeyword(site.keyword));
+        iimPlayCode(\`
+            TAG POS=1 TYPE=A ATTR=TXT:\${site.keyword}
+        \`);
+
+        let found = false;
+        let page = 1;
+        var startTime = Date.now();
+
+        while (page <= 3 && !found) {
+            for (var j = 1; j <= 2; j++) {
+                var click = \`TAG POS=\${j} TYPE=A ATTR=HREF:*\${\site.domain.replace("https://", "").replace("http://", "")}*\`;
+                var result = iimPlayCode(click);
+
+                if (result > 0) {
+                    found = true;
+
+                    iimPlayCode(\`WAIT SECONDS=\${randomInt}\`);
+
+                    const hrefsection = getRandomIntInclusive(1, 4);
+
+                    iimPlayCode(\`
+                        WAIT SECONDS=20
+                        TAG POS=1 TYPE=A ATTR=ID:cookieChoiceDismiss
+                    \`);
+
+                    for (var k = 1; k <= hrefsection; k++) {
+                        const randomInt2 = getRandomIntInclusive(80, 100);
+                        iimPlayCode(\`
+                            SET !TIMEOUT_STEP 1
+                            SET !ERRORIGNORE YES
+                            TAG POS=\${k} TYPE=A ATTR=HREF:*#*
+                            WAIT SECONDS=\${randomInt2}
+                        \`);
+                    }
+
+                    iimPlayCode(\`
+                        URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+                        WAIT SECONDS=60
+                    \`);
+
+                    iimPlayCode(\`
+                        SET !TIMEOUT_STEP 1
+                        SET !ERRORIGNORE YES
+                        TAG POS=1 TYPE=A ATTR=TXT:*Privacy*
+                        WAIT SECONDS=\${randomInt3}
+                        URL GOTO=javascript:window.scrollTo(0,document.body.scrollHeight);
+                        WAIT SECONDS=60
+                    \`);
+
+                    const maxy = getRandomIntInclusive(1, 4);
+                    for (var k = 1; k <= maxy; k++) {
+                        iimPlayCode(\`
+                            SET !TIMEOUT_STEP 1
+                            SET !ERRORIGNORE YES
+                            TAG POS=\${k} TYPE=A ATTR=HREF:*#*
+                            WAIT SECONDS=120
+                        \`);
+                    }
+
+                    iimPlayCode("TAB CLOSE");
+
+                    /* hna fin kibda yssjl Domain Rapport */
+                    var endTime = Date.now();
+
+                    iimPlayCode(\`
+                        VERSION BUILD=9030808 RECORDER=FX
+                        TAB T=1
+                        URL GOTO=https://api.ipify.org?format=text
+                        TAG POS=1 TYPE=BODY ATTR=* EXTRACT=TXT
+                    \`);
+                    var proxy = iimGetLastExtract(1);
+
+                    var elapsedSec = ((endTime - startTime) / 1000).toFixed(2);
+
+                    var today = new Date();
+                    var yyyy = today.getFullYear();
+                    var mm = String(today.getMonth() + 1).padStart(2, '0');
+                    var dd = String(today.getDate()).padStart(2, '0');
+                    var formattedDate = yyyy + '/' + mm + '/' + dd;
+
+                    var now = new Date();
+                    var hours = now.getHours();
+                    var minutes = now.getMinutes();
+                    var ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    minutes = String(minutes).padStart(2, '0');
+                    var timeString = hours + ':' + minutes + ' ' + ampm;
+
+                    var cleanName = site.domain.replace("https://", "").replace("http://", "").replace("www.", "").replace(".com", "");
+                    contentrep = "Script Domain_Keywords v1 ; " + formattedDate + " ; " + timeString + " ; " + elapsedSec + " Seconds ; " + proxy;
+
+                    iimSet("REP", contentrep);
+                    iimSet("FILENAME", cleanName + ".txt");
+
+                    var reportfileMacro = \`
+                        SET !EXTRACT {{REP}}
+                        SAVEAS TYPE=EXTRACT FOLDER=\${reportPath} FILE={{FILENAME}}
+                    \`;
+
+                    iimPlayCode(reportfileMacro);
+
+                    message = "The main domain of this profile is processed Successfully";
+                    /* hna fin kitssala */
+                    break;
+                }
+                message = "The script Couldnt Find your domain on google search, maybe you should Change the keyword that you work on it";
+            }
+
+            if (!found && page < 3) {
+                iimPlayCode(\`
+                    SET !TIMEOUT_STEP 1
+                    SET !ERRORIGNORE YES
+                    TAG POS=1 TYPE=A ATTR=ID:pnnext
+                    WAIT SECONDS=3
+                \`);
+                page++;
+            } else {
+                break;
+            }
+        }
+
+        if (!found) {
+            iimDisplay("Skipped: " + site.keyword);
+            iimPlayCode("WAIT SECONDS=1");
+        }
+        notdomainfound = 10;
+        break;
+    }
+}
+
+if (notdomainfound == 10) {
+    alert(message);
+} else if (notdomainfound == 6) {
+    alert("There is No domain found for This profiles");
+}`
+            }
+        };
+
+        // ... [Common Logic: Pagination, Modals, Tab Switching] ...
+        
+        let analyticsChartsInitialized = false;
+
+        // Chart.js Config
+        Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.scale.grid.color = '#f1f5f9';
+
+        function initAnalyticsCharts() {
+            if (analyticsChartsInitialized) return;
+            
+            // 1. Process Data for Blog Entities (TSS1, TSS2, TSS3)
+            const entityStats = {
+                'Blogger TSS1': { count: 0, traffic: 0, engagement: 0 },
+                'Blogger TSS2': { count: 0, traffic: 0, engagement: 0 },
+                'Blogger TSS3': { count: 0, traffic: 0, engagement: 0 }
+            };
+            
+            domainData.forEach(d => {
+                const entity = d["Which Account Blog"];
+                if (entity && entityStats[entity]) {
+                    entityStats[entity].count++;
+                    // Simulate random traffic stats for visualization
+                    entityStats[entity].traffic += Math.floor(Math.random() * 5000) + 1000; 
+                    entityStats[entity].engagement += Math.floor(Math.random() * 60) + 40; // Simulated seconds
+                }
+            });
+
+            // Normalize Engagement
+            Object.keys(entityStats).forEach(k => {
+                if(entityStats[k].count > 0) entityStats[k].engagement = Math.round(entityStats[k].engagement / entityStats[k].count);
+            });
+
+            // Update Entity Table
+            const entityBody = document.getElementById('entityTableBody');
+            entityBody.innerHTML = '';
+            Object.keys(entityStats).forEach(k => {
+                const tr = document.createElement('tr');
+                const score = Math.floor(Math.random() * 20) + 80;
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-slate-700">${k}</td>
+                    <td class="px-6 py-4">${entityStats[k].count}</td>
+                    <td class="px-6 py-4"><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">${entityStats[k].count} Active</span></td>
+                    <td class="px-6 py-4 text-slate-600">${entityStats[k].traffic.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="text-xs font-bold ${score > 90 ? 'text-emerald-600' : 'text-blue-600'}">${score}/100</span>
+                            <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full ${score > 90 ? 'bg-emerald-500' : 'bg-blue-500'}" style="width: ${score}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                entityBody.appendChild(tr);
+            });
+
+            // --- Charts Initialization ---
+
+            // Entity Share Chart (Doughnut)
+            new Chart(document.getElementById('entityShareChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(entityStats),
+                    datasets: [{
+                        data: Object.values(entityStats).map(s => s.traffic),
+                        backgroundColor: ['#4f46e5', '#9333ea', '#db2777'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } }
+                    }
+                }
+            });
+
+            // Entity Engagement Chart (Bar)
+            new Chart(document.getElementById('entityEngagementChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(entityStats),
+                    datasets: [{
+                        label: 'Avg Engagement (Sec)',
+                        data: Object.values(entityStats).map(s => s.engagement),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 8,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Existing: Country Chart
+            new Chart(document.getElementById('countryChart'), {
+                type: 'bar',
+                data: {
+                    labels: mockAnalytics.countries.labels,
+                    datasets: [{
+                        label: 'Active Users',
+                        data: mockAnalytics.countries.data,
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Existing: Channel Chart (Doughnut)
+            new Chart(document.getElementById('channelChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: mockAnalytics.channels.labels,
+                    datasets: [{
+                        data: mockAnalytics.channels.data,
+                        backgroundColor: ['#4f46e5', '#9333ea', '#db2777', '#f59e0b', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+
+            // Existing: OS Chart (Doughnut - Changed from Bar)
+            new Chart(document.getElementById('osDoughnutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: mockAnalytics.os.labels,
+                    datasets: [{
+                        data: mockAnalytics.os.data,
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } }
+                }
+            });
+
+            analyticsChartsInitialized = true;
+        }
+
+        // Modified SwitchTab to Init Charts
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-white', 'bg-indigo-600');
+                btn.classList.add('text-slate-600', 'hover:text-indigo-600');
+            });
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('text-slate-600', 'hover:text-indigo-600');
+
+            ['domains', 'analytics', 'infrastructure'].forEach(view => {
+                document.getElementById(`view-${view}`).classList.add('hidden');
+            });
+            
+            const selectedView = document.getElementById(`view-${tabName}`);
+            selectedView.classList.remove('hidden');
+            
+            selectedView.classList.remove('animate-fade-in');
+            void selectedView.offsetWidth; 
+            selectedView.classList.add('animate-fade-in');
+
+            // Initialize charts if entering analytics tab
+            if (tabName === 'analytics') {
+                // Small timeout to allow DOM to render layout before Chart.js measures it
+                setTimeout(initAnalyticsCharts, 50);
+            }
+        }
+
+        // --- Other Initializations ---
+        
+        // ... [Rest of the script: renderTable, pagination, etc.] ...
+        
+        // Modal Logic (Re-implemented for context)
+        const modal = document.getElementById('infoModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        window.showPopup = function(title, content, icon) {
+            modalTitle.innerText = title;
+            const iconHtml = icon ? `<div class="mb-4 text-center"><i class="ph ${icon} text-4xl text-indigo-500"></i></div>` : '';
+            modalBody.innerHTML = `
+                ${iconHtml}
+                <div class="text-lg text-slate-600 leading-relaxed text-center">${content}</div>
+            `;
+            openModal();
+        }
+
+        window.showDomainDetails = function(domainName) {
+            const domain = domainData.find(d => d["DOMAIN NAME"] === domainName);
+            const keyword = domainKeywords[domainName] || "N/A";
+            if(!domain) return;
+            // ... [Detail Content Template] ...
+            const content = `
+                <div class="mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-xl text-white shadow-lg">
+                    <div class="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Target Keyword Strategy</div>
+                    <div class="text-2xl font-display font-bold flex items-center gap-2">
+                        <i class="ph ph-target"></i>
+                        "${keyword}"
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="text-xs text-indigo-500 font-bold uppercase tracking-wider mb-1">CNAME Record</div>
+                        <div class="font-mono text-sm text-slate-700">${domain.CNAME || 'N/A'}</div>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="text-xs text-indigo-500 font-bold uppercase tracking-wider mb-1">Target Value</div>
+                        <div class="font-mono text-sm text-slate-700 break-all">${domain.Value || 'N/A'}</div>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                        <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Blogger Integration</div>
+                        <a href="${domain["Website Blogger link"]}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium break-all">
+                            <i class="ph ph-link"></i> ${domain["Website Blogger link"] || 'No Link Available'}
+                        </a>
+                    </div>
+                </div>
+            `;
+            modalTitle.innerText = domainName;
+            modalBody.innerHTML = content;
+            openModal();
+        }
+
+        // Code Modal Logic
+        const codeModal = document.getElementById('codeModal');
+        const codeModalContent = document.getElementById('codeModalContent');
+        const codeModalBackdrop = document.getElementById('codeModalBackdrop');
+        const codeTitle = document.getElementById('codeModalTitle');
+        const codeIcon = document.getElementById('codeModalIcon');
+        const codeDesc = document.getElementById('codeModalDesc');
+        const codeBlock = document.getElementById('codeModalBlock');
+        
+        window.showScriptPopup = function(type) {
+            const script = scriptsContent[type];
+            codeTitle.innerText = script.title;
+            codeDesc.innerText = script.desc;
+            codeBlock.innerText = script.code;
+            const icons = { direct: 'ph-arrow-square-out', backlink: 'ph-link', keyword: 'ph-magnifying-glass' };
+            codeIcon.className = `ph ${icons[type] || 'ph-code'}`;
+            openCodeModal();
+        }
+        
+        window.showProxiesPopup = function() {
+            codeTitle.innerText = "Proxy Classification Network";
+            codeIcon.className = "ph ph-globe-hemisphere-west";
+            codeDesc.innerText = "The network utilizes 3,924 residential proxies distributed across 12 distinct classes to ensure anonymity.";
+            let proxyContent = "";
+            for(let i=0; i<12; i++) {
+                const className = String.fromCharCode(65 + i);
+                proxyContent += `\n[CLASS 38]
+38.146.218.10:92
+38.146.218.100:92
+38.146.218.101:92
+38.146.218.102:92
+38.146.218.103:92
+38.146.218.104:92
+38.146.218.105:92
+38.146.218.106:92
+38.146.218.107:92
+38.146.218.108:92
+38.146.218.109:92
+38.146.218.11:92
+38.146.218.110:92
+38.146.218.111:92
+38.146.218.112:92
+38.146.218.113:92
+38.146.218.114:92
+38.146.218.115:92
+38.146.218.116:92
+38.146.218.117:92
+38.146.218.118:92
+38.146.218.119:92
+38.146.218.12:92
+38.146.218.120:92
+38.146.218.121:92
+38.146.218.122:92
+38.146.218.123:92
+38.146.218.124:92
+38.146.218.125:92
+38.146.218.126:92
+38.146.218.127:92
+38.146.218.128:92
+38.146.218.129:92
+38.146.218.13:92
+38.146.218.130:92
+38.146.218.131:92
+38.146.218.132:92
+38.146.218.133:92
+38.146.218.134:92
+38.146.218.135:92
+38.146.218.136:92
+38.146.218.137:92
+38.146.218.138:92
+38.146.218.139:92
+38.146.218.14:92
+38.146.218.140:92
+38.146.218.141:92
+38.146.218.142:92
+38.146.218.143:92
+38.146.218.144:92
+38.146.218.145:92
+38.146.218.146:92
+38.146.218.147:92
+38.146.218.148:92
+38.146.218.149:92
+38.146.218.15:92
+38.146.218.150:92
+38.146.218.151:92
+38.146.218.152:92
+38.146.218.153:92
+38.146.218.154:92
+38.146.218.155:92
+38.146.218.156:92
+38.146.218.157:92
+38.146.218.158:92
+38.146.218.159:92
+38.146.218.16:92
+38.146.218.160:92
+38.146.218.161:92
+38.146.218.162:92
+38.146.218.163:92
+38.146.218.164:92
+38.146.218.165:92
+38.146.218.166:92
+38.146.218.167:92
+38.146.218.168:92
+38.146.218.169:92
+38.146.218.17:92
+38.146.218.170:92
+38.146.218.171:92
+38.146.218.172:92
+38.146.218.173:92
+38.146.218.174:92
+38.146.218.175:92
+38.146.218.176:92
+38.146.218.177:92
+38.146.218.178:92
+38.146.218.179:92
+38.146.218.18:92
+38.146.218.180:92
+38.146.218.181:92
+38.146.218.182:92
+38.146.218.183:92
+38.146.218.184:92
+38.146.218.185:92
+38.146.218.186:92
+38.146.218.187:92
+38.146.218.188:92
+38.146.218.189:92
+38.146.218.19:92
+38.146.218.190:92
+38.146.218.191:92
+38.146.218.192:92
+38.146.218.193:92
+38.146.218.194:92
+38.146.218.195:92
+38.146.218.196:92
+38.146.218.197:92
+38.146.218.198:92
+38.146.218.199:92
+38.146.218.20:92
+38.146.218.200:92
+38.146.218.201:92
+38.146.218.202:92
+38.146.218.203:92
+38.146.218.204:92
+38.146.218.205:92
+38.146.218.206:92
+38.146.218.207:92
+38.146.218.208:92
+38.146.218.209:92
+38.146.218.21:92
+38.146.218.210:92
+38.146.218.211:92
+38.146.218.212:92
+38.146.218.213:92
+38.146.218.214:92
+38.146.218.215:92
+38.146.218.216:92
+38.146.218.217:92
+38.146.218.218:92
+38.146.218.219:92
+38.146.218.22:92
+38.146.218.220:92
+38.146.218.221:92
+38.146.218.222:92
+38.146.218.223:92
+38.146.218.224:92
+38.146.218.225:92
+38.146.218.226:92
+38.146.218.227:92
+38.146.218.228:92
+38.146.218.229:92
+38.146.218.23:92
+38.146.218.230:92
+38.146.218.231:92
+38.146.218.232:92
+38.146.218.233:92
+38.146.218.234:92
+38.146.218.235:92
+38.146.218.236:92
+38.146.218.237:92
+38.146.218.238:92
+38.146.218.239:92
+38.146.218.24:92
+38.146.218.240:92
+38.146.218.241:92
+38.146.218.242:92
+38.146.218.243:92
+38.146.218.244:92
+38.146.218.245:92
+38.146.218.246:92
+38.146.218.247:92
+38.146.218.248:92
+38.146.218.249:92
+38.146.218.25:92
+38.146.218.250:92
+38.146.218.251:92
+38.146.218.252:92
+38.146.218.253:92
+38.146.218.254:92
+38.146.218.26:92
+38.146.218.27:92
+38.146.218.28:92
+38.146.218.29:92
+38.146.218.30:92
+38.146.218.31:92
+38.146.218.32:92
+38.146.218.33:92
+38.146.218.34:92
+38.146.218.35:92
+38.146.218.36:92
+38.146.218.37:92
+38.146.218.38:92
+38.146.218.39:92
+38.146.218.40:92
+38.146.218.41:92
+38.146.218.42:92
+38.146.218.43:92
+38.146.218.44:92
+38.146.218.45:92
+38.146.218.46:92
+38.146.218.47:92
+38.146.218.48:92
+38.146.218.49:92
+38.146.218.50:92
+38.146.218.51:92
+38.146.218.52:92
+38.146.218.53:92
+38.146.218.54:92
+38.146.218.55:92
+38.146.218.56:92
+38.146.218.57:92
+38.146.218.58:92
+38.146.218.59:92
+38.146.218.60:92
+38.146.218.61:92
+38.146.218.62:92
+38.146.218.63:92
+38.146.218.64:92
+38.146.218.65:92
+38.146.218.66:92
+38.146.218.67:92
+38.146.218.68:92
+38.146.218.69:92
+38.146.218.70:92
+38.146.218.71:92
+38.146.218.72:92
+38.146.218.73:92
+38.146.218.74:92
+38.146.218.75:92
+38.146.218.76:92
+38.146.218.77:92
+38.146.218.78:92
+38.146.218.79:92
+38.146.218.80:92
+38.146.218.81:92
+38.146.218.82:92
+38.146.218.83:92
+38.146.218.84:92
+38.146.218.85:92
+38.146.218.86:92
+38.146.218.87:92
+38.146.218.88:92
+38.146.218.89:92
+38.146.218.90:92
+38.146.218.91:92
+38.146.218.92:92
+38.146.218.93:92
+38.146.218.94:92
+38.146.218.95:92
+38.146.218.96:92
+38.146.218.97:92
+38.146.218.98:92
+38.146.218.99:92
+38.55.77.10:92
+38.55.77.100:92
+38.55.77.101:92
+38.55.77.102:92
+38.55.77.103:92
+38.55.77.104:92
+38.55.77.105:92
+38.55.77.106:92
+38.55.77.107:92
+38.55.77.108:92
+38.55.77.109:92
+38.55.77.11:92
+38.55.77.110:92
+38.55.77.111:92
+38.55.77.112:92
+38.55.77.113:92
+38.55.77.114:92
+38.55.77.115:92
+38.55.77.116:92
+38.55.77.117:92
+38.55.77.118:92
+38.55.77.119:92
+38.55.77.12:92
+38.55.77.120:92
+38.55.77.121:92
+38.55.77.122:92
+38.55.77.123:92
+38.55.77.124:92
+38.55.77.125:92
+38.55.77.126:92
+38.55.77.127:92
+38.55.77.128:92
+38.55.77.129:92
+38.55.77.13:92
+38.55.77.130:92
+38.55.77.131:92
+38.55.77.132:92
+38.55.77.133:92
+38.55.77.134:92
+38.55.77.135:92
+38.55.77.136:92
+38.55.77.137:92
+38.55.77.138:92
+38.55.77.139:92
+38.55.77.14:92
+38.55.77.140:92
+38.55.77.141:92
+38.55.77.142:92
+38.55.77.143:92
+38.55.77.144:92
+38.55.77.145:92
+38.55.77.146:92
+38.55.77.147:92
+38.55.77.148:92
+38.55.77.149:92
+38.55.77.15:92
+38.55.77.150:92
+38.55.77.151:92
+38.55.77.152:92
+38.55.77.153:92
+38.55.77.154:92
+38.55.77.155:92
+38.55.77.156:92
+38.55.77.157:92
+38.55.77.158:92
+38.55.77.159:92
+38.55.77.16:92
+38.55.77.160:92
+38.55.77.161:92
+38.55.77.162:92
+38.55.77.163:92
+38.55.77.164:92
+38.55.77.165:92
+38.55.77.166:92
+38.55.77.167:92
+38.55.77.168:92
+38.55.77.169:92
+38.55.77.17:92
+38.55.77.170:92
+38.55.77.171:92
+38.55.77.172:92
+38.55.77.173:92
+38.55.77.174:92
+38.55.77.175:92
+38.55.77.176:92
+38.55.77.177:92
+38.55.77.178:92
+38.55.77.179:92
+38.55.77.18:92
+38.55.77.180:92
+38.55.77.181:92
+38.55.77.182:92
+38.55.77.183:92
+38.55.77.184:92
+38.55.77.185:92
+38.55.77.186:92
+38.55.77.187:92
+38.55.77.188:92
+38.55.77.189:92
+38.55.77.19:92
+38.55.77.190:92
+38.55.77.191:92
+38.55.77.192:92
+38.55.77.193:92
+38.55.77.194:92
+38.55.77.195:92
+38.55.77.196:92
+38.55.77.197:92
+38.55.77.198:92
+38.55.77.199:92
+38.55.77.20:92
+38.55.77.200:92
+38.55.77.201:92
+38.55.77.202:92
+38.55.77.203:92
+38.55.77.204:92
+38.55.77.205:92
+38.55.77.206:92
+38.55.77.207:92
+38.55.77.208:92
+38.55.77.209:92
+38.55.77.21:92
+38.55.77.210:92
+38.55.77.211:92
+38.55.77.212:92
+38.55.77.213:92
+38.55.77.214:92
+38.55.77.215:92
+38.55.77.216:92
+38.55.77.217:92
+38.55.77.218:92
+38.55.77.219:92
+38.55.77.22:92
+38.55.77.220:92
+38.55.77.221:92
+38.55.77.222:92
+38.55.77.223:92
+38.55.77.224:92
+38.55.77.225:92
+38.55.77.226:92
+38.55.77.227:92
+38.55.77.228:92
+38.55.77.229:92
+38.55.77.23:92
+38.55.77.230:92
+38.55.77.231:92
+38.55.77.232:92
+38.55.77.233:92
+38.55.77.234:92
+38.55.77.235:92
+38.55.77.236:92
+38.55.77.237:92
+38.55.77.238:92
+38.55.77.239:92
+38.55.77.24:92
+38.55.77.240:92
+38.55.77.241:92
+38.55.77.242:92
+38.55.77.243:92
+38.55.77.244:92
+38.55.77.245:92
+38.55.77.246:92
+38.55.77.247:92
+38.55.77.248:92
+38.55.77.249:92
+38.55.77.25:92
+38.55.77.250:92
+38.55.77.251:92
+38.55.77.252:92
+38.55.77.253:92
+38.55.77.254:92
+38.55.77.26:92
+38.55.77.27:92
+38.55.77.28:92
+38.55.77.29:92
+38.55.77.30:92
+38.55.77.31:92
+38.55.77.32:92
+38.55.77.33:92
+38.55.77.34:92
+38.55.77.35:92
+38.55.77.36:92
+38.55.77.37:92
+38.55.77.38:92
+38.55.77.39:92
+38.55.77.40:92
+38.55.77.41:92
+38.55.77.42:92
+38.55.77.43:92
+38.55.77.44:92
+38.55.77.45:92
+38.55.77.46:92
+38.55.77.47:92
+38.55.77.48:92
+38.55.77.49:92
+38.55.77.50:92
+38.55.77.51:92
+38.55.77.52:92
+38.55.77.53:92
+38.55.77.54:92
+38.55.77.55:92
+38.55.77.56:92
+38.55.77.57:92
+38.55.77.58:92
+38.55.77.59:92
+38.55.77.60:92
+38.55.77.61:92
+38.55.77.62:92
+38.55.77.63:92
+38.55.77.64:92
+38.55.77.65:92
+38.55.77.66:92
+38.55.77.67:92
+38.55.77.68:92
+38.55.77.69:92
+38.55.77.70:92
+38.55.77.71:92
+38.55.77.72:92
+38.55.77.73:92
+38.55.77.74:92
+38.55.77.75:92
+38.55.77.76:92
+38.55.77.77:92
+38.55.77.78:92
+38.55.77.79:92
+38.55.77.80:92
+38.55.77.81:92
+38.55.77.82:92
+38.55.77.83:92
+38.55.77.84:92
+38.55.77.85:92
+38.55.77.86:92
+38.55.77.87:92
+38.55.77.88:92
+38.55.77.89:92
+38.55.77.90:92
+38.55.77.91:92
+38.55.77.92:92
+38.55.77.93:92
+38.55.77.94:92
+38.55.77.95:92
+38.55.77.96:92
+38.55.77.97:92
+38.55.77.98:92
+38.55.77.99:92
+38.55.78.10:92
+38.55.78.100:92
+38.55.78.101:92
+38.55.78.102:92
+38.55.78.103:92
+38.55.78.104:92
+38.55.78.105:92
+38.55.78.106:92
+38.55.78.107:92
+38.55.78.108:92
+38.55.78.109:92
+38.55.78.11:92
+38.55.78.110:92
+38.55.78.111:92
+38.55.78.112:92
+38.55.78.113:92
+38.55.78.114:92
+38.55.78.115:92
+38.55.78.116:92
+38.55.78.117:92
+38.55.78.118:92
+38.55.78.119:92
+38.55.78.12:92
+38.55.78.120:92
+38.55.78.121:92
+38.55.78.122:92
+38.55.78.123:92
+38.55.78.124:92
+38.55.78.125:92
+38.55.78.126:92
+38.55.78.127:92
+38.55.78.128:92
+38.55.78.129:92
+38.55.78.13:92
+38.55.78.130:92
+38.55.78.131:92
+38.55.78.132:92
+38.55.78.133:92
+38.55.78.134:92
+38.55.78.135:92
+38.55.78.136:92
+38.55.78.137:92
+38.55.78.138:92
+38.55.78.139:92
+38.55.78.14:92
+38.55.78.140:92
+38.55.78.141:92
+38.55.78.142:92
+38.55.78.143:92
+38.55.78.144:92
+38.55.78.145:92
+38.55.78.146:92
+38.55.78.147:92
+38.55.78.148:92
+38.55.78.149:92
+38.55.78.15:92
+38.55.78.150:92
+38.55.78.151:92
+38.55.78.152:92
+38.55.78.153:92
+38.55.78.154:92
+38.55.78.155:92
+38.55.78.156:92
+38.55.78.157:92
+38.55.78.158:92
+38.55.78.159:92
+38.55.78.16:92
+38.55.78.160:92
+38.55.78.161:92
+38.55.78.162:92
+38.55.78.163:92
+38.55.78.164:92
+38.55.78.165:92
+38.55.78.166:92
+38.55.78.167:92
+38.55.78.168:92
+38.55.78.169:92
+38.55.78.17:92
+38.55.78.170:92
+38.55.78.171:92
+38.55.78.172:92
+38.55.78.173:92
+38.55.78.174:92
+38.55.78.175:92
+38.55.78.176:92
+38.55.78.177:92
+38.55.78.178:92
+38.55.78.179:92
+38.55.78.18:92
+38.55.78.180:92
+38.55.78.181:92
+38.55.78.182:92
+38.55.78.183:92
+38.55.78.184:92
+38.55.78.185:92
+38.55.78.186:92
+38.55.78.187:92
+38.55.78.188:92
+38.55.78.189:92
+38.55.78.19:92
+38.55.78.190:92
+38.55.78.191:92
+38.55.78.192:92
+38.55.78.193:92
+38.55.78.194:92
+38.55.78.195:92
+38.55.78.196:92
+38.55.78.197:92
+38.55.78.198:92
+38.55.78.199:92
+38.55.78.20:92
+38.55.78.200:92
+38.55.78.201:92
+38.55.78.202:92
+38.55.78.203:92
+38.55.78.204:92
+38.55.78.205:92
+38.55.78.206:92
+38.55.78.207:92
+38.55.78.208:92
+38.55.78.209:92
+38.55.78.21:92
+38.55.78.210:92
+38.55.78.211:92
+38.55.78.212:92
+38.55.78.213:92
+38.55.78.214:92
+38.55.78.215:92
+38.55.78.216:92
+38.55.78.217:92
+38.55.78.218:92
+38.55.78.219:92
+38.55.78.22:92
+38.55.78.220:92
+38.55.78.221:92
+38.55.78.222:92
+38.55.78.223:92
+38.55.78.224:92
+38.55.78.225:92
+38.55.78.226:92
+38.55.78.227:92
+38.55.78.228:92
+38.55.78.229:92
+38.55.78.23:92
+38.55.78.230:92
+38.55.78.231:92
+38.55.78.232:92
+38.55.78.233:92
+38.55.78.234:92
+38.55.78.235:92
+38.55.78.236:92
+38.55.78.237:92
+38.55.78.238:92
+38.55.78.239:92
+38.55.78.24:92
+38.55.78.240:92
+38.55.78.241:92
+38.55.78.242:92
+38.55.78.243:92
+38.55.78.244:92
+38.55.78.245:92
+38.55.78.246:92
+38.55.78.247:92
+38.55.78.248:92
+38.55.78.249:92
+38.55.78.25:92
+38.55.78.250:92
+38.55.78.251:92
+38.55.78.252:92
+38.55.78.253:92
+38.55.78.254:92
+38.55.78.26:92
+38.55.78.27:92
+38.55.78.28:92
+38.55.78.29:92
+38.55.78.30:92
+38.55.78.31:92
+38.55.78.32:92
+38.55.78.33:92
+38.55.78.34:92
+38.55.78.35:92
+38.55.78.36:92
+38.55.78.37:92
+38.55.78.38:92
+38.55.78.39:92
+38.55.78.40:92
+38.55.78.41:92
+38.55.78.42:92
+38.55.78.43:92
+38.55.78.44:92
+38.55.78.45:92
+38.55.78.46:92
+38.55.78.47:92
+38.55.78.48:92
+38.55.78.49:92
+38.55.78.50:92
+38.55.78.51:92
+38.55.78.52:92
+38.55.78.53:92
+38.55.78.54:92
+38.55.78.55:92
+38.55.78.56:92
+38.55.78.57:92
+38.55.78.58:92
+38.55.78.59:92
+38.55.78.60:92
+38.55.78.61:92
+38.55.78.62:92
+38.55.78.63:92
+38.55.78.64:92
+38.55.78.65:92
+38.55.78.66:92
+38.55.78.67:92
+38.55.78.68:92
+38.55.78.69:92
+38.55.78.70:92
+38.55.78.71:92
+38.55.78.72:92
+38.55.78.73:92
+38.55.78.74:92
+38.55.78.75:92
+38.55.78.76:92
+38.55.78.77:92
+38.55.78.78:92
+38.55.78.79:92
+38.55.78.80:92
+38.55.78.81:92
+38.55.78.82:92
+38.55.78.83:92
+38.55.78.84:92
+38.55.78.85:92
+38.55.78.86:92
+38.55.78.87:92
+38.55.78.88:92
+38.55.78.89:92
+38.55.78.90:92
+38.55.78.91:92
+38.55.78.92:92
+38.55.78.93:92
+38.55.78.94:92
+38.55.78.95:92
+38.55.78.96:92
+38.55.78.97:92
+38.55.78.98:92
+38.55.78.99:92
+38.55.79.10:92
+38.55.79.100:92
+38.55.79.101:92
+38.55.79.102:92
+38.55.79.103:92
+38.55.79.104:92
+38.55.79.105:92
+38.55.79.106:92
+38.55.79.107:92
+38.55.79.108:92
+38.55.79.109:92
+38.55.79.11:92
+38.55.79.110:92
+38.55.79.111:92
+38.55.79.112:92
+38.55.79.113:92
+38.55.79.114:92
+38.55.79.115:92
+38.55.79.116:92
+38.55.79.117:92
+38.55.79.118:92
+38.55.79.119:92
+38.55.79.12:92
+38.55.79.120:92
+38.55.79.121:92
+38.55.79.122:92
+38.55.79.123:92
+38.55.79.124:92
+38.55.79.125:92
+38.55.79.126:92
+38.55.79.127:92
+38.55.79.128:92
+38.55.79.129:92
+38.55.79.13:92
+38.55.79.130:92
+38.55.79.131:92
+38.55.79.132:92
+38.55.79.133:92
+38.55.79.134:92
+38.55.79.135:92
+38.55.79.136:92
+38.55.79.137:92
+38.55.79.138:92
+38.55.79.139:92
+38.55.79.14:92
+38.55.79.140:92
+38.55.79.141:92
+38.55.79.142:92
+38.55.79.143:92
+38.55.79.144:92
+38.55.79.145:92
+38.55.79.146:92
+38.55.79.147:92
+38.55.79.148:92
+38.55.79.149:92
+38.55.79.15:92
+38.55.79.150:92
+38.55.79.151:92
+38.55.79.152:92
+38.55.79.153:92
+38.55.79.154:92
+38.55.79.155:92
+38.55.79.156:92
+38.55.79.157:92
+38.55.79.158:92
+38.55.79.159:92
+38.55.79.16:92
+38.55.79.160:92
+38.55.79.161:92
+38.55.79.162:92
+38.55.79.163:92
+38.55.79.164:92
+38.55.79.165:92
+38.55.79.166:92
+38.55.79.167:92
+38.55.79.168:92
+38.55.79.169:92
+38.55.79.17:92
+38.55.79.170:92
+38.55.79.171:92
+38.55.79.172:92
+38.55.79.173:92
+38.55.79.174:92
+38.55.79.175:92
+38.55.79.176:92
+38.55.79.177:92
+38.55.79.178:92
+38.55.79.179:92
+38.55.79.18:92
+38.55.79.180:92
+38.55.79.181:92
+38.55.79.182:92
+38.55.79.183:92
+38.55.79.184:92
+38.55.79.185:92
+38.55.79.186:92
+38.55.79.187:92
+38.55.79.188:92
+38.55.79.189:92
+38.55.79.19:92
+38.55.79.190:92
+38.55.79.191:92
+38.55.79.192:92
+38.55.79.193:92
+38.55.79.194:92
+38.55.79.195:92
+38.55.79.196:92
+38.55.79.197:92
+38.55.79.198:92
+38.55.79.199:92
+38.55.79.20:92
+38.55.79.200:92
+38.55.79.201:92
+38.55.79.202:92
+38.55.79.203:92
+38.55.79.204:92
+38.55.79.205:92
+38.55.79.206:92
+38.55.79.207:92
+38.55.79.208:92
+38.55.79.209:92
+38.55.79.21:92
+38.55.79.210:92
+38.55.79.211:92
+38.55.79.212:92
+38.55.79.213:92
+38.55.79.214:92
+38.55.79.215:92
+38.55.79.216:92
+38.55.79.217:92
+38.55.79.218:92
+38.55.79.219:92
+38.55.79.22:92
+38.55.79.220:92
+38.55.79.221:92
+38.55.79.222:92
+38.55.79.223:92
+38.55.79.224:92
+38.55.79.225:92
+38.55.79.226:92
+38.55.79.227:92
+38.55.79.228:92
+38.55.79.229:92
+38.55.79.23:92
+38.55.79.230:92
+38.55.79.231:92
+38.55.79.232:92
+38.55.79.233:92
+38.55.79.234:92
+38.55.79.235:92
+38.55.79.236:92
+38.55.79.237:92
+38.55.79.238:92
+38.55.79.239:92
+38.55.79.24:92
+38.55.79.240:92
+38.55.79.241:92
+38.55.79.242:92
+38.55.79.243:92
+38.55.79.244:92
+38.55.79.245:92
+38.55.79.246:92
+38.55.79.247:92
+38.55.79.248:92
+38.55.79.249:92
+38.55.79.25:92
+38.55.79.250:92
+38.55.79.251:92
+38.55.79.252:92
+38.55.79.253:92
+38.55.79.254:92
+38.55.79.26:92
+38.55.79.27:92
+38.55.79.28:92
+38.55.79.29:92
+38.55.79.30:92
+38.55.79.31:92
+38.55.79.32:92
+38.55.79.33:92
+38.55.79.34:92
+38.55.79.35:92
+38.55.79.36:92
+38.55.79.37:92
+38.55.79.38:92
+38.55.79.39:92
+38.55.79.40:92
+38.55.79.41:92
+38.55.79.42:92
+38.55.79.43:92
+38.55.79.44:92
+38.55.79.45:92
+38.55.79.46:92
+38.55.79.47:92
+38.55.79.48:92
+38.55.79.49:92
+38.55.79.50:92
+38.55.79.51:92
+38.55.79.52:92
+38.55.79.53:92
+38.55.79.54:92
+38.55.79.55:92
+38.55.79.56:92
+38.55.79.57:92
+38.55.79.58:92
+38.55.79.59:92
+38.55.79.60:92
+38.55.79.61:92
+38.55.79.62:92
+38.55.79.63:92
+38.55.79.64:92
+38.55.79.65:92
+38.55.79.66:92
+38.55.79.67:92
+38.55.79.68:92
+38.55.79.69:92
+38.55.79.70:92
+38.55.79.71:92
+38.55.79.72:92
+38.55.79.73:92
+38.55.79.74:92
+38.55.79.75:92
+38.55.79.76:92
+38.55.79.77:92
+38.55.79.78:92
+38.55.79.79:92
+38.55.79.80:92
+38.55.79.81:92
+38.55.79.82:92
+38.55.79.83:92
+38.55.79.84:92
+38.55.79.85:92
+38.55.79.86:92
+38.55.79.87:92
+38.55.79.88:92
+38.55.79.89:92
+38.55.79.90:92
+38.55.79.91:92
+38.55.79.92:92
+38.55.79.93:92
+38.55.79.94:92
+38.55.79.95:92
+38.55.79.96:92
+38.55.79.97:92
+38.55.79.98:92
+38.55.79.99:92
+
+[CLASS 45]
+45.148.134.10:92
+45.148.134.100:92
+45.148.134.101:92
+45.148.134.102:92
+45.148.134.103:92
+45.148.134.104:92
+45.148.134.105:92
+45.148.134.106:92
+45.148.134.107:92
+45.148.134.108:92
+45.148.134.109:92
+45.148.134.11:92
+45.148.134.110:92
+45.148.134.111:92
+45.148.134.112:92
+45.148.134.113:92
+45.148.134.114:92
+45.148.134.115:92
+45.148.134.116:92
+45.148.134.117:92
+45.148.134.118:92
+45.148.134.119:92
+45.148.134.12:92
+45.148.134.120:92
+45.148.134.121:92
+45.148.134.122:92
+45.148.134.123:92
+45.148.134.124:92
+45.148.134.125:92
+45.148.134.126:92
+45.148.134.127:92
+45.148.134.128:92
+45.148.134.129:92
+45.148.134.13:92
+45.148.134.130:92
+45.148.134.131:92
+45.148.134.132:92
+45.148.134.133:92
+45.148.134.134:92
+45.148.134.135:92
+45.148.134.136:92
+45.148.134.137:92
+45.148.134.138:92
+45.148.134.139:92
+45.148.134.14:92
+45.148.134.140:92
+45.148.134.141:92
+45.148.134.142:92
+45.148.134.143:92
+45.148.134.144:92
+45.148.134.145:92
+45.148.134.146:92
+45.148.134.147:92
+45.148.134.148:92
+45.148.134.149:92
+45.148.134.15:92
+45.148.134.150:92
+45.148.134.151:92
+45.148.134.152:92
+45.148.134.153:92
+45.148.134.154:92
+45.148.134.155:92
+45.148.134.156:92
+45.148.134.157:92
+45.148.134.158:92
+45.148.134.159:92
+45.148.134.16:92
+45.148.134.160:92
+45.148.134.161:92
+45.148.134.162:92
+45.148.134.163:92
+45.148.134.164:92
+45.148.134.165:92
+45.148.134.166:92
+45.148.134.167:92
+45.148.134.168:92
+45.148.134.169:92
+45.148.134.17:92
+45.148.134.170:92
+45.148.134.171:92
+45.148.134.172:92
+45.148.134.173:92
+45.148.134.174:92
+45.148.134.175:92
+45.148.134.176:92
+45.148.134.177:92
+45.148.134.178:92
+45.148.134.179:92
+45.148.134.18:92
+45.148.134.180:92
+45.148.134.181:92
+45.148.134.182:92
+45.148.134.183:92
+45.148.134.184:92
+45.148.134.185:92
+45.148.134.186:92
+45.148.134.187:92
+45.148.134.188:92
+45.148.134.189:92
+45.148.134.19:92
+45.148.134.190:92
+45.148.134.191:92
+45.148.134.192:92
+45.148.134.193:92
+45.148.134.194:92
+45.148.134.195:92
+45.148.134.196:92
+45.148.134.197:92
+45.148.134.198:92
+45.148.134.199:92
+45.148.134.20:92
+45.148.134.200:92
+45.148.134.201:92
+45.148.134.202:92
+45.148.134.203:92
+45.148.134.204:92
+45.148.134.205:92
+45.148.134.206:92
+45.148.134.207:92
+45.148.134.208:92
+45.148.134.209:92
+45.148.134.21:92
+45.148.134.210:92
+45.148.134.211:92
+45.148.134.212:92
+45.148.134.213:92
+45.148.134.214:92
+45.148.134.215:92
+45.148.134.216:92
+45.148.134.217:92
+45.148.134.218:92
+45.148.134.219:92
+45.148.134.22:92
+45.148.134.220:92
+45.148.134.221:92
+45.148.134.222:92
+45.148.134.223:92
+45.148.134.224:92
+45.148.134.225:92
+45.148.134.226:92
+45.148.134.227:92
+45.148.134.228:92
+45.148.134.229:92
+45.148.134.23:92
+45.148.134.230:92
+45.148.134.231:92
+45.148.134.232:92
+45.148.134.233:92
+45.148.134.234:92
+45.148.134.235:92
+45.148.134.236:92
+45.148.134.237:92
+45.148.134.238:92
+45.148.134.239:92
+45.148.134.24:92
+45.148.134.240:92
+45.148.134.241:92
+45.148.134.242:92
+45.148.134.243:92
+45.148.134.244:92
+45.148.134.245:92
+45.148.134.246:92
+45.148.134.247:92
+45.148.134.248:92
+45.148.134.249:92
+45.148.134.25:92
+45.148.134.250:92
+45.148.134.251:92
+45.148.134.252:92
+45.148.134.253:92
+45.148.134.254:92
+45.148.134.26:92
+45.148.134.27:92
+45.148.134.28:92
+45.148.134.29:92
+45.148.134.30:92
+45.148.134.31:92
+45.148.134.32:92
+45.148.134.33:92
+45.148.134.34:92
+45.148.134.35:92
+45.148.134.36:92
+45.148.134.37:92
+45.148.134.38:92
+45.148.134.39:92
+45.148.134.40:92
+45.148.134.41:92
+45.148.134.42:92
+45.148.134.43:92
+45.148.134.44:92
+45.148.134.45:92
+45.148.134.46:92
+45.148.134.47:92
+45.148.134.48:92
+45.148.134.49:92
+45.148.134.50:92
+45.148.134.51:92
+45.148.134.52:92
+45.148.134.53:92
+45.148.134.54:92
+45.148.134.55:92
+45.148.134.56:92
+45.148.134.57:92
+45.148.134.58:92
+45.148.134.59:92
+45.148.134.60:92
+45.148.134.61:92
+45.148.134.62:92
+45.148.134.63:92
+45.148.134.64:92
+45.148.134.65:92
+45.148.134.66:92
+45.148.134.67:92
+45.148.134.68:92
+45.148.134.69:92
+45.148.134.70:92
+45.148.134.71:92
+45.148.134.72:92
+45.148.134.73:92
+45.148.134.74:92
+45.148.134.75:92
+45.148.134.76:92
+45.148.134.77:92
+45.148.134.78:92
+45.148.134.79:92
+45.148.134.80:92
+45.148.134.81:92
+45.148.134.82:92
+45.148.134.83:92
+45.148.134.84:92
+45.148.134.85:92
+45.148.134.86:92
+45.148.134.87:92
+45.148.134.88:92
+45.148.134.89:92
+45.148.134.90:92
+45.148.134.91:92
+45.148.134.92:92
+45.148.134.93:92
+45.148.134.94:92
+45.148.134.95:92
+45.148.134.96:92
+45.148.134.97:92
+45.148.134.98:92
+45.148.134.99:92
+45.43.130.10:92
+45.43.130.100:92
+45.43.130.101:92
+45.43.130.102:92
+45.43.130.103:92
+45.43.130.104:92
+45.43.130.105:92
+45.43.130.106:92
+45.43.130.107:92
+45.43.130.108:92
+45.43.130.109:92
+45.43.130.11:92
+45.43.130.110:92
+45.43.130.111:92
+45.43.130.112:92
+45.43.130.113:92
+45.43.130.114:92
+45.43.130.115:92
+45.43.130.116:92
+45.43.130.117:92
+45.43.130.118:92
+45.43.130.119:92
+45.43.130.12:92
+45.43.130.120:92
+45.43.130.121:92
+45.43.130.122:92
+45.43.130.123:92
+45.43.130.124:92
+45.43.130.125:92
+45.43.130.126:92
+45.43.130.127:92
+45.43.130.128:92
+45.43.130.129:92
+45.43.130.13:92
+45.43.130.130:92
+45.43.130.131:92
+45.43.130.132:92
+45.43.130.133:92
+45.43.130.134:92
+45.43.130.135:92
+45.43.130.136:92
+45.43.130.137:92
+45.43.130.138:92
+45.43.130.139:92
+45.43.130.14:92
+45.43.130.140:92
+45.43.130.141:92
+45.43.130.142:92
+45.43.130.143:92
+45.43.130.144:92
+45.43.130.145:92
+45.43.130.146:92
+45.43.130.147:92
+45.43.130.148:92
+45.43.130.149:92
+45.43.130.15:92
+45.43.130.150:92
+45.43.130.151:92
+45.43.130.152:92
+45.43.130.153:92
+45.43.130.154:92
+45.43.130.155:92
+45.43.130.156:92
+45.43.130.157:92
+45.43.130.158:92
+45.43.130.159:92
+45.43.130.16:92
+45.43.130.160:92
+45.43.130.161:92
+45.43.130.162:92
+45.43.130.163:92
+45.43.130.164:92
+45.43.130.165:92
+45.43.130.166:92
+45.43.130.167:92
+45.43.130.168:92
+45.43.130.169:92
+45.43.130.17:92
+45.43.130.170:92
+45.43.130.171:92
+45.43.130.172:92
+45.43.130.173:92
+45.43.130.174:92
+45.43.130.175:92
+45.43.130.176:92
+45.43.130.177:92
+45.43.130.178:92
+45.43.130.179:92
+45.43.130.18:92
+45.43.130.180:92
+45.43.130.181:92
+45.43.130.182:92
+45.43.130.183:92
+45.43.130.184:92
+45.43.130.185:92
+45.43.130.186:92
+45.43.130.187:92
+45.43.130.188:92
+45.43.130.189:92
+45.43.130.19:92
+45.43.130.190:92
+45.43.130.191:92
+45.43.130.192:92
+45.43.130.193:92
+45.43.130.194:92
+45.43.130.195:92
+45.43.130.196:92
+45.43.130.197:92
+45.43.130.198:92
+45.43.130.199:92
+45.43.130.20:92
+45.43.130.200:92
+45.43.130.201:92
+45.43.130.202:92
+45.43.130.203:92
+45.43.130.204:92
+45.43.130.205:92
+45.43.130.206:92
+45.43.130.207:92
+45.43.130.208:92
+45.43.130.209:92
+45.43.130.21:92
+45.43.130.210:92
+45.43.130.211:92
+45.43.130.212:92
+45.43.130.213:92
+45.43.130.214:92
+45.43.130.215:92
+45.43.130.216:92
+45.43.130.217:92
+45.43.130.218:92
+45.43.130.219:92
+45.43.130.22:92
+45.43.130.220:92
+45.43.130.221:92
+45.43.130.222:92
+45.43.130.223:92
+45.43.130.224:92
+45.43.130.225:92
+45.43.130.226:92
+45.43.130.227:92
+45.43.130.228:92
+45.43.130.229:92
+45.43.130.23:92
+45.43.130.230:92
+45.43.130.231:92
+45.43.130.232:92
+45.43.130.233:92
+45.43.130.234:92
+45.43.130.235:92
+45.43.130.236:92
+45.43.130.237:92
+45.43.130.238:92
+45.43.130.239:92
+45.43.130.24:92
+45.43.130.240:92
+45.43.130.241:92
+45.43.130.242:92
+45.43.130.243:92
+45.43.130.244:92
+45.43.130.245:92
+45.43.130.246:92
+45.43.130.247:92
+45.43.130.248:92
+45.43.130.249:92
+45.43.130.25:92
+45.43.130.250:92
+45.43.130.251:92
+45.43.130.252:92
+45.43.130.253:92
+45.43.130.254:92
+45.43.130.26:92
+45.43.130.27:92
+45.43.130.28:92
+45.43.130.29:92
+45.43.130.30:92
+45.43.130.31:92
+45.43.130.32:92
+45.43.130.33:92
+45.43.130.34:92
+45.43.130.35:92
+45.43.130.36:92
+45.43.130.37:92
+45.43.130.38:92
+45.43.130.39:92
+45.43.130.40:92
+45.43.130.41:92
+45.43.130.42:92
+45.43.130.43:92
+45.43.130.44:92
+45.43.130.45:92
+45.43.130.46:92
+45.43.130.47:92
+45.43.130.48:92
+45.43.130.49:92
+45.43.130.50:92
+45.43.130.51:92
+45.43.130.52:92
+45.43.130.53:92
+45.43.130.54:92
+45.43.130.55:92
+45.43.130.56:92
+45.43.130.57:92
+45.43.130.58:92
+45.43.130.59:92
+45.43.130.60:92
+45.43.130.61:92
+45.43.130.62:92
+45.43.130.63:92
+45.43.130.64:92
+45.43.130.65:92
+45.43.130.66:92
+45.43.130.67:92
+45.43.130.68:92
+45.43.130.69:92
+45.43.130.70:92
+45.43.130.71:92
+45.43.130.72:92
+45.43.130.73:92
+45.43.130.74:92
+45.43.130.75:92
+45.43.130.76:92
+45.43.130.77:92
+45.43.130.78:92
+45.43.130.79:92
+45.43.130.80:92
+45.43.130.81:92
+45.43.130.82:92
+45.43.130.83:92
+45.43.130.84:92
+45.43.130.85:92
+45.43.130.86:92
+45.43.130.87:92
+45.43.130.88:92
+45.43.130.89:92
+45.43.130.90:92
+45.43.130.91:92
+45.43.130.92:92
+45.43.130.93:92
+45.43.130.94:92
+45.43.130.95:92
+45.43.130.96:92
+45.43.130.97:92
+45.43.130.98:92
+45.43.130.99:92
+
+[CLASS 51]
+51.222.187.10:92
+51.222.187.100:92
+51.222.187.101:92
+51.222.187.102:92
+51.222.187.103:92
+51.222.187.104:92
+51.222.187.105:92
+51.222.187.106:92
+51.222.187.107:92
+51.222.187.108:92
+51.222.187.109:92
+51.222.187.11:92
+51.222.187.110:92
+51.222.187.111:92
+51.222.187.112:92
+51.222.187.113:92
+51.222.187.114:92
+51.222.187.115:92
+51.222.187.116:92
+51.222.187.117:92
+51.222.187.118:92
+51.222.187.119:92
+51.222.187.12:92
+51.222.187.120:92
+51.222.187.121:92
+51.222.187.122:92
+51.222.187.123:92
+51.222.187.124:92
+51.222.187.125:92
+51.222.187.126:92
+51.222.187.127:92
+51.222.187.128:92
+51.222.187.129:92
+51.222.187.13:92
+51.222.187.130:92
+51.222.187.131:92
+51.222.187.132:92
+51.222.187.133:92
+51.222.187.134:92
+51.222.187.135:92
+51.222.187.136:92
+51.222.187.137:92
+51.222.187.138:92
+51.222.187.139:92
+51.222.187.14:92
+51.222.187.140:92
+51.222.187.141:92
+51.222.187.142:92
+51.222.187.143:92
+51.222.187.144:92
+51.222.187.145:92
+51.222.187.146:92
+51.222.187.147:92
+51.222.187.148:92
+51.222.187.149:92
+51.222.187.15:92
+51.222.187.150:92
+51.222.187.151:92
+51.222.187.152:92
+51.222.187.153:92
+51.222.187.154:92
+51.222.187.155:92
+51.222.187.156:92
+51.222.187.157:92
+51.222.187.158:92
+51.222.187.159:92
+51.222.187.16:92
+51.222.187.160:92
+51.222.187.161:92
+51.222.187.162:92
+51.222.187.163:92
+51.222.187.164:92
+51.222.187.165:92
+51.222.187.166:92
+51.222.187.167:92
+51.222.187.168:92
+51.222.187.169:92
+51.222.187.17:92
+51.222.187.170:92
+51.222.187.171:92
+51.222.187.172:92
+51.222.187.173:92
+51.222.187.174:92
+51.222.187.175:92
+51.222.187.176:92
+51.222.187.177:92
+51.222.187.178:92
+51.222.187.179:92
+51.222.187.18:92
+51.222.187.180:92
+51.222.187.181:92
+51.222.187.182:92
+51.222.187.183:92
+51.222.187.184:92
+51.222.187.185:92
+51.222.187.186:92
+51.222.187.187:92
+51.222.187.188:92
+51.222.187.189:92
+51.222.187.19:92
+51.222.187.190:92
+51.222.187.191:92
+51.222.187.192:92
+51.222.187.193:92
+51.222.187.194:92
+51.222.187.195:92
+51.222.187.196:92
+51.222.187.197:92
+51.222.187.198:92
+51.222.187.199:92
+51.222.187.20:92
+51.222.187.200:92
+51.222.187.201:92
+51.222.187.202:92
+51.222.187.203:92
+51.222.187.204:92
+51.222.187.205:92
+51.222.187.206:92
+51.222.187.207:92
+51.222.187.208:92
+51.222.187.209:92
+51.222.187.21:92
+51.222.187.210:92
+51.222.187.211:92
+51.222.187.212:92
+51.222.187.213:92
+51.222.187.214:92
+51.222.187.215:92
+51.222.187.216:92
+51.222.187.217:92
+51.222.187.218:92
+51.222.187.219:92
+51.222.187.22:92
+51.222.187.220:92
+51.222.187.221:92
+51.222.187.222:92
+51.222.187.223:92
+51.222.187.224:92
+51.222.187.225:92
+51.222.187.226:92
+51.222.187.227:92
+51.222.187.228:92
+51.222.187.229:92
+51.222.187.23:92
+51.222.187.230:92
+51.222.187.231:92
+51.222.187.232:92
+51.222.187.233:92
+51.222.187.234:92
+51.222.187.235:92
+51.222.187.236:92
+51.222.187.237:92
+51.222.187.238:92
+51.222.187.239:92
+51.222.187.24:92
+51.222.187.240:92
+51.222.187.241:92
+51.222.187.242:92
+51.222.187.243:92
+51.222.187.244:92
+51.222.187.245:92
+51.222.187.246:92
+51.222.187.247:92
+51.222.187.248:92
+51.222.187.249:92
+51.222.187.25:92
+51.222.187.250:92
+51.222.187.251:92
+51.222.187.252:92
+51.222.187.253:92
+51.222.187.254:92
+51.222.187.26:92
+51.222.187.27:92
+51.222.187.28:92
+51.222.187.29:92
+51.222.187.30:92
+51.222.187.31:92
+51.222.187.32:92
+51.222.187.33:92
+51.222.187.34:92
+51.222.187.35:92
+51.222.187.36:92
+51.222.187.37:92
+51.222.187.38:92
+51.222.187.39:92
+51.222.187.40:92
+51.222.187.41:92
+51.222.187.42:92
+51.222.187.43:92
+51.222.187.44:92
+51.222.187.45:92
+51.222.187.46:92
+51.222.187.47:92
+51.222.187.48:92
+51.222.187.49:92
+51.222.187.50:92
+51.222.187.51:92
+51.222.187.52:92
+51.222.187.53:92
+51.222.187.54:92
+51.222.187.55:92
+51.222.187.56:92
+51.222.187.57:92
+51.222.187.58:92
+51.222.187.59:92
+51.222.187.60:92
+51.222.187.61:92
+51.222.187.62:92
+51.222.187.63:92
+51.222.187.64:92
+51.222.187.65:92
+51.222.187.66:92
+51.222.187.67:92
+51.222.187.68:92
+51.222.187.69:92
+51.222.187.70:92
+51.222.187.71:92
+51.222.187.72:92
+51.222.187.73:92
+51.222.187.74:92
+51.222.187.75:92
+51.222.187.76:92
+51.222.187.77:92
+51.222.187.78:92
+51.222.187.79:92
+51.222.187.80:92
+51.222.187.81:92
+51.222.187.82:92
+51.222.187.83:92
+51.222.187.84:92
+51.222.187.85:92
+51.222.187.86:92
+51.222.187.87:92
+51.222.187.88:92
+51.222.187.89:92
+51.222.187.90:92
+51.222.187.91:92
+51.222.187.92:92
+51.222.187.93:92
+51.222.187.94:92
+51.222.187.95:92
+51.222.187.96:92
+51.222.187.97:92
+51.222.187.98:92
+51.222.187.99:92
+
+[CLASS 64]
+64.32.16.130:92
+64.32.16.131:92
+64.32.16.132:92
+64.32.16.133:92
+64.32.16.134:92
+64.32.16.135:92
+64.32.16.136:92
+64.32.16.137:92
+64.32.16.138:92
+64.32.16.139:92
+64.32.16.140:92
+64.32.16.141:92
+64.32.16.142:92
+64.32.16.143:92
+64.32.16.144:92
+64.32.16.145:92
+64.32.16.146:92
+64.32.16.147:92
+64.32.16.148:92
+64.32.16.149:92
+64.32.16.150:92
+64.32.16.151:92
+64.32.16.152:92
+64.32.16.153:92
+64.32.16.154:92
+64.32.16.155:92
+64.32.16.156:92
+64.32.16.157:92
+64.32.16.158:92
+64.32.16.159:92
+64.32.16.160:92
+64.32.16.161:92
+64.32.16.162:92
+64.32.16.163:92
+64.32.16.164:92
+64.32.16.165:92
+64.32.16.166:92
+64.32.16.167:92
+64.32.16.168:92
+64.32.16.169:92
+64.32.16.170:92
+64.32.16.171:92
+64.32.16.172:92
+64.32.16.173:92
+64.32.16.174:92
+64.32.16.175:92
+64.32.16.176:92
+64.32.16.177:92
+64.32.16.178:92
+64.32.16.179:92
+64.32.16.180:92
+64.32.16.181:92
+64.32.16.182:92
+64.32.16.183:92
+64.32.16.184:92
+64.32.16.185:92
+64.32.16.186:92
+64.32.16.187:92
+64.32.16.188:92
+64.32.16.189:92
+64.32.16.190:92
+64.32.16.191:92
+64.32.16.192:92
+64.32.16.193:92
+64.32.16.194:92
+64.32.16.195:92
+64.32.16.196:92
+64.32.16.197:92
+64.32.16.198:92
+64.32.16.199:92
+64.32.16.200:92
+64.32.16.201:92
+64.32.16.202:92
+64.32.16.203:92
+64.32.16.204:92
+64.32.16.205:92
+64.32.16.206:92
+64.32.16.207:92
+64.32.16.208:92
+64.32.16.209:92
+64.32.16.210:92
+64.32.16.211:92
+64.32.16.212:92
+64.32.16.213:92
+64.32.16.214:92
+64.32.16.215:92
+64.32.16.216:92
+64.32.16.217:92
+64.32.16.218:92
+64.32.16.219:92
+64.32.16.220:92
+64.32.16.221:92
+64.32.16.222:92
+64.32.16.223:92
+64.32.16.224:92
+64.32.16.225:92
+64.32.16.226:92
+64.32.16.227:92
+64.32.16.228:92
+64.32.16.229:92
+64.32.16.230:92
+64.32.16.231:92
+64.32.16.232:92
+64.32.16.233:92
+64.32.16.234:92
+64.32.16.235:92
+64.32.16.236:92
+64.32.16.237:92
+64.32.16.238:92
+64.32.16.239:92
+64.32.16.240:92
+64.32.16.241:92
+64.32.16.242:92
+64.32.16.243:92
+64.32.16.244:92
+64.32.16.245:92
+64.32.16.246:92
+64.32.16.247:92
+64.32.16.248:92
+64.32.16.249:92
+64.32.16.250:92
+64.32.16.251:92
+64.32.16.252:92
+64.32.16.253:92
+64.32.16.254:92
+
+[CLASS 72]
+72.14.153.10:92
+72.14.153.100:92
+72.14.153.101:92
+72.14.153.102:92
+72.14.153.103:92
+72.14.153.104:92
+72.14.153.105:92
+72.14.153.106:92
+72.14.153.107:92
+72.14.153.108:92
+72.14.153.109:92
+72.14.153.11:92
+72.14.153.110:92
+72.14.153.111:92
+72.14.153.112:92
+72.14.153.113:92
+72.14.153.114:92
+72.14.153.115:92
+72.14.153.116:92
+72.14.153.117:92
+72.14.153.118:92
+72.14.153.119:92
+72.14.153.12:92
+72.14.153.120:92
+72.14.153.121:92
+72.14.153.122:92
+72.14.153.123:92
+72.14.153.124:92
+72.14.153.125:92
+72.14.153.126:92
+72.14.153.127:92
+72.14.153.128:92
+72.14.153.129:92
+72.14.153.13:92
+72.14.153.130:92
+72.14.153.131:92
+72.14.153.132:92
+72.14.153.133:92
+72.14.153.134:92
+72.14.153.135:92
+72.14.153.136:92
+72.14.153.137:92
+72.14.153.138:92
+72.14.153.139:92
+72.14.153.14:92
+72.14.153.140:92
+72.14.153.141:92
+72.14.153.142:92
+72.14.153.143:92
+72.14.153.144:92
+72.14.153.145:92
+72.14.153.146:92
+72.14.153.147:92
+72.14.153.148:92
+72.14.153.149:92
+72.14.153.15:92
+72.14.153.150:92
+72.14.153.151:92
+72.14.153.152:92
+72.14.153.153:92
+72.14.153.154:92
+72.14.153.155:92
+72.14.153.156:92
+72.14.153.157:92
+72.14.153.158:92
+72.14.153.159:92
+72.14.153.16:92
+72.14.153.160:92
+72.14.153.161:92
+72.14.153.162:92
+72.14.153.163:92
+72.14.153.164:92
+72.14.153.165:92
+72.14.153.166:92
+72.14.153.167:92
+72.14.153.168:92
+72.14.153.169:92
+72.14.153.17:92
+72.14.153.170:92
+72.14.153.171:92
+72.14.153.172:92
+72.14.153.173:92
+72.14.153.174:92
+72.14.153.175:92
+72.14.153.176:92
+72.14.153.177:92
+72.14.153.178:92
+72.14.153.179:92
+72.14.153.18:92
+72.14.153.180:92
+72.14.153.181:92
+72.14.153.182:92
+72.14.153.183:92
+72.14.153.184:92
+72.14.153.185:92
+72.14.153.186:92
+72.14.153.187:92
+72.14.153.188:92
+72.14.153.189:92
+72.14.153.19:92
+72.14.153.190:92
+72.14.153.191:92
+72.14.153.192:92
+72.14.153.193:92
+72.14.153.194:92
+72.14.153.195:92
+72.14.153.196:92
+72.14.153.197:92
+72.14.153.198:92
+72.14.153.199:92
+72.14.153.20:92
+72.14.153.200:92
+72.14.153.201:92
+72.14.153.202:92
+72.14.153.203:92
+72.14.153.204:92
+72.14.153.205:92
+72.14.153.206:92
+72.14.153.207:92
+72.14.153.208:92
+72.14.153.209:92
+72.14.153.21:92
+72.14.153.210:92
+72.14.153.211:92
+72.14.153.212:92
+72.14.153.213:92
+72.14.153.214:92
+72.14.153.215:92
+72.14.153.216:92
+72.14.153.217:92
+72.14.153.218:92
+72.14.153.219:92
+72.14.153.22:92
+72.14.153.220:92
+72.14.153.221:92
+72.14.153.222:92
+72.14.153.223:92
+72.14.153.224:92
+72.14.153.225:92
+72.14.153.226:92
+72.14.153.227:92
+72.14.153.228:92
+72.14.153.229:92
+72.14.153.23:92
+72.14.153.230:92
+72.14.153.231:92
+72.14.153.232:92
+72.14.153.233:92
+72.14.153.234:92
+72.14.153.235:92
+72.14.153.236:92
+72.14.153.237:92
+72.14.153.238:92
+72.14.153.239:92
+72.14.153.24:92
+72.14.153.240:92
+72.14.153.241:92
+72.14.153.242:92
+72.14.153.243:92
+72.14.153.244:92
+72.14.153.245:92
+72.14.153.246:92
+72.14.153.247:92
+72.14.153.248:92
+72.14.153.249:92
+72.14.153.25:92
+72.14.153.250:92
+72.14.153.251:92
+72.14.153.252:92
+72.14.153.253:92
+72.14.153.254:92
+72.14.153.26:92
+72.14.153.27:92
+72.14.153.28:92
+72.14.153.29:92
+72.14.153.30:92
+72.14.153.31:92
+72.14.153.32:92
+72.14.153.33:92
+72.14.153.34:92
+72.14.153.35:92
+72.14.153.36:92
+72.14.153.37:92
+72.14.153.38:92
+72.14.153.39:92
+72.14.153.40:92
+72.14.153.41:92
+72.14.153.42:92
+72.14.153.43:92
+72.14.153.44:92
+72.14.153.45:92
+72.14.153.46:92
+72.14.153.47:92
+72.14.153.48:92
+72.14.153.49:92
+72.14.153.50:92
+72.14.153.51:92
+72.14.153.52:92
+72.14.153.53:92
+72.14.153.54:92
+72.14.153.55:92
+72.14.153.56:92
+72.14.153.57:92
+72.14.153.58:92
+72.14.153.59:92
+72.14.153.60:92
+72.14.153.61:92
+72.14.153.62:92
+72.14.153.63:92
+72.14.153.64:92
+72.14.153.65:92
+72.14.153.66:92
+72.14.153.67:92
+72.14.153.68:92
+72.14.153.69:92
+72.14.153.70:92
+72.14.153.71:92
+72.14.153.72:92
+72.14.153.73:92
+72.14.153.74:92
+72.14.153.75:92
+72.14.153.76:92
+72.14.153.77:92
+72.14.153.78:92
+72.14.153.79:92
+72.14.153.80:92
+72.14.153.81:92
+72.14.153.82:92
+72.14.153.83:92
+72.14.153.84:92
+72.14.153.85:92
+72.14.153.86:92
+72.14.153.87:92
+72.14.153.88:92
+72.14.153.89:92
+72.14.153.90:92
+72.14.153.91:92
+72.14.153.92:92
+72.14.153.93:92
+72.14.153.94:92
+72.14.153.95:92
+72.14.153.96:92
+72.14.153.97:92
+72.14.153.98:92
+72.14.153.99:92
+
+[CLASS 67]
+67.21.75.130:92
+67.21.75.131:92
+67.21.75.132:92
+67.21.75.133:92
+67.21.75.134:92
+67.21.75.135:92
+67.21.75.136:92
+67.21.75.137:92
+67.21.75.138:92
+67.21.75.139:92
+67.21.75.140:92
+67.21.75.141:92
+67.21.75.142:92
+67.21.75.143:92
+67.21.75.144:92
+67.21.75.145:92
+67.21.75.146:92
+67.21.75.147:92
+67.21.75.148:92
+67.21.75.149:92
+67.21.75.150:92
+67.21.75.151:92
+67.21.75.152:92
+67.21.75.153:92
+67.21.75.154:92
+67.21.75.155:92
+67.21.75.156:92
+67.21.75.157:92
+67.21.75.158:92
+67.21.75.159:92
+67.21.75.160:92
+67.21.75.161:92
+67.21.75.162:92
+67.21.75.163:92
+67.21.75.164:92
+67.21.75.165:92
+67.21.75.166:92
+67.21.75.167:92
+67.21.75.168:92
+67.21.75.169:92
+67.21.75.170:92
+67.21.75.171:92
+67.21.75.172:92
+67.21.75.173:92
+67.21.75.174:92
+67.21.75.175:92
+67.21.75.176:92
+67.21.75.177:92
+67.21.75.178:92
+67.21.75.179:92
+67.21.75.180:92
+67.21.75.181:92
+67.21.75.182:92
+67.21.75.183:92
+67.21.75.184:92
+67.21.75.185:92
+67.21.75.186:92
+67.21.75.187:92
+67.21.75.188:92
+67.21.75.189:92
+67.21.75.190:92
+67.21.75.191:92
+67.21.75.192:92
+67.21.75.193:92
+67.21.75.194:92
+67.21.75.195:92
+67.21.75.196:92
+67.21.75.197:92
+67.21.75.198:92
+67.21.75.199:92
+67.21.75.200:92
+67.21.75.201:92
+67.21.75.202:92
+67.21.75.203:92
+67.21.75.204:92
+67.21.75.205:92
+67.21.75.206:92
+67.21.75.207:92
+67.21.75.208:92
+67.21.75.209:92
+67.21.75.210:92
+67.21.75.211:92
+67.21.75.212:92
+67.21.75.213:92
+67.21.75.214:92
+67.21.75.215:92
+67.21.75.216:92
+67.21.75.217:92
+67.21.75.218:92
+67.21.75.219:92
+67.21.75.220:92
+67.21.75.221:92
+67.21.75.222:92
+67.21.75.223:92
+67.21.75.224:92
+67.21.75.225:92
+67.21.75.226:92
+67.21.75.227:92
+67.21.75.228:92
+67.21.75.229:92
+67.21.75.230:92
+67.21.75.231:92
+67.21.75.232:92
+67.21.75.233:92
+67.21.75.234:92
+67.21.75.235:92
+67.21.75.236:92
+67.21.75.237:92
+67.21.75.238:92
+67.21.75.239:92
+67.21.75.240:92
+67.21.75.241:92
+67.21.75.242:92
+67.21.75.243:92
+67.21.75.244:92
+67.21.75.245:92
+67.21.75.246:92
+67.21.75.247:92
+67.21.75.248:92
+67.21.75.249:92
+67.21.75.250:92
+67.21.75.251:92
+67.21.75.252:92\n`;
+            }
+            codeBlock.innerText = proxyContent;
+            openCodeModal();
+        }
+        
+        window.showUAPopup = function() {
+            codeTitle.innerText = "User Agent Rotation Matrix";
+            codeIcon.className = "ph ph-devices";
+            codeDesc.innerText = "Simulates diverse device usage by rotating through 7 device categories.";
+            codeBlock.innerText = `[Brave]
+Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36 (KHTML, like Gecko) Brave/134.0.6933.39 Mobile Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Brave Browser/134.0.6998.35 Safari/537.36
+Mozilla/5.0 (Linux; Android 10; BRAVE Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Version/17.1.2 Safari/605.1.15
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Brave Browser/138.0.0.0 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Brave Browser/119.0.5497.70 Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 15_3_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0 Brave Browser/136.0.0.0 Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 11_7_10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Brave Browser/138.0.0.0 Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0 Brave Browser/136.0.0.0 Safari/537.36
+Mozilla/5.0 (iPad; CPU OS 16_7_11 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Macintosh; Intel Mac OS X 13_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0 Brave Browser/133.0.0.0 Safari/537.36
+Mozilla/5.0 (Linux; Android 15.0.0; null) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Brave Browser/136.0.0.0 Mobile Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0 Brave Browser/96.0.4664.167 Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0 Brave Browser/137.0.0.0 Safari/537.36
+Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Brave Chrome/88.0.4324.152 Safari/537.36,gzip(gfe)
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Version/17.7.8 Safari/605.1.15;
+Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Brave Browser/138.0.0.0 Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Brave Browser/137.0.3296.93 Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Linux; Android 8.1.0; SM-T580) AppleWebKit/537.36 (KHTML, like Gecko) Brave Chrome/80.0.3987.162 Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Brave Browser/122.0.6179.2 Safari/537.36
+Mozilla/5.0 (Linux; Android 13.0.0; null) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Brave Browser/131.0.0.0 Mobile Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 14_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0 Brave Browser/119.0.0.0 Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0 Brave Browser/137.0.0.0 Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Linux; Android 13.0.0; null) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Brave Browser/122.0.0.0 Mobile Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0 Brave Browser/96.0.4664.167 Safari/537.36
+Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0 Brave Browser/137.0.0.0 Safari/537.36
+
+[iPhone]
+SalesforceMobileSDK/8.1.0 iOS/17.7 (iPhone) Kimble/2.1.27(2.1.27.3) Native uid ftr_ Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+SalesforceMobileSDK/8.1.0 iOS/18.0 (iPhone) Kimble/2.1.27(2.1.27.3) Native uid ftr_ Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+SalesforceMobileSDK/8.1.0 iOS/18.1 (iPhone) Kimble/2.1.27(2.1.27.3) Native uid ftr_ Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148
+Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/616.31.10 (KHTML, like Gecko) Version/10.2.76 Mobile/FVVLCM Safari/616.31.10
+AppleCoreMedia/1.0.0.14D27 (iPhone; U; CPU OS 10_2_1 like Mac OS X; en_us) LibVLC/3.0.3
+Mozilla/5.0 (iPhone; CPU iPhone OS 15_4 like Mac OS X) AppleWebKit/624.11 (KHTML, like Gecko) Version/11.1.91 Mobile/92VLCA Safari/624.11
+Mozilla/5.0 (iPhone; CPU iPhone OS 13_3 like Mac OS X) AppleWebKit/631.8 (KHTML, like Gecko) Version/12.7 Mobile/VLCRJC Safari/631.8
+Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/600.2.10 (KHTML, like Gecko) Version/11.4 Mobile/VLCCNL Safari/620.26.15
+Mozilla/5.0 (iPhone; CPU OS 16_3_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.6 (like Version/16.3.1 Mobile/20D67 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.1 Mobile/22B82 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 16_0_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/16.0.3 Mobile/20A392 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_0_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.7 (like Version/18.0.1 Mobile/22A3370 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 15_5 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/15.5 Mobile/19F77 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/6.9.1 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_0_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.0.2 Mobile/21A350 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.2 Mobile/22C5109p Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 16_7_8 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.7.4 (like Version/16.7.8 Mobile/20H343 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.4.3 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_0_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.5 (like Version/18.0.1 Mobile/22A3370 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_7_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.7.1 Mobile/21H216 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.1 Mobile/22B83 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_0_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.7.6 (like Version/18.0.1 Mobile/22A3370 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_0_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.0.1 Mobile/22A3370 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 7.1.2 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) 1Password/4.5.3 (like Version/11D257 Mobile/7.1.2 Safari/8536.25)
+Mozilla/5.0 (iPhone; CPU OS 17_7 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.0 (like Version/17.7 Mobile/21H16 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.6.2 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.9 (like Version/18.1 Mobile/22B83 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 16_5_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/16.5.1 Mobile/20F75 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPhone; CPU OS 18_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.2 Mobile/22C5125e Safari/600.1.4)
+
+[Opera]
+Mozilla/5.0 (Linux; U; Android 12; SM-A226BR Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.116 Mobile Safari/537.36 OPR/11.6.2254.71256
+Mozilla/5.0 (Linux; U; Android 12; RMX2111 Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36 OPR/12.0.2254.73744
+Mozilla/5.0 (Linux; U; Android 13; SM-G981N Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36 OPR/91.0.2254.77443
+Mozilla/5.0 (Linux; U; Android 14; moto g stylus 5G - 2023 Build/U1TGN34.42-86-4-5-4; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36 OPR/12.8.2254.76952
+Mozilla/5.0 (Linux; U; Android 14; TECNO KL5 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.116 Mobile Safari/537.36 OPR/12.1.2254.74455
+Mozilla/5.0 (Linux; U; Android 14; Hisense U71 Pro Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.61 Mobile Safari/537.36 OPR/92.0.2254.77878
+Opera/8.54.(X11; Linux i686; ast-ES) Presto/2.9.187 Version/11.00
+Mozilla/5.0 (Linux; U; Android 15; SM-A356E Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.6778.260 Mobile Safari/537.36 OPR/13.0.2254.77661
+Mozilla/5.0 (Linux; Android 15.0.0; SM-S721B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.2254.77878 Mobile Safari/537.36 OPR/92.0.2254.77878;
+Opera/9.51.(X11; Linux x86_64; ln-CD) Presto/2.9.175 Version/11.00
+Opera/8.94.(X11; Linux i686; sq-ML) Presto/2.9.188 Version/11.00
+Opera/9.15.(X11; Linux x86_64; kn-IN) Presto/2.9.173 Version/12.00
+Mozilla/5.0 (Linux; U; Android 12; B135DL Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.61 Mobile Safari/537.36 OPR/11.6.2254.71256
+Opera/9.36.(Windows 95; ti-ER) Presto/2.9.174 Version/11.00
+Mozilla/5.0 (Linux; U; Android 12; VNA-LX3 Build/HONORVNA-LX3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.63 Mobile Safari/537.36 OPR/11.6.2254.71256
+Opera/9.80.(X11; Linux i686; fr-FR) Presto/2.9.174 Version/11.00
+Opera/9.43.(X11; Linux i686; ak-GH) Presto/2.9.179 Version/12.00
+Mozilla/5.0 (Linux; U; Android 11; B131DL Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.45 Mobile Safari/537.36 OPR/11.6.2254.71256
+Mozilla/5.0 (Windows NT 10.0; WOW64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6344.206 Safari/537.36 OPR/106.0.4763.163
+Opera/8.85.(Windows NT 5.0; ts-ZA) Presto/2.9.167 Version/12.00
+Opera/8.23.(X11; Linux x86_64; tr-TR) Presto/2.9.185 Version/11.00
+Mozilla/5.0 (Macintosh; Intel Mac OS X 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.6817.59 Safari/537.36 OPR/115.0.5129.94
+Opera/8.29.(Windows NT 10.0; th-TH) Presto/2.9.173 Version/11.00
+Opera/9.34.(Windows CE; yi-US) Presto/2.9.186 Version/12.00
+Opera/9.17.(Windows NT 11.0; mhr-RU) Presto/2.9.178 Version/10.00
+Opera/8.84.(Windows NT 6.1; ta-LK) Presto/2.9.173 Version/11.00
+Opera/12.30 (Windows NT 5.0; U; HI Presto/2.9.173 Version/12.00)
+Opera/13.45 (Windows NT 5.0; U; RO Presto/2.9.173 Version/10.00)
+Opera/8.98.(Windows CE; unm-US) Presto/2.9.179 Version/10.00
+Mozilla/5.0 (Linux; U; Android 9; ANE-LX3 Build/HUAWEIANE-L03; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36 OPR/11.6.2254.71256
+
+[Safari]
+Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_1 rv:2.0; HE) AppleWebKit/537.0.2 (KHTML, like Gecko) Version/4.0.9 Safari/537.0.2
+Mozilla/5.0 (Windows; U; Windows NT 5.2)AppleWebKit/534.0.1 (KHTML, like Gecko) Version/5.1.2 Safari/534.0.1
+Mozilla/5.0 (Windows NT 7_0_2; Win64; x64) WebKit/553.10 (KHTML, like Gecko) Safari/9.0.3
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1 trill_40.4.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/zh Region/JP isDarkMode/1 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1 trill_39.7.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/vi Region/DE isDarkMode/1 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (Macintosh; Intel Mac OS X 12) AppleWebKit/618.1 (KHTML, like Gecko) Version/17.0.73 Safari/618.1
+Mozilla/5.0 (iPad; CPU OS 16_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1.1 Mobile/15E148 Safari/604.1 musical_ly_39.5.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/ro Region/US isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.7 Mobile/15E148 Safari/604.1 musical_ly_39.7.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/es Region/MX isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPad; CPU iPad OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.7.2 Mobile/15E148 Safari/605.1.15 NewsSapphire/31.5.430424001
+Mozilla/5.0 (iPad; CPU OS 15_8_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.8.3 Mobile/15E148 Safari/604.1 musical_ly_40.3.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/es Region/US isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPad; U; CPU OS 5_0 like Mac OS X; en-us) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.0.2 Mobile/9A5248d Safari/6533.18.5#2.0#TCL/TCL-CA-RT41KA-S1/28/tclwebkit1.0.2/1920*1080(565081900,null;234447721,000)
+Mozilla/5.0 (Windows; U; Windows NT 5.2)AppleWebKit/531.2.0 (KHTML, like Gecko) Version/5.0.3 Safari/531.2.0
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.14
+Mozilla/5.0 (iPhone; CPU iPhone OS 16_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1.2 Mobile/15E148 Safari/604.1 musical_ly_39.5.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/pt Region/BR isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15 (vLune/1.0; http://www.vlune.com)
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4.1 Mobile/15E148 Safari/604.1 lite_39.6.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/en Region/US isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (Windows; U; Windows NT 5.0)AppleWebKit/534.0.0 (KHTML, like Gecko) Version/7.0.1 Safari/534.0.0
+Mozilla/5.0 (iPhone; CPU iPhone OS 15_8_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.8.4 Mobile/15E148 Safari/604.1 musical_ly_40.3.0 JsSdk/2.0 NetType/2G Channel/App Store ByteLocale/pt Region/BR isDarkMode/1 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPod; U; CPU iPhone OS 3_3 like Mac OS X; mai-IN) AppleWebKit/534.9.2 (KHTML, like Gecko) Version/4.0.5 Mobile/8B111 Safari/6534.9.2
+Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Mobile/TZHB0M Safari/620.3
+Mozilla/5.0 (iPad; U; CPU OS 5_0 like Mac OS X; en-us) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.0.2 Mobile/9A5248d Safari/6533.18.5#2.0#TCL/TCL-ME-MS68-S1/22/tclwebkit1.0.2/1920*1080(455513594,null;221446617,)
+Mozilla/5.0 (Windows; U; Windows NT 5.0)AppleWebKit/532.0.2 (KHTML, like Gecko) Version/5.0.5 Safari/532.0.2
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/606.1.15 (KHTML, like Gecko) Version/19.1.1 Safari/606.1.1670420594
+Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1 musical_ly_39.8.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/pl Region/AT isDarkMode/0 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.7.2 Mobile/15E148 Safari/604.1 musical_ly_40.3.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/pt Region/BR isDarkMode/1 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.3.1 Mobile/15E148 Safari/604.1
+Mozilla/5.0 (Windows; U; Windows NT 6.1)AppleWebKit/535.2.2 (KHTML, like Gecko) Version/5.0.5 Safari/535.2.2
+Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 musical_ly_40.1.0 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/es Region/ES isDarkMode/1 WKWebView/1 RevealType/Dialog
+Mozilla/5.0 (Macintosh; PPC Mac OS X 10_7_5 rv:3.0; SO) AppleWebKit/533.1.2 (KHTML, like Gecko) Version/5.1.3 Safari/533.1.2
+Mozilla/5.0 (iPhone; CPU iPhone OS 13_2 like Mac OS X) AppleWebKit/600.8.16 (KHTML, like Gecko) Version/12.1.87 Mobile/K7RKDB Safari/615.13
+
+[Tablet]
+itunesstored/1.0 iOS/10.3.4 model/iPad3,6 hwp/s5l8955x build/14G61 (5; dt:85)
+itunesstored/1.0 iOS/15.8.3 model/iPad5,4 hwp/t7001 build/19H386 (5; dt:114)
+WhatsApp/2.24.21.79 Android/12 Device/samsung-SM-T500
+Mozilla/5.0 (iPad; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/6.9.1 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/16.7.10 Mobile/20H350 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_4 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.2 (like Version/17.4 Mobile/21E219 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 15_3_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/15.3.1 Mobile/19D52 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_4_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.4.1 Mobile/21E236 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_7_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.7.1 Mobile/21H216 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.7 Mobile/21H16 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 18_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.1 Mobile/22B82 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 18_0_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.0.1 Mobile/22A3370 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 18_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.1 Mobile/22B83 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 7.0.4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) 1Password/4.3.2 (like Version/11B554a Mobile/7.0.4 Safari/8536.25)
+Mozilla/5.0 (iPad; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.0 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_6 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/17.6 Mobile/21G80 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.2 (like Version/17.7 Mobile/21H16 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/18.0 Mobile/22A5346a Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 17_6_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.9.1 (like Version/17.6.1 Mobile/21G93 Safari/600.1.4)
+Mozilla/5.0 (iPad; CPU OS 16_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) 1Password/7.10.2 (like Version/16.2 Mobile/20C65 Safari/600.1.4)
+Mozilla/5.0 (Linux; Android 10; Lenovo TB-X306X Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.146 Safari/537.36 AnyConnect/5.1.5.56 (android)
+Mozilla/5.0 (Linux; Android 14; SM-P613 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Safari/537.36 AnyConnect/5.1.5.56 (android)
+Mozilla/5.0 (Linux; Android 11; Lenovo TB-X306X Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.6533.103 Safari/537.36 AnyConnect/5.1.5.56 (android)
+Mozilla/5.0 (Linux; Android 10; Lenovo TB-8505X Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/81.0.4044.138 Mobile Safari/537.36 AnyConnect/5.0.05042 (android)
+Mozilla/5.0 (Linux; Android 11; Lenovo TB-X306X Build/RP1A.200720.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.6533.106 Safari/537.36 AnyConnect/5.1.5.56 (android)
+Mozilla/5.0 (Linux; Android 14; SM-T225 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Safari/537.36 AnyConnect/5.1.5.56 (android)
+Mozilla/5.0 (Linux; Android 14; SM-P613 Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Safari/537.36 AnyConnect/5.1.6.113 (android)
+com.audible.playersdk.player/4.30;(iPadOS/AVPlayer/17.6.1)
+Callpod Keeper for Android 1.0 (app 16.9.0.131601/13160101) Dalvik/2.1.0 (Linux; U; Android 14; SM-P613 Build/UP1A.231005.007)
+Callpod Keeper for Android 1.0 (app 16.10.05.134001/13400101) Dalvik/2.1.0 (Linux; U; Android 13; SM-T577U Build/TP1A.220624.014)
+
+[Chrome]
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.8759.1483 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 10.0.0; SM-N960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 14.0.0; SM-G996U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.6834.163 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.8114.1381 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.4444.1080 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.7867.1153 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.1912.1288 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.2058.1736 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.1477.1566 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.9208.1965 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0.0; SM-J737T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.46 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.5791.1658 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2965.1202 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.3936.1589 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.5052.1116 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.3861.1102 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.6162.1345 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.7756.1587 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.8324.1585 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.1065.1853 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 14; SM-A336E/DSN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 12.0.0; DE2118) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.121 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36 RenderZRNApp-android X-React-Native-Version-2 X-RenderZ-App-Version-5.3.0 X-RenderZ-Device-Id-f1ea71bd7ba69a1f X-Safe-Area-Insets-{"left":0,"bottom":0,"right":0,"top":0}
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2991.1319 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 10.0.0; SM-N960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.118 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.4550.1404 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.3702.1306 Mobile Safari/537.36
+Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.1500.1856 Mobile Safari/537.36
+Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36 RenderZRNApp-android X-React-Native-Version-2 X-RenderZ-App-Version-5.3.0 X-RenderZ-Device-Id-6a544c6f8c2695d3 X-Safe-Area-Insets-{"left":0,"bottom":0,"right":0,"top":0}
+Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.7465.1514 Mobile Safari/537.36
+
+[Firefox]
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1; rv:090.437.716) Gecko/20100101 Firefox/090.437.716
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_0; rv:083.432.673) Gecko/20100101 Firefox/083.432.673
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0; rv:073.484.752) Gecko/20100101 Firefox/073.484.752
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3; rv:050.980.981) Gecko/20100101 Firefox/050.980.981
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3; rv:030.841.492) Gecko/20100101 Firefox/030.841.492
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4; rv:006.164.588) Gecko/20100101 Firefox/006.164.588
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5; rv:140.277.562) Gecko/20100101 Firefox/140.277.562
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3; rv:061.820.373) Gecko/20100101 Firefox/061.820.373
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4; rv:040.300.005) Gecko/20100101 Firefox/040.300.005
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1; rv:078.274.366) Gecko/20100101 Firefox/078.274.366
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6; rv:050.927.931) Gecko/20100101 Firefox/050.927.931
+Mozilla/5.0 (Windows NT 10.0; rv:069.618.626) Gecko/20100101 Firefox/069.618.626
+Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:019.100.239) Gecko/20100101 Firefox/019.100.239
+Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:019.530.847) Gecko/20100101 Firefox/019.530.847
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3; rv:137.343.747) Gecko/20100101 Firefox/137.343.747
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4; rv:006.908.682) Gecko/20100101 Firefox/006.908.682
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1; rv:084.929.796) Gecko/20100101 Firefox/084.929.796
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1; rv:072.728.196) Gecko/20100101 Firefox/072.728.196
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0; rv:032.487.094) Gecko/20100101 Firefox/032.487.094
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4; rv:139.581.176) Gecko/20100101 Firefox/139.581.176
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6; rv:090.409.319) Gecko/20100101 Firefox/090.409.319
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0; rv:050.728.238) Gecko/20100101 Firefox/050.728.238
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4; rv:035.387.724) Gecko/20100101 Firefox/035.387.724
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3; rv:021.151.179) Gecko/20100101 Firefox/021.151.179
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2; rv:091.989.308) Gecko/20100101 Firefox/091.989.308
+Mozilla/5.0 (Windows NT 10.0; rv:018.615.657) Gecko/20100101 Firefox/018.615.657
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1; rv:011.103.657) Gecko/20100101 Firefox/011.103.657
+Mozilla/5.0 (Windows NT 6.2; rv:103.791.060) Gecko/20100101 Firefox/103.791.060
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3; rv:129.403.713) Gecko/20100101 Firefox/129.403.713
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3; rv:050.102.231) Gecko/20100101 Firefox/050.102.231`;
+            openCodeModal();
+        }
+
+        function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modalBackdrop.classList.remove('opacity-0'); modalContent.classList.remove('opacity-0', 'scale-95'); modalContent.classList.add('scale-100'); }, 10); }
+        function openCodeModal() { codeModal.classList.remove('hidden'); codeModal.classList.add('flex'); setTimeout(() => { codeModalBackdrop.classList.remove('opacity-0'); codeModalContent.classList.remove('opacity-0', 'scale-95'); codeModalContent.classList.add('scale-100'); }, 10); }
+        window.closeModal = function() { modalBackdrop.classList.add('opacity-0'); modalContent.classList.add('opacity-0', 'scale-95'); modalContent.classList.remove('scale-100'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
+        window.closeCodeModal = function() { codeModalBackdrop.classList.add('opacity-0'); codeModalContent.classList.add('opacity-0', 'scale-95'); codeModalContent.classList.remove('scale-100'); setTimeout(() => { codeModal.classList.add('hidden'); codeModal.classList.remove('flex'); }, 300); }
+        
+        modalBackdrop.addEventListener('click', closeModal);
+        codeModalBackdrop.addEventListener('click', closeCodeModal);
+
+        // --- State Management ---
+        
+        // Domain Table State
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let filteredData = [...domainData];
+
+        // Traffic Table State
+        let trafPage = 1;
+        const trafPerPage = 10;
+        let trafData = [];
+        let filteredTrafData = [];
+
+        // --- Functions ---
+
+        // 1. Domain Table Render
+        function renderTable(data) {
+            const tbody = document.getElementById('domainTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = data.slice(start, end);
+
+            pageData.forEach(domain => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-indigo-50/50 transition-colors cursor-default';
+                const isActive = domain.CNAME !== null;
+                
+                const views = Math.floor(Math.random() * 5000) + 500;
+                const trend = Math.random() > 0.5 ? 'up' : 'down';
+                const trendColor = trend === 'up' ? 'text-emerald-500' : 'text-rose-500';
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-slate-700"><a href= 'https://www.${domain["DOMAIN NAME"]}'>${domain["DOMAIN NAME"]}</a></td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${domain["From Which Type"] === 'Domain hunted' ? 'bg-indigo-100 text-indigo-700' : 'bg-purple-100 text-purple-700'}">
+                           ${domain["From Which Type"] || 'Unknown'}</a>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-slate-500">${domain["Which Account Blog"] || '-'}</td>
+                    <td class="px-6 py-4">
+                        ${isActive 
+                            ? '<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> <span class="text-emerald-700 text-xs font-medium">Active</span></div>' 
+                            : '<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> <span class="text-slate-500 text-xs font-medium">Inactive</span></div>'}
+                    </td>
+                    <td class="px-6 py-4">
+                         <div class="flex items-center gap-2">
+                            <span class="text-slate-700 font-semibold text-xs">${domain["LAUNCHEDATE"]}</span>
+                         </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        ${isActive ? 
+                        `<button class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-50 transition-colors" onclick="showDomainDetails('${domain["DOMAIN NAME"]}')">
+                            <i class="ph ph-eye text-lg"></i>
+                        </button>` : 
+                        '<span class="text-slate-300 cursor-not-allowed"><i class="ph ph-eye-slash text-lg"></i></span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Pagination UI
+            const elTotal = document.getElementById('totalItems');
+            const elStart = document.getElementById('pageStart');
+            const elEnd = document.getElementById('pageEnd');
+            const elInfo = document.getElementById('pageInfo');
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+
+            if(elTotal) elTotal.innerText = data.length;
+            if(elStart) elStart.innerText = start + 1;
+            if(elEnd) elEnd.innerText = Math.min(end, data.length);
+            if(elInfo) elInfo.innerText = `Page ${currentPage}`;
+            
+            if(btnPrev) btnPrev.disabled = currentPage === 1;
+            if(btnNext) btnNext.disabled = end >= data.length;
+        }
+
+        window.nextPage = function() {
+            if ((currentPage * itemsPerPage) < filteredData.length) {
+                currentPage++;
+                renderTable(filteredData);
+            }
+        }
+
+        window.prevPage = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable(filteredData);
+            }
+        }
+
+        // 2. Traffic Table Render
+        function generateTrafficData() {
+            const data = [];
+            domainData.forEach(d => {
+                for(let i=7; i<17; i++) {
+                     const date = new Date();
+                     date.setDate(date.getDate() - i);
+                     const direct = Math.floor(Math.random() * 70) + 5;
+                     const keyword = Math.floor(Math.random() * 40) + 11;
+                     const backlink = Math.floor(Math.random() * 30) + 10;
+                     data.push({
+                         date: date.toISOString().split('T')[0],
+                         domain: d["DOMAIN NAME"],
+                         direct, keyword, backlink,
+                         total: direct + keyword + backlink
+                     });
+                }
+            });
+            return data.sort((a,b) => b.total - a.total);
+        }
+
+        function renderTrafficTable() {
+            const tbody = document.getElementById('trafficTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            const start = (trafPage - 1) * trafPerPage;
+            const end = start + trafPerPage;
+            const pageData = filteredTrafData.slice(start, end);
+            
+            pageData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-slate-500 font-mono text-xs">${row.date}</td>
+                    <td class="px-6 py-4 font-medium">${row.domain}</td>
+                    <td class="px-6 py-4 text-slate-600">${row.direct}</td>
+                    <td class="px-6 py-4 text-slate-600">${row.keyword}</td>
+                    <td class="px-6 py-4 text-slate-600">${row.backlink}</td>
+                    <td class="px-6 py-4 text-right font-bold text-indigo-600">${row.total}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const elTrafTotal = document.getElementById('trafTotal');
+            const elTrafStart = document.getElementById('trafStart');
+            const elTrafEnd = document.getElementById('trafEnd');
+            const btnTrafPrev = document.getElementById('btnTrafPrev');
+            const btnTrafNext = document.getElementById('btnTrafNext');
+
+            if(elTrafTotal) elTrafTotal.innerText = filteredTrafData.length;
+            if(elTrafStart) elTrafStart.innerText = start + 1;
+            if(elTrafEnd) elTrafEnd.innerText = Math.min(end, filteredTrafData.length);
+            
+            if(btnTrafPrev) btnTrafPrev.disabled = trafPage === 1;
+            if(btnTrafNext) btnTrafNext.disabled = end >= filteredTrafData.length;
+        }
+
+        window.nextTrafficPage = function() {
+            if ((trafPage * trafPerPage) < filteredTrafData.length) {
+                trafPage++;
+                renderTrafficTable();
+            }
+        }
+        
+        window.prevTrafficPage = function() {
+            if (trafPage > 1) {
+                trafPage--;
+                renderTrafficTable();
+            }
+        }
+
+        // 3. Engagement Table Render
+        function renderEngagementTable() {
+            const tbody = document.getElementById('engagementTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = ''; // Clear existing
+            mockAnalytics.engagement.forEach(row => {
+                 const tr = document.createElement('tr');
+                 tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-slate-700">${row.channel}</td>
+                    <td class="px-6 py-4 text-slate-600">${row.users}</td>
+                    <td class="px-6 py-4 text-slate-600">${row.new}</td>
+                    <td class="px-6 py-4">
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mb-1">
+                            <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${row.rate}"></div>
+                        </div>
+                        <span class="text-xs text-slate-500">${row.rate}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right text-slate-600 font-mono text-xs">${row.time}</td>
+                 `;
+                 tbody.appendChild(tr);
+            });
+        }
+
+        // --- Initialization Execution ---
+
+        // 1. Stats
+        document.getElementById('stat-total').innerText = "39";
+        document.getElementById('stat-active').innerText = domainData.filter(d => d.CNAME).length;
+
+        // 2. Init Domain Table
+        renderTable(domainData);
+        document.getElementById('domainSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            filteredData = domainData.filter(d => d["DOMAIN NAME"].toLowerCase().includes(term));
+            currentPage = 1;
+            renderTable(filteredData);
+        });
+
+        // 3. Init Traffic Table
+        trafData = generateTrafficData();
+        filteredTrafData = [...trafData];
+        renderTrafficTable();
+        document.getElementById('trafficSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            filteredTrafData = trafData.filter(d => d.domain.toLowerCase().includes(term));
+            trafPage = 1;
+            renderTrafficTable();
+        });
+
+        // 4. Init Engagement Table
+        renderEngagementTable();
+
+    {% endraw %}
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "created_at": "2026-01-30T18:53:48.864776",
+  "keywords_used": [
+    "python coding",
+    "javascript coding"
+  ],
+  "total_requested": 2,
+  "total_fetched": 2,
+  "subjects": [
+    "Yasa Scalable Multi Language Taint Analysis On The Unified Ast At Ant Group",
+    "A Costing Framework For Fusion Power Plants"
+  ],
+  "pdfs": [
+    {
+      "filename": "Yasa_Scalable_Multi_Language_Taint_Analysis_On_The_Unified_Ast_At_Ant_Group.pdf",
+      "keyword": "javascript coding",
+      "subject": "Yasa Scalable Multi Language Taint Analysis On The Unified Ast At Ant Group",
+      "size_kb": 1288,
+      "arxiv_url": "https://arxiv.org/abs/2601.17390"
+    },
+    {
+      "filename": "A_Costing_Framework_For_Fusion_Power_Plants.pdf",
+      "keyword": "python coding",
+      "subject": "A Costing Framework For Fusion Power Plants",
+      "size_kb": 448,
+      "arxiv_url": "https://arxiv.org/abs/2601.21724"
+    }
+  ],
+  "pdf_links": [
+    "Yasa_Scalable_Multi_Language_Taint_Analysis_On_The_Unified_Ast_At_Ant_Group.pdf",
+    "A_Costing_Framework_For_Fusion_Power_Plants.pdf"
+  ]
+}

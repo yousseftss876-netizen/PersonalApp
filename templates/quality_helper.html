@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Seeds Helper</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .image-grid, .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .image-card, .pdf-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .image-card:hover, .pdf-card:hover {
+            transform: scale(1.05);
+        }
+        .image-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .pdf-card {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .pdf-icon {
+            font-size: 3rem;
+            color: #dc2626;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .script-section {
+            display: none;
+        }
+        .script-section.active {
+            display: block;
+        }
+		/* ── TSSW Background Watermark ───────────────── */
+        .tssw-watermark{
+            position:fixed;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            font-size:12rem;
+            font-weight:800;
+            line-height:.8;
+            color:rgba(148,163,184,.10);
+            letter-spacing:-8px;
+            writing-mode:vertical-rl;
+            text-orientation:mixed;
+            user-select:none;
+            pointer-events:none;
+            z-index:0;
+        }
+        main, header{
+            position:relative;
+            z-index:1;
+        }
+
+    
+        @media (max-width: 1024px){
+            .tssw-watermark{
+                font-size:8rem;
+                left:8px;
+                opacity:.8;
+            }
+        }
+        @media (max-width: 768px){
+            .tssw-watermark{
+                font-size:5rem;
+                left:-5px;
+                color:rgba(148,163,184,.06);
+            }
+        }
+        @media (max-width: 640px){
+            .tssw-watermark{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen"><div class="tssw-watermark">{{ current_user.entity }}</div>
+    {% set page_title = "Quality Seeds Helper" %}
+    {% set page_icon = "ph-plant" %}
+    {% include '_header.html' %}
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex gap-6">
+            <div class="w-64 flex-shrink-0">
+                <div class="glass-card rounded-xl p-4">
+                    <h3 class="font-semibold text-gray-700 mb-4">
+                        <i class="fas fa-tools mr-2"></i>Scripts
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="sidebar-item active rounded-lg px-4 py-3 cursor-pointer" data-script="images" onclick="switchScript('images')">
+                            <i class="fas fa-image mr-2"></i>
+                            Get Images
+                        </div>
+                        <div class="sidebar-item rounded-lg px-4 py-3 cursor-pointer" data-script="pdfs" onclick="switchScript('pdfs')">
+                            <i class="fas fa-file-pdf mr-2"></i>
+                            Get PDFs
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1">
+                <!-- GET IMAGES SECTION -->
+                <div id="images-section" class="script-section active">
+                    <div class="glass-card rounded-xl p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-image text-indigo-600 mr-2"></i>
+                            Get Images Script
+                        </h2>
+
+                        <div id="images-no-process-section">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-blue-800">How it works</h4>
+                                        <p class="text-blue-700 text-sm mt-1">
+                                            Enter keywords (one per line), specify how many images you want, and the script will search and download high-quality images based on your keywords. Subjects will be auto-generated for each image.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">
+                                        <i class="fas fa-key mr-2"></i>Keywords (one per line)
+                                    </label>
+                                    <textarea id="images-keywords-input" rows="10" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none" placeholder="web design&#10;digital marketing&#10;seo services&#10;app development&#10;..."></textarea>
+                                    <p class="text-sm text-gray-500 mt-1" id="images-keyword-count">0 keywords entered</p>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">
+                                        <i class="fas fa-hashtag mr-2"></i>Number of Images
+                                    </label>
+                                    <input type="number" id="images-count-input" min="1" max="50" value="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    <p class="text-sm text-gray-500 mt-1">Maximum: 50 images per process</p>
+                                    
+                                    <div class="mt-6">
+                                        <button id="images-start-btn" onclick="startImagesProcess()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
+                                            <i class="fas fa-play mr-2"></i>Start Process
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="images-running-section" class="hidden">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                                <div class="animate-spin w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Process Running</h3>
+                                <p id="images-running-status" class="text-gray-600 mb-4">Starting...</p>
+                                <div class="progress-bar max-w-md mx-auto mb-2">
+                                    <div id="images-progress-fill" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <p id="images-progress-text" class="text-sm text-gray-500">0 / 0 images</p>
+                            </div>
+                        </div>
+
+                        <div id="images-results-section" class="hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-800">Results</h3>
+                                    <p id="images-results-info" class="text-gray-600 text-sm"></p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button onclick="downloadImagesZip()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all copy-btn">
+                                        <i class="fas fa-download mr-2"></i>Download ZIP
+                                    </button>
+                                    <button onclick="deleteImagesProcess()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all copy-btn">
+                                        <i class="fas fa-trash mr-2"></i>Delete Process
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-images mr-2"></i>Images
+                                    <button onclick="copyAllImageUrls()" class="ml-2 text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-full transition-all">
+                                        <i class="fas fa-copy mr-1"></i>Copy All Image URLs
+                                    </button>
+                                </h4>
+                                <div id="images-grid" class="image-grid"></div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="font-semibold text-gray-700">
+                                            <i class="fas fa-heading mr-2"></i>Subjects
+                                        </label>
+                                        <button onclick="copyImagesSubjects()" class="copy-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-full text-sm transition-all">
+                                            <i class="fas fa-copy mr-1"></i>Copy
+                                        </button>
+                                    </div>
+                                    <textarea id="images-subjects-textarea" rows="8" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 resize-none"></textarea>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="font-semibold text-gray-700">
+                                            <i class="fas fa-link mr-2"></i>Image Links
+                                        </label>
+                                        <button onclick="copyImageLinks()" class="copy-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-full text-sm transition-all">
+                                            <i class="fas fa-copy mr-1"></i>Copy
+                                        </button>
+                                    </div>
+                                    <textarea id="images-links-textarea" rows="8" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 resize-none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GET PDFS SECTION -->
+                <div id="pdfs-section" class="script-section">
+                    <div class="glass-card rounded-xl p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-file-pdf text-red-600 mr-2"></i>
+                            Get PDFs Script
+                        </h2>
+
+                        <div id="pdfs-no-process-section">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-blue-800">How it works</h4>
+                                        <p class="text-blue-700 text-sm mt-1">
+                                            Enter keywords (one per line), specify how many PDFs you want, and the script will search arXiv for academic papers matching your keywords. PDFs with 5+ word titles and no numbers will be downloaded (max 5MB each).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">
+                                        <i class="fas fa-key mr-2"></i>Keywords (one per line)
+                                    </label>
+                                    <textarea id="pdfs-keywords-input" rows="10" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none" placeholder="machine learning&#10;artificial intelligence&#10;deep learning&#10;neural networks&#10;..."></textarea>
+                                    <p class="text-sm text-gray-500 mt-1" id="pdfs-keyword-count">0 keywords entered</p>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">
+                                        <i class="fas fa-hashtag mr-2"></i>Number of PDFs
+                                    </label>
+                                    <input type="number" id="pdfs-count-input" min="1" max="50" value="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    <p class="text-sm text-gray-500 mt-1">Maximum: 50 PDFs per process (max 5MB each)</p>
+                                    
+                                    <div class="mt-6">
+                                        <button id="pdfs-start-btn" onclick="startPdfsProcess()" class="w-full bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-semibold transition-all">
+                                            <i class="fas fa-play mr-2"></i>Start Process
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pdfs-running-section" class="hidden">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                                <div class="animate-spin w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">Process Running</h3>
+                                <p id="pdfs-running-status" class="text-gray-600 mb-4">Starting...</p>
+                                <div class="progress-bar max-w-md mx-auto mb-2">
+                                    <div id="pdfs-progress-fill" class="progress-fill" style="width: 0%; background: linear-gradient(135deg, #dc2626 0%, #db2777 100%);"></div>
+                                </div>
+                                <p id="pdfs-progress-text" class="text-sm text-gray-500">0 / 0 PDFs</p>
+                            </div>
+                        </div>
+
+                        <div id="pdfs-results-section" class="hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-800">Results</h3>
+                                    <p id="pdfs-results-info" class="text-gray-600 text-sm"></p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button onclick="downloadPdfsZip()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-all copy-btn">
+                                        <i class="fas fa-download mr-2"></i>Download ZIP
+                                    </button>
+                                    <button onclick="deletePdfsProcess()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-all copy-btn">
+                                        <i class="fas fa-trash mr-2"></i>Delete Process
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-file-pdf mr-2"></i>PDFs
+                                </h4>
+                                <div id="pdfs-grid" class="pdf-grid"></div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="font-semibold text-gray-700">
+                                            <i class="fas fa-heading mr-2"></i>Subjects
+                                        </label>
+                                        <button onclick="copyPdfsSubjects()" class="copy-btn bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-full text-sm transition-all">
+                                            <i class="fas fa-copy mr-1"></i>Copy
+                                        </button>
+                                    </div>
+                                    <textarea id="pdfs-subjects-textarea" rows="8" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 resize-none"></textarea>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="font-semibold text-gray-700">
+                                            <i class="fas fa-link mr-2"></i>PDF Links
+                                        </label>
+                                        <button onclick="copyPdfLinks()" class="copy-btn bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-full text-sm transition-all">
+                                            <i class="fas fa-copy mr-1"></i>Copy
+                                        </button>
+                                    </div>
+                                    <textarea id="pdfs-links-textarea" rows="8" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 resize-none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let imagesPollingInterval = null;
+        let pdfsPollingInterval = null;
+        let imagesProcessData = null;
+        let pdfsProcessData = null;
+
+        function switchScript(script) {
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.script === script) {
+                    item.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.script-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(script + '-section').classList.add('active');
+        }
+
+        document.getElementById('images-keywords-input').addEventListener('input', function() {
+            updateKeywordCount('images');
+        });
+        document.getElementById('pdfs-keywords-input').addEventListener('input', function() {
+            updateKeywordCount('pdfs');
+        });
+
+        function updateKeywordCount(type) {
+            const text = document.getElementById(type + '-keywords-input').value;
+            const keywords = text.split('\n').filter(k => k.trim()).length;
+            document.getElementById(type + '-keyword-count').textContent = keywords + ' keywords entered';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.background = type === 'error' ? '#ef4444' : '#10b981';
+            toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} mr-2"></i>${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ===================== IMAGES FUNCTIONS =====================
+        
+        async function checkImagesStatus() {
+            try {
+                const response = await fetch('/api/quality-helper/status');
+                const data = await response.json();
+
+                if (data.running) {
+                    showImagesRunningSection();
+                    document.getElementById('images-running-status').textContent = data.status || 'Processing...';
+                    const progress = data.total > 0 ? (data.progress / data.total * 100) : 0;
+                    document.getElementById('images-progress-fill').style.width = progress + '%';
+                    document.getElementById('images-progress-text').textContent = `${data.progress} / ${data.total} images`;
+
+                    if (!imagesPollingInterval) {
+                        imagesPollingInterval = setInterval(checkImagesStatus, 2000);
+                    }
+                } else if (data.has_process && data.data) {
+                    if (imagesPollingInterval) {
+                        clearInterval(imagesPollingInterval);
+                        imagesPollingInterval = null;
+                    }
+                    imagesProcessData = data.data;
+                    showImagesResultsSection(data.data);
+                } else {
+                    if (imagesPollingInterval) {
+                        clearInterval(imagesPollingInterval);
+                        imagesPollingInterval = null;
+                    }
+                    showImagesNoProcessSection();
+                }
+            } catch (error) {
+                console.error('Error checking images status:', error);
+            }
+        }
+
+        function showImagesNoProcessSection() {
+            document.getElementById('images-no-process-section').classList.remove('hidden');
+            document.getElementById('images-running-section').classList.add('hidden');
+            document.getElementById('images-results-section').classList.add('hidden');
+        }
+
+        function showImagesRunningSection() {
+            document.getElementById('images-no-process-section').classList.add('hidden');
+            document.getElementById('images-running-section').classList.remove('hidden');
+            document.getElementById('images-results-section').classList.add('hidden');
+        }
+
+        function showImagesResultsSection(data) {
+            document.getElementById('images-no-process-section').classList.add('hidden');
+            document.getElementById('images-running-section').classList.add('hidden');
+            document.getElementById('images-results-section').classList.remove('hidden');
+
+            document.getElementById('images-results-info').textContent = 
+                `${data.total_fetched} images fetched on ${new Date(data.created_at).toLocaleString()}`;
+
+            const imagesGrid = document.getElementById('images-grid');
+            imagesGrid.innerHTML = '';
+            data.images.forEach(img => {
+                const card = document.createElement('div');
+                card.className = 'image-card bg-white';
+                card.innerHTML = `
+                    <img src="/api/quality-helper/image/${img.filename}" alt="${img.keyword}">
+                    <div class="p-3">
+                        <p class="text-sm font-medium text-gray-800 truncate">${img.keyword}</p>
+                        <p class="text-xs text-gray-500">${img.size_kb} KB</p>
+                    </div>
+                `;
+                imagesGrid.appendChild(card);
+            });
+
+            document.getElementById('images-subjects-textarea').value = data.subjects.join('\n');
+            document.getElementById('images-links-textarea').value = data.image_links.join('\n');
+        }
+
+        async function startImagesProcess() {
+            const keywords = document.getElementById('images-keywords-input').value;
+            const imageCount = document.getElementById('images-count-input').value;
+
+            const btn = document.getElementById('images-start-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+
+            try {
+                const response = await fetch('/api/quality-helper/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keywords, image_count: imageCount })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showImagesRunningSection();
+                    imagesPollingInterval = setInterval(checkImagesStatus, 2000);
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error starting process', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Process';
+            }
+        }
+
+        async function deleteImagesProcess() {
+            if (!confirm('Are you sure you want to delete this process? All images and data will be removed.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/quality-helper/delete', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Process deleted successfully');
+                    showImagesNoProcessSection();
+                    imagesProcessData = null;
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error deleting process', 'error');
+            }
+        }
+
+        function downloadImagesZip() {
+            window.location.href = '/api/quality-helper/download-zip';
+        }
+
+        function copyImagesSubjects() {
+            const text = document.getElementById('images-subjects-textarea').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Subjects copied to clipboard');
+            });
+        }
+
+        function copyImageLinks() {
+            const text = document.getElementById('images-links-textarea').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Image links copied to clipboard');
+            });
+        }
+
+        function copyAllImageUrls() {
+            if (imagesProcessData && imagesProcessData.image_links) {
+                navigator.clipboard.writeText(imagesProcessData.image_links.join('\n')).then(() => {
+                    showToast('All image URLs copied to clipboard');
+                });
+            }
+        }
+
+        // ===================== PDFS FUNCTIONS =====================
+
+        async function checkPdfsStatus() {
+            try {
+                const response = await fetch('/api/quality-helper/pdf/status');
+                const data = await response.json();
+
+                if (data.running) {
+                    showPdfsRunningSection();
+                    document.getElementById('pdfs-running-status').textContent = data.status || 'Processing...';
+                    const progress = data.total > 0 ? (data.progress / data.total * 100) : 0;
+                    document.getElementById('pdfs-progress-fill').style.width = progress + '%';
+                    document.getElementById('pdfs-progress-text').textContent = `${data.progress} / ${data.total} PDFs`;
+
+                    if (!pdfsPollingInterval) {
+                        pdfsPollingInterval = setInterval(checkPdfsStatus, 2000);
+                    }
+                } else if (data.has_process && data.data) {
+                    if (pdfsPollingInterval) {
+                        clearInterval(pdfsPollingInterval);
+                        pdfsPollingInterval = null;
+                    }
+                    pdfsProcessData = data.data;
+                    showPdfsResultsSection(data.data);
+                } else {
+                    if (pdfsPollingInterval) {
+                        clearInterval(pdfsPollingInterval);
+                        pdfsPollingInterval = null;
+                    }
+                    showPdfsNoProcessSection();
+                }
+            } catch (error) {
+                console.error('Error checking PDFs status:', error);
+            }
+        }
+
+        function showPdfsNoProcessSection() {
+            document.getElementById('pdfs-no-process-section').classList.remove('hidden');
+            document.getElementById('pdfs-running-section').classList.add('hidden');
+            document.getElementById('pdfs-results-section').classList.add('hidden');
+        }
+
+        function showPdfsRunningSection() {
+            document.getElementById('pdfs-no-process-section').classList.add('hidden');
+            document.getElementById('pdfs-running-section').classList.remove('hidden');
+            document.getElementById('pdfs-results-section').classList.add('hidden');
+        }
+
+        function showPdfsResultsSection(data) {
+            document.getElementById('pdfs-no-process-section').classList.add('hidden');
+            document.getElementById('pdfs-running-section').classList.add('hidden');
+            document.getElementById('pdfs-results-section').classList.remove('hidden');
+
+            document.getElementById('pdfs-results-info').textContent = 
+                `${data.total_fetched} PDFs fetched on ${new Date(data.created_at).toLocaleString()}`;
+
+            const pdfsGrid = document.getElementById('pdfs-grid');
+            pdfsGrid.innerHTML = '';
+            data.pdfs.forEach(pdf => {
+                const card = document.createElement('div');
+                card.className = 'pdf-card';
+                card.innerHTML = `
+                    <i class="fas fa-file-pdf pdf-icon"></i>
+                    <p class="text-sm font-medium text-gray-800 truncate w-full" title="${pdf.filename}">${pdf.filename.substring(0, 25)}${pdf.filename.length > 25 ? '...' : ''}</p>
+                    <p class="text-xs text-gray-500">${pdf.size_kb} KB</p>
+                    <a href="/api/quality-helper/pdf/${pdf.filename}" target="_blank" class="mt-2 text-sm text-red-600 hover:text-red-800">
+                        <i class="fas fa-external-link-alt mr-1"></i>View
+                    </a>
+                `;
+                pdfsGrid.appendChild(card);
+            });
+
+            document.getElementById('pdfs-subjects-textarea').value = data.subjects.join('\n');
+            document.getElementById('pdfs-links-textarea').value = data.pdf_links.join('\n');
+        }
+
+        async function startPdfsProcess() {
+            const keywords = document.getElementById('pdfs-keywords-input').value;
+            const pdfCount = document.getElementById('pdfs-count-input').value;
+
+            const btn = document.getElementById('pdfs-start-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+
+            try {
+                const response = await fetch('/api/quality-helper/pdf/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keywords, pdf_count: pdfCount })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showPdfsRunningSection();
+                    pdfsPollingInterval = setInterval(checkPdfsStatus, 2000);
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error starting PDF process', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Process';
+            }
+        }
+
+        async function deletePdfsProcess() {
+            if (!confirm('Are you sure you want to delete this PDF process? All PDFs and data will be removed.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/quality-helper/pdf/delete', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('PDF process deleted successfully');
+                    showPdfsNoProcessSection();
+                    pdfsProcessData = null;
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error deleting PDF process', 'error');
+            }
+        }
+
+        function downloadPdfsZip() {
+            window.location.href = '/api/quality-helper/pdf/download-zip';
+        }
+
+        function copyPdfsSubjects() {
+            const text = document.getElementById('pdfs-subjects-textarea').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Subjects copied to clipboard');
+            });
+        }
+
+        function copyPdfLinks() {
+            const text = document.getElementById('pdfs-links-textarea').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('PDF links copied to clipboard');
+            });
+        }
+
+        // Initialize both sections
+        checkImagesStatus();
+        checkPdfsStatus();
+    </script>
+</body>
+</html>

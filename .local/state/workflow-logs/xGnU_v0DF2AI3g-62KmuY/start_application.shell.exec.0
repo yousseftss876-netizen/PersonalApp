@@ -1,0 +1,49 @@
+[2026-03-25 08:22:34 +0000] [545] [INFO] Starting gunicorn 25.1.0
+[2026-03-25 08:22:34 +0000] [545] [INFO] Listening at:  (545)
+[2026-03-25 08:22:34 +0000] [545] [INFO] Using worker: sync
+[2026-03-25 08:22:34 +0000] [557] [INFO] Booting worker with pid: 557
+[2026-03-25 08:22:34 +0000] [545] [INFO] Control socket listening at /home/runner/workspace/gunicorn.ctl
+[2026-03-25 08:22:34 +0000] [557] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:35 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:22:36 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:23:39 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:23:40 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:43:25 +0000] [557] [INFO] Worker reloading: /home/runner/workspace/app.py modified
+[2026-03-25 08:43:25 +0000] [557] [INFO] Worker exiting (pid: 557)
+[2026-03-25 08:43:25 +0000] [1002] [INFO] Booting worker with pid: 1002
+[2026-03-25 08:43:25 +0000] [1002] [WARNING] Reloader is on. Use in development only!
+/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/spf/config.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[2026-03-25 08:43:26 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:43:26 +0000] [545] [INFO] Handling signal: winch
+[2026-03-25 08:43:28 +0000] [545] [INFO] Handling signal: term
+[2026-03-25 08:43:28 +0000] [1002] [INFO] Worker exiting (pid: 1002)
+[2026-03-25 08:43:28 +0000] [545] [INFO] Shutting down: Master

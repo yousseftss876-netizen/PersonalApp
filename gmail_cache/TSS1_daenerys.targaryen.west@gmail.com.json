@@ -1,0 +1,508 @@
+{
+  "emails": [
+    {
+      "uid": "181460",
+      "folder": "Inbox",
+      "from_name": "Santiago Visbal",
+      "from_email": "287315@xanterra.com",
+      "subject": "Are you still interested in sailing with Windstar Cruises?",
+      "date": "40 days",
+      "date_timestamp": 1773348190.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181551",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "no-reply@digikey.com",
+      "subject": "Verify your email address",
+      "date": "39 days",
+      "date_timestamp": 1773487423.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181552",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "no-reply@digikey.com",
+      "subject": "Verify your email address",
+      "date": "39 days",
+      "date_timestamp": 1773487430.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181569",
+      "folder": "Inbox",
+      "from_name": "Mozilla Firefox",
+      "from_email": "accounts@firefox.com",
+      "subject": "Confirm your Mozilla account to sync",
+      "date": "38 days",
+      "date_timestamp": 1773502195.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181710",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "support@ezsignly.com",
+      "subject": "Need faster document signing? We can help.",
+      "date": "36 days",
+      "date_timestamp": 1773732257.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181833",
+      "folder": "Inbox",
+      "from_name": "Jack Lemone",
+      "from_email": "Jack.Lemone@Buildium.com",
+      "subject": "Action Appreciated",
+      "date": "34 days",
+      "date_timestamp": 1773850086.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181837",
+      "folder": "Inbox",
+      "from_name": "Azeddine ATIK",
+      "from_email": "a.atik@ueuromed.org",
+      "subject": "Finalisation de votre dossier d’admission – Université Euromed de Fès",
+      "date": "34 days",
+      "date_timestamp": 1773851952.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "181935",
+      "folder": "Inbox",
+      "from_name": "Ina Filipovic",
+      "from_email": "ina@doorgrow.com",
+      "subject": "Allison  , have you calculated your missed deals yet?",
+      "date": "33 days",
+      "date_timestamp": 1773947647.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182100",
+      "folder": "Inbox",
+      "from_name": "Kat Baranowski",
+      "from_email": "kat.b@membership.io",
+      "subject": "Re: quick thought for you",
+      "date": "30 days",
+      "date_timestamp": 1774214851.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182381",
+      "folder": "Inbox",
+      "from_name": "Hugo Paz",
+      "from_email": "hugo@wellbytes.ca",
+      "subject": "Re: Wellbytea Health and Wellness Plans",
+      "date": "26 days",
+      "date_timestamp": 1774542309.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182510",
+      "folder": "Inbox",
+      "from_name": "Cozi",
+      "from_email": "no-reply@cozi.com",
+      "subject": "Please confirm your email address for Cozi",
+      "date": "24 days",
+      "date_timestamp": 1774744074.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182709",
+      "folder": "Inbox",
+      "from_name": "QNMU",
+      "from_email": "growthteam@qnmu.org.au",
+      "subject": "QNMU Membership Followup 2091042",
+      "date": "21 days",
+      "date_timestamp": 1775024711.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182898",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "\"=?utf-8?Q?Direcci=C3=B3n?= General de =?utf-8?Q?Migraci=C3=B3n?= y\r\n =?utf-8?Q?Extranjer=C3=ADa?=\" <notificaciones@migracion.gob.sv>",
+      "subject": "Confirme su correo  electrónico",
+      "date": "19 days",
+      "date_timestamp": 1775216669.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182899",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "\"=?utf-8?Q?Direcci=C3=B3n?= General de =?utf-8?Q?Migraci=C3=B3n?= y\r\n =?utf-8?Q?Extranjer=C3=ADa?=\" <notificaciones@migracion.gob.sv>",
+      "subject": "Notificación  de restablecimiento de contraseña",
+      "date": "19 days",
+      "date_timestamp": 1775216706.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "182900",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "noreply@adoptingelsalvador.gob.sv",
+      "subject": "El Salvador Immigration: Verify your email",
+      "date": "19 days",
+      "date_timestamp": 1775216720.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183106",
+      "folder": "Inbox",
+      "from_name": "Consular Plus",
+      "from_email": "noreply-consularplus.foreign@gov.mt",
+      "subject": "ConsularPlus - Reset Password",
+      "date": "15 days",
+      "date_timestamp": 1775553460.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183112",
+      "folder": "Inbox",
+      "from_name": "MSP Film Society",
+      "from_email": "info-mspfilm.org@shared1.ccsend.com",
+      "subject": "Thanks for signing up for the MSP Film Society E-Newsletter",
+      "date": "15 days",
+      "date_timestamp": 1775565078.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183116",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "smartraveller@smartraveller.gov.au",
+      "subject": "Please verify your email address – Smartraveller",
+      "date": "15 days",
+      "date_timestamp": 1775565757.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183117",
+      "folder": "Inbox",
+      "from_name": "Exploratorium Newsletter",
+      "from_email": "Newsletter@contact.exploratorium.edu",
+      "subject": "Welcome to the Exploratorium!",
+      "date": "15 days",
+      "date_timestamp": 1775566088.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183118",
+      "folder": "Inbox",
+      "from_name": "Positive Psychology",
+      "from_email": "info@positivepsychology.com",
+      "subject": "Always on edge?",
+      "date": "15 days",
+      "date_timestamp": 1775566998.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183120",
+      "folder": "Inbox",
+      "from_name": "Stock Analysis",
+      "from_email": "contact@stockanalysis.com",
+      "subject": "Market Bullets: Broadcom gains on AI deals, Amazon's postal pact,\r\n Pershing Square offers to buy Universal Music Group",
+      "date": "15 days",
+      "date_timestamp": 1775567199.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183124",
+      "folder": "Inbox",
+      "from_name": "Stu McLaren",
+      "from_email": "stumclaren@stu.me",
+      "subject": "Starts TOMORROW",
+      "date": "15 days",
+      "date_timestamp": 1775568725.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183126",
+      "folder": "Inbox",
+      "from_name": "myLot",
+      "from_email": "no-reply@mylot.com",
+      "subject": "Welcome to myLot! Please verify your email address.",
+      "date": "15 days",
+      "date_timestamp": 1775569664.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183128",
+      "folder": "Inbox",
+      "from_name": "International Open Access Week",
+      "from_email": "no-reply@campaign-preferences.com",
+      "subject": "Confirm your sign up for Open Access Week emails",
+      "date": "14 days",
+      "date_timestamp": 1775570437.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183130",
+      "folder": "Inbox",
+      "from_name": "The Futurist",
+      "from_email": "email@email.getthefuturist.com",
+      "subject": "We found the first dog ever",
+      "date": "14 days",
+      "date_timestamp": 1775570652.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183131",
+      "folder": "Inbox",
+      "from_name": "Main Line Health",
+      "from_email": "webservices@mlhs.org",
+      "subject": "Resilience meets modern medicine",
+      "date": "14 days",
+      "date_timestamp": 1775570884.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183132",
+      "folder": "Inbox",
+      "from_name": "BookBub",
+      "from_email": "info@bookbub.com",
+      "subject": "Your ebook bargains for Tuesday",
+      "date": "14 days",
+      "date_timestamp": 1775570903.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183137",
+      "folder": "Inbox",
+      "from_name": "Entertainment Earth",
+      "from_email": "hello@entertainmentearth.com",
+      "subject": "The Vault is Open  🎉",
+      "date": "14 days",
+      "date_timestamp": 1775574041.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183142",
+      "folder": "Inbox",
+      "from_name": "",
+      "from_email": "LISTSERV@LISTS.ERCOT.COM",
+      "subject": "Please Confirm Your Subscription to the TXANS List",
+      "date": "14 days",
+      "date_timestamp": 1775576558.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183144",
+      "folder": "Inbox",
+      "from_name": "Givebutter",
+      "from_email": "support@givebutter.com",
+      "subject": "[Free download] Is your donation form fully optimized? ✅",
+      "date": "14 days",
+      "date_timestamp": 1775577554.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183148",
+      "folder": "Inbox",
+      "from_name": "BookBub",
+      "from_email": "info@bookbub.com",
+      "subject": "New Releases for Less: New books at great prices",
+      "date": "14 days",
+      "date_timestamp": 1775577700.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183152",
+      "folder": "Inbox",
+      "from_name": "ASA Newsletter",
+      "from_email": "donotreply@wordpress.com",
+      "subject": "Confirm your subscription",
+      "date": "14 days",
+      "date_timestamp": 1775579427.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183153",
+      "folder": "Inbox",
+      "from_name": "Daily Variety",
+      "from_email": "email@email.variety.com",
+      "subject": "Inside the 'Michael' Overhaul; Kanye's U.K. Festival Canceled; Is\r\n 'The Pitt' Building an Emmy Dynasty?",
+      "date": "14 days",
+      "date_timestamp": 1775579668.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183155",
+      "folder": "Inbox",
+      "from_name": "Techpresso",
+      "from_email": "techpresso@dupple.com",
+      "subject": "☕️  Intel joins Elon Musk's $25B Terafab",
+      "date": "14 days",
+      "date_timestamp": 1775580099.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183159",
+      "folder": "Inbox",
+      "from_name": "IQ Index",
+      "from_email": "index@iqmagazine.com",
+      "subject": "Wireless cancelled, The Team promotes Shivers, AXS hails 'smooth' Céline artist presale",
+      "date": "14 days",
+      "date_timestamp": 1775580913.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183167",
+      "folder": "Inbox",
+      "from_name": "Stu McLaren",
+      "from_email": "stumclaren@stu.me",
+      "subject": "The email from a veteran’s wife that wrecked me",
+      "date": "14 days",
+      "date_timestamp": 1775585979.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183168",
+      "folder": "Inbox",
+      "from_name": "Daily Variety",
+      "from_email": "email@email.variety.com",
+      "subject": "LISTEN: Andra Day on Why She Supports No Kid Hungry's Campaign to End\r\n Childhood Hunger: 'It's of the Utmost Importance'",
+      "date": "14 days",
+      "date_timestamp": 1775586470.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183174",
+      "folder": "Inbox",
+      "from_name": "Tracy Quattrocki, Executive Editor/Publisher",
+      "from_email": "news@evanstonroundtable.com",
+      "subject": "Welcome to the Evanston RoundTable!",
+      "date": "14 days",
+      "date_timestamp": 1775591916.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183176",
+      "folder": "Inbox",
+      "from_name": "AHRI AM",
+      "from_email": "AM@ahri.com.au",
+      "subject": "​Why  workplace ostracism could be your organisation’s hidden psychosocial risk​",
+      "date": "14 days",
+      "date_timestamp": 1775592334.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183177",
+      "folder": "Inbox",
+      "from_name": "ClassAction.org Newsletter",
+      "from_email": "newsletter@classaction.org",
+      "subject": "Please confirm your subscription to the ClassAction.org newsletter",
+      "date": "14 days",
+      "date_timestamp": 1775592771.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183178",
+      "folder": "Inbox",
+      "from_name": "Girls Who Code",
+      "from_email": "info@girlswhocode.com",
+      "subject": "See how students are using AI to keep people safe online 🔐",
+      "date": "14 days",
+      "date_timestamp": 1775594907.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183179",
+      "folder": "Inbox",
+      "from_name": "Gail McDade, Labour Party HQ",
+      "from_email": "no-reply@join.labour.org.uk",
+      "subject": "Have questions about joining Labour? I'm here to help!",
+      "date": "14 days",
+      "date_timestamp": 1775595638.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183182",
+      "folder": "Inbox",
+      "from_name": "Truckee Chamber of Commerce",
+      "from_email": "melissa-truckee.com@shared1.ccsend.com",
+      "subject": "April Good Morning Truckee: Wolves in the Sierra",
+      "date": "14 days",
+      "date_timestamp": 1775597034.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183183",
+      "folder": "Inbox",
+      "from_name": "Woodland Park Zoo",
+      "from_email": "noreply+9bae6dcbff465f0b@formstack.com",
+      "subject": "MyZoo News Signup Confirmation",
+      "date": "14 days",
+      "date_timestamp": 1775598664.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183185",
+      "folder": "Inbox",
+      "from_name": "The D.C. Brief",
+      "from_email": "TIME@nl.time.com",
+      "subject": "What Chuck Schumer is telling Democratic insiders",
+      "date": "14 days",
+      "date_timestamp": 1775599252.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183186",
+      "folder": "Inbox",
+      "from_name": "Entertainment Earth",
+      "from_email": "hello@entertainmentearth.com",
+      "subject": "You're Invited: Game Night Starts Here",
+      "date": "14 days",
+      "date_timestamp": 1775601417.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183191",
+      "folder": "Inbox",
+      "from_name": "Australian HR Institute",
+      "from_email": "enquiries@ahri.com.au",
+      "subject": "Learn and Connect with AHRI",
+      "date": "14 days",
+      "date_timestamp": 1775621067.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183271",
+      "folder": "Inbox",
+      "from_name": "InfinityFree",
+      "from_email": "noreply@infinityfree.com",
+      "subject": "Reminder: if0_41150223 (Website for omareloutmani.kesug.com) is\r\n suspended for inactivity and may be removed soon!",
+      "date": "13 days",
+      "date_timestamp": 1775726778.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183365",
+      "folder": "Inbox",
+      "from_name": "Santiago Visbal",
+      "from_email": "287315@xanterra.com",
+      "subject": "Thank You for Considering Windstar Cruises",
+      "date": "11 days",
+      "date_timestamp": 1775844044.0,
+      "folder_name": "Inbox"
+    },
+    {
+      "uid": "183942",
+      "folder": "Inbox",
+      "from_name": "admissions UEMF",
+      "from_email": "admissions@ueuromed.org",
+      "subject": "Objet : Invitation – Journée Portes Ouvertes | Samedi 25 avril 2026",
+      "date": "3 h",
+      "date_timestamp": 1776853052.0,
+      "folder_name": "Inbox"
+    }
+  ],
+  "fetched_at": "2026-04-22T13:54:46.476411+00:00",
+  "email_count": 50,
+  "status": "idle",
+  "error": null
+}

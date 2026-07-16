@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Warmup Reports — TSS Platform</title>
+        <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: { fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'], mono: ['JetBrains Mono','ui-monospace'] } } }
+  }
+</script>
+<style>
+  :root { color-scheme: light dark; }
+  html, body { height: 100%; }
+  body { font-family: 'Inter', sans-serif; }
+  body, .card, .nav-tab, .pill { transition: background-color .25s ease, color .25s ease, border-color .25s ease; }
+  .dark body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse 60% 50% at 10% 20%,rgba(56,189,248,.08) 0%,transparent 70%),
+                radial-gradient(ellipse 50% 40% at 90% 10%,rgba(139,92,246,.07) 0%,transparent 70%),
+                radial-gradient(ellipse 40% 50% at 50% 90%,rgba(52,211,153,.05) 0%,transparent 70%); }
+  html:not(.dark) body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse 60% 50% at 10% 20%,rgba(56,189,248,.10) 0%,transparent 70%),
+                radial-gradient(ellipse 50% 40% at 90% 10%,rgba(139,92,246,.07) 0%,transparent 70%); }
+  .panel { display:none; animation:fadeUp .35s cubic-bezier(.2,.7,.2,1) both; }
+  .panel.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .nice-scroll::-webkit-scrollbar { height:8px; width:8px; }
+  .nice-scroll::-webkit-scrollbar-thumb { background:rgba(100,116,139,.4); border-radius:8px; }
+  .nice-scroll::-webkit-scrollbar-track { background:transparent; }
+  th[data-sort] { cursor:pointer; user-select:none; }
+  th[data-sort]:hover { color:#38bdf8; }
+  th .sort-ind { opacity:.35; margin-left:4px; font-size:.65rem; }
+  th.sorted-asc .sort-ind, th.sorted-desc .sort-ind { opacity:1; color:#38bdf8; }
+  .pbar { height:6px; border-radius:999px; overflow:hidden; background:rgba(100,116,139,.18); }
+  .pfill { height:100%; border-radius:999px; transition:width .6s ease; }
+  .nav-tab { position:relative; }
+  .nav-tab.active::after { content:''; position:absolute; left:12%; right:12%; bottom:-1px; height:2px;
+    background:linear-gradient(90deg,#38bdf8,#a78bfa); border-radius:2px; }
+  .grad-text { background:linear-gradient(135deg,#38bdf8,#a78bfa);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .glass { backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+  .dpanel { display:none; }
+  .dpanel.active { display:block; }
+  .fntab-btn.active { background:rgba(56,189,248,.12); color:#38bdf8; border-color:rgba(56,189,248,.35); }
+  .di-btn.active { background:rgba(56,189,248,.12); color:#38bdf8; border-color:rgba(56,189,248,.35); }
+  .ent-fn-panel { display:none; }
+  .ent-fn-panel.active { display:block; }
+  .plan-tab { transition: background-color .2s, color .2s, border-color .2s; }
+  .plan-tab.active { background:rgba(56,189,248,.12); color:#38bdf8; border-color:rgba(56,189,248,.4); }
+  .sess-btn { transition: border-color .15s; }
+  .sess-btn.active { background:rgba(56,189,248,.08); border-color:rgba(56,189,248,.5) !important; }
+
+  /* Hour selector */
+  .hour-select {
+    appearance: none; -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+    padding-right: 28px !important;
+  }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 20px;
+    background: rgba(52,211,153,.15); color: #34d399;
+    border: 1px solid rgba(52,211,153,.3);
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #34d399; animation: livePulse 1.4s ease-in-out infinite;
+  }
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+  /* Empty state */
+  .empty-overlay {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4rem 2rem; text-align: center;
+  }
+
+  /* Loading skeleton */
+  .skeleton { animation: shimmer 1.4s infinite; border-radius: 8px; }
+  .dark .skeleton { background: linear-gradient(90deg, rgba(30,41,59,.6) 25%, rgba(51,65,85,.4) 50%, rgba(30,41,59,.6) 75%); background-size: 200% 100%; }
+  html:not(.dark) .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* ── Unified app header — single row ─────────────── */
+  .app-header {
+    position: sticky; top: 0; z-index: 999;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 1px 8px rgba(0,0,0,.06);
+  }
+  .dark .app-header {
+    background: rgba(8,15,30,.95);
+    border-bottom-color: rgba(148,163,184,.12);
+    box-shadow: 0 1px 12px rgba(0,0,0,.25);
+  }
+  /* Single main row */
+  .app-header-row {
+    max-width: 1500px; margin: 0 auto; padding: 0 16px;
+    height: 52px; display: flex; align-items: center; gap: 8px;
+  }
+  /* Desktop inline tabs (hidden on mobile) */
+  .uh-desktop-tabs {
+    display: none; align-items: center; gap: 1px; height: 100%; flex-shrink: 0;
+  }
+  @media (min-width: 768px) { .uh-desktop-tabs { display: flex; } }
+  /* active tab indicator aligned to header bottom border */
+  .uh-desktop-tabs .nav-tab.active::after {
+    content:''; position:absolute; left:12%; right:12%; bottom:-1px; height:2px;
+    background:linear-gradient(90deg,#38bdf8,#a78bfa); border-radius:2px;
+  }
+  .uh-desktop-tabs .nav-tab.active { color: #38bdf8; }
+  /* Mobile hamburger button (hidden on md+) */
+  .uh-mob-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+    border: 1px solid rgba(100,116,139,.22); background: transparent;
+    cursor: pointer; color: #64748b; transition: background .15s, color .15s;
+  }
+  .uh-mob-btn:hover { background: rgba(100,116,139,.1); color: #334155; }
+  .dark .uh-mob-btn { border-color: rgba(148,163,184,.18); color: #94a3b8; }
+  .dark .uh-mob-btn:hover { background: rgba(148,163,184,.1); color: #e2e8f0; }
+  @media (min-width: 768px) { .uh-mob-btn { display: none; } }
+  /* Mobile nav panel (slides down below header) */
+  .uh-mob-panel {
+    display: none; border-top: 1px solid rgba(0,0,0,.06);
+    background: rgba(255,255,255,.98);
+    padding: 6px 16px 10px;
+    animation: uhMobSlide .18s ease;
+  }
+  .uh-mob-panel.open { display: block; }
+  .dark .uh-mob-panel {
+    border-top-color: rgba(148,163,184,.1);
+    background: rgba(8,15,30,.98);
+  }
+  @keyframes uhMobSlide {
+    from { opacity:0; transform:translateY(-6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  /* Mobile panel tabs use background highlight (no bottom-border indicator) */
+  .uh-mob-panel .nav-tab { position: relative; }
+  .uh-mob-panel .nav-tab.active::after { display: none; }
+  .uh-mob-panel .nav-tab.active {
+    background: rgba(56,189,248,.12) !important;
+    color: #38bdf8 !important;
+  }
+  /* Hour select row inside mobile panel */
+  .uh-mob-hour {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px; padding-top: 8px;
+    border-top: 1px solid rgba(100,116,139,.1);
+  }
+  .dark .uh-mob-hour { border-top-color: rgba(148,163,184,.1); }
+  /* Brand */
+  .uh-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+  .uh-brand-icon {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg,#6366f1,#a855f7);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .uh-brand-icon i { font-size: 15px; color: #fff; }
+  .uh-brand-name { font-weight: 700; font-size: 13.5px; color: #1e293b; letter-spacing: -.02em; }
+  .dark .uh-brand-name { color: #e2e8f0; }
+  /* Dividers */
+  .uh-hdiv { width: 1px; height: 20px; background: #e2e8f0; flex-shrink: 0; }
+  .dark .uh-hdiv { background: rgba(148,163,184,.2); }
+  /* Spacer */
+  .uh-spacer { flex: 1; min-width: 0; }
+  /* Right controls cluster */
+  .uh-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  /* Avatar */
+  .uh-avatar-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg,#6366f1,#a855f7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    cursor: pointer; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,.85);
+    box-shadow: 0 2px 8px rgba(99,102,241,.3);
+    transition: transform .15s;
+  }
+  .uh-avatar-btn:hover { transform: scale(1.07); }
+  /* Profile dropdown */
+  .uh-profile-wrap { position: relative; }
+  .uh-profile-menu {
+    position: absolute; top: calc(100% + 8px); right: 0; width: 220px;
+    background: #fff; border: 1px solid #e8ecf0; border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.13); overflow: hidden;
+    display: none; z-index: 1001; animation: uhFadeSlide .15s ease;
+  }
+  .uh-profile-menu.open { display: block; }
+  @keyframes uhFadeSlide {
+    from { opacity:0; transform:translateY(-6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .dark .uh-profile-menu { background: #0f1a2e; border-color: rgba(148,163,184,.15); }
+  .uh-profile-head {
+    padding: 12px 14px;
+    background: linear-gradient(135deg,#f5f3ff,#ede9fe);
+    border-bottom: 1px solid #ede9fe;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .dark .uh-profile-head { background: linear-gradient(135deg,#1e1b4b,#312e81); border-bottom-color: rgba(148,163,184,.1); }
+  .uh-mini-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg,#6366f1,#a855f7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .uh-user-name { font-weight: 600; font-size: 13px; color: #1e293b; }
+  .dark .uh-user-name { color: #e2e8f0; }
+  .uh-entity-tag {
+    display: inline-block; margin-top: 2px;
+    font-size: 10px; font-weight: 700; letter-spacing: .04em;
+    padding: 1px 7px; border-radius: 20px;
+    background: #ede9fe; color: #6d28d9;
+  }
+  .uh-menu-item {
+    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+    font-size: 13px; font-weight: 500; color: #374151;
+    text-decoration: none; cursor: pointer; transition: background .12s;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .uh-menu-item i { font-size: 15px; color: #6366f1; flex-shrink: 0; }
+  .uh-menu-item:hover { background: #f8fafc; }
+  .dark .uh-menu-item { color: #cbd5e1; }
+  .dark .uh-menu-item:hover { background: rgba(148,163,184,.08); }
+  .uh-menu-item.danger { color: #ef4444; }
+  .uh-menu-item.danger i { color: #ef4444; }
+  .uh-menu-item.danger:hover { background: #fef2f2; }
+  .dark .uh-menu-item.danger { color: #f87171; }
+  .dark .uh-menu-item.danger:hover { background: rgba(248,113,113,.08); }
+  .uh-menu-divider { border-top: 1px solid #f1f5f9; margin: 3px 0; }
+  .dark .uh-menu-divider { border-top-color: rgba(148,163,184,.1); }
+</style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-[#080f1e] dark:text-slate-200">
+
+<!-- ══ UNIFIED SINGLE-ROW HEADER ═══════════════════════════ -->
+<header class="app-header">
+
+  <!-- ── Single main row ── -->
+  <div class="app-header-row">
+
+    <!-- Brand -->
+    <a href="{{ url_for('services') }}" class="uh-brand">
+      <div class="uh-brand-icon"><i class="ph ph-squares-four"></i></div>
+      <span class="uh-brand-name hidden sm:block">TSS Platform</span>
+    </a>
+
+    <!-- Divider + inline desktop tabs -->
+    <div class="uh-hdiv"></div>
+    <div class="uh-desktop-tabs">
+      <button class="nav-tab active inline-flex items-center gap-1.5 px-3 h-full text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100/70 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 rounded-lg whitespace-nowrap" data-tab="overview">
+        <i data-lucide="gauge" class="w-3.5 h-3.5 shrink-0"></i>Overview
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 h-full text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100/70 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 rounded-lg whitespace-nowrap" data-tab="entities">
+        <i data-lucide="boxes" class="w-3.5 h-3.5 shrink-0"></i>Entities
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 h-full text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100/70 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 rounded-lg whitespace-nowrap" data-tab="domains">
+        <i data-lucide="globe" class="w-3.5 h-3.5 shrink-0"></i>Domains
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 h-full text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100/70 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 rounded-lg whitespace-nowrap" data-tab="proxies">
+        <i data-lucide="server" class="w-3.5 h-3.5 shrink-0"></i>Profiles/Proxies
+      </button>
+      {% if has_sessions_tab %}
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 h-full text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100/70 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 rounded-lg whitespace-nowrap" data-tab="sessions">
+        <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>Sessions/Profiles
+      </button>
+      {% endif %}
+    </div>
+
+    <!-- Flex spacer -->
+    <div class="uh-spacer"></div>
+
+    <!-- Right controls (always visible) -->
+    <div class="uh-controls">
+      <div id="liveBadge" class="live-badge hidden">
+        <span class="live-dot"></span><span class="hidden sm:inline">LIVE</span>
+      </div>
+      <!-- Hour select: hidden on mobile (shown in mobile panel) -->
+      <select id="hourSelect" class="hour-select hidden md:block text-xs font-semibold px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200 focus:outline-none focus:border-sky-400">
+        <option value="live" data-hour="{{ live_hour }}" data-date="{{ live_date }}">⚡ Live ({{ live_hour }}:00)</option>
+        {% for h in available_hours %}
+          {% if not (h.hour == live_hour and h.date == live_date) %}
+          <option value="{{ h.hour }}_{{ h.date }}" data-hour="{{ h.hour }}" data-date="{{ h.date }}">{{ h.display }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <!-- Theme toggle -->
+      <button id="themeToggle" title="Toggle theme" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-sky-500 hover:border-sky-300 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:text-sky-400 shrink-0">
+        <svg id="iconSun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg id="iconMoon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      </button>
+    </div>
+
+    <!-- Profile avatar + dropdown -->
+    <div class="uh-profile-wrap" id="uhProfileWrap">
+      <div class="uh-avatar-btn" onclick="uhToggleProfile(event)" title="{{ current_user.name }}">
+        {{ current_user.name[0].upper() }}
+      </div>
+      <div class="uh-profile-menu" id="uhProfileMenu">
+        <div class="uh-profile-head">
+          <div class="uh-mini-avatar">{{ current_user.name[0].upper() }}</div>
+          <div>
+            <div class="uh-user-name">{{ current_user.name }}</div>
+            <span class="uh-entity-tag">{{ current_user.entity }}</span>
+          </div>
+        </div>
+        <a href="{{ url_for('services') }}" class="uh-menu-item">
+          <i class="ph ph-arrow-left"></i>Back to Services
+        </a>
+        {% if current_user.has_user_management_permission %}
+        <a href="{{ url_for('manage_users') }}" class="uh-menu-item">
+          <i class="ph ph-users-three"></i>Manage Users
+        </a>
+        {% endif %}
+        {% if current_user.has_access_management_permission %}
+        <a href="{{ url_for('access_management') }}" class="uh-menu-item">
+          <i class="ph ph-shield-check"></i>Access Management
+        </a>
+        {% endif %}
+        {% if current_user.has_processes_management_permission %}
+        <a href="{{ url_for('processes_management_page') }}" class="uh-menu-item">
+          <i class="ph ph-list-checks"></i>Processes Management
+        </a>
+        {% endif %}
+        {% if current_user.has_warmup_lists_permission %}
+        <a href="{{ url_for('warmup_lists_page') }}" class="uh-menu-item">
+          <i class="ph ph-fire-simple"></i>Warmup Lists
+        </a>
+        {% endif %}
+        <div class="uh-menu-divider"></div>
+        <a href="{{ url_for('logout') }}" class="uh-menu-item danger">
+          <i class="ph ph-sign-out"></i>Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile hamburger (hidden md+) -->
+    <button class="uh-mob-btn" id="uhMobBtn" onclick="uhToggleMobNav()" title="Navigation" aria-label="Toggle navigation">
+      <svg id="uhMobIcon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path id="uhMobBars" d="M4 6h16M4 12h16M4 18h16"/>
+        <path id="uhMobX" d="M6 6l12 12M18 6 6 18" style="display:none"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- ── Mobile nav panel (toggled by hamburger) ── -->
+  <div class="uh-mob-panel" id="uhMobPanel">
+    <!-- Mobile tabs -->
+    <div class="flex items-center gap-1 flex-wrap">
+      <button class="nav-tab active inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 whitespace-nowrap" data-tab="overview">
+        <i data-lucide="gauge" class="w-3.5 h-3.5 shrink-0"></i>Overview
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 whitespace-nowrap" data-tab="entities">
+        <i data-lucide="boxes" class="w-3.5 h-3.5 shrink-0"></i>Entities
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 whitespace-nowrap" data-tab="domains">
+        <i data-lucide="globe" class="w-3.5 h-3.5 shrink-0"></i>Domains
+      </button>
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 whitespace-nowrap" data-tab="proxies">
+        <i data-lucide="server" class="w-3.5 h-3.5 shrink-0"></i>Profiles/Proxies
+      </button>
+      {% if has_sessions_tab %}
+      <button class="nav-tab inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 whitespace-nowrap" data-tab="sessions">
+        <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>Sessions/Profiles
+      </button>
+      {% endif %}
+    </div>
+    <!-- Hour select + live badge in mobile panel -->
+    <div class="uh-mob-hour">
+      <div id="liveBadgeMob" class="live-badge hidden">
+        <span class="live-dot"></span>LIVE
+      </div>
+      <select id="hourSelectMob" class="hour-select text-xs font-semibold px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200 focus:outline-none focus:border-sky-400 flex-1">
+        <option value="live" data-hour="{{ live_hour }}" data-date="{{ live_date }}">⚡ Live ({{ live_hour }}:00)</option>
+        {% for h in available_hours %}
+          {% if not (h.hour == live_hour and h.date == live_date) %}
+          <option value="{{ h.hour }}_{{ h.date }}" data-hour="{{ h.hour }}" data-date="{{ h.date }}">{{ h.display }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+</header>
+
+<script>
+(function() {
+  /* ── Profile dropdown ── */
+  function uhToggleProfile(e) {
+    e.stopPropagation();
+    document.getElementById('uhProfileMenu').classList.toggle('open');
+  }
+  window.uhToggleProfile = uhToggleProfile;
+
+  /* ── Mobile nav panel ── */
+  var mobOpen = false;
+  function uhToggleMobNav() {
+    mobOpen = !mobOpen;
+    document.getElementById('uhMobPanel').classList.toggle('open', mobOpen);
+    document.getElementById('uhMobBars').style.display = mobOpen ? 'none' : '';
+    document.getElementById('uhMobX').style.display   = mobOpen ? '' : 'none';
+  }
+  window.uhToggleMobNav = uhToggleMobNav;
+
+  /* ── Sync mobile hour select → main hour select ── */
+  document.addEventListener('DOMContentLoaded', function() {
+    var mobSel = document.getElementById('hourSelectMob');
+    var dskSel = document.getElementById('hourSelect');
+    if (mobSel && dskSel) {
+      mobSel.addEventListener('change', function() {
+        dskSel.value = this.value;
+        dskSel.dispatchEvent(new Event('change'));
+      });
+      dskSel.addEventListener('change', function() {
+        if (mobSel.value !== this.value) mobSel.value = this.value;
+      });
+    }
+    /* Sync mobile live badge with desktop live badge */
+    var liveMob = document.getElementById('liveBadgeMob');
+    var liveDsk = document.getElementById('liveBadge');
+    if (liveMob && liveDsk) {
+      var obs = new MutationObserver(function() {
+        liveMob.classList.toggle('hidden', liveDsk.classList.contains('hidden'));
+      });
+      obs.observe(liveDsk, {attributes: true, attributeFilter: ['class']});
+    }
+  });
+
+  /* ── Close profile menu on outside click ── */
+  document.addEventListener('click', function(e) {
+    var w = document.getElementById('uhProfileWrap');
+    if (w && !w.contains(e.target)) {
+      var m = document.getElementById('uhProfileMenu');
+      if (m) m.classList.remove('open');
+    }
+  });
+})();
+</script>
+
+<!-- Loading overlay -->
+<div id="loadingBar" class="fixed top-0 left-0 right-0 h-0.5 z-50 bg-gradient-to-r from-sky-400 to-violet-500 hidden" style="animation:loadProg 1.5s ease-in-out infinite">
+</div>
+<style>@keyframes loadProg{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}</style>
+
+<!-- ═══════════════════════════════════════════════════════ OVERVIEW ═══ -->
+<section class="panel active" id="p-overview">
+  <!-- Empty state (overview only) -->
+  <div id="emptyState" class="hidden">
+    <div class="empty-overlay">
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center mb-4">
+        <i data-lucide="clock" class="w-8 h-8 text-slate-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-1">Waiting for data…</h3>
+      <p class="text-sm text-slate-400 max-w-sm">No report data found for this hour yet. The dashboard will update automatically when data arrives.</p>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-4 py-6 relative z-10" id="overview-inner">
+    <header class="flex items-start justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight grad-text">TSS Warmup Report</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1" id="reportMeta">Loading…</p>
+        <div class="flex flex-wrap gap-2 mt-3" id="headerPills"></div>
+      </div>
+    </header>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpiGrid"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Top Entity Spam</h3>
+        </div>
+        <div id="topEntitySpamCard" class="flex flex-col items-center justify-center h-44 gap-4">
+          <div class="skeleton w-24 h-10 rounded-xl"></div>
+          <div class="skeleton w-16 h-8 rounded-lg"></div>
+        </div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Inbox vs Spam</h3>
+        <div class="h-56 flex items-center justify-center"><canvas id="donutChart"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Plan A vs Plan B</h3>
+        <div class="h-56"><canvas id="planCompareChart"></canvas></div>
+      </div>
+    </div>
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+      <span class="inline-block w-1 h-3.5 rounded bg-gradient-to-b from-sky-400 to-violet-400"></span>Session Highlights
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="sessionHighlights"></div>
+    <div id="sessionsChartWrap" class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Sessions — Inbox / Spam Distribution</h3>
+        <span class="text-[10px] text-slate-400" id="sessionCountLabel"></span>
+      </div>
+      <div class="h-72"><canvas id="allSessionsChart"></canvas></div>
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6" id="planTablesWrap">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-9 h-9 rounded-lg bg-sky-400/15 text-sky-500 flex items-center justify-center"><i data-lucide="network" class="w-5 h-5"></i></span>
+            <div>
+              <h3 class="text-sm font-extrabold tracking-tight">IP Sessions</h3>
+              <p class="text-[11px] text-slate-500" id="planASubtitle">—</p>
+            </div>
+          </div>
+          <div class="flex gap-1.5" id="planABadges"></div>
+        </div>
+        <div class="h-52 mb-4"><canvas id="planAChart"></canvas></div>
+        <div class="overflow-x-auto nice-scroll max-h-80">
+          <table class="w-full text-xs" id="tbl-plana">
+            <thead class="sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur">
+              <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <th data-sort="str" class="text-left px-2 py-2 font-bold">Session <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-right px-2 py-2 font-bold">Spam <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-right px-2 py-2 font-bold">Inbox <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-left px-2 py-2 font-bold w-32">Inbox % <span class="sort-ind">&#x2195;</span></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-plana"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-9 h-9 rounded-lg bg-violet-400/15 text-violet-500 flex items-center justify-center"><i data-lucide="gift" class="w-5 h-5"></i></span>
+            <div>
+              <h3 class="text-sm font-extrabold tracking-tight">Offer Sessions</h3>
+              <p class="text-[11px] text-slate-500" id="planBSubtitle">—</p>
+            </div>
+          </div>
+          <div class="flex gap-1.5" id="planBBadges"></div>
+        </div>
+        <div class="h-52 mb-4"><canvas id="planBChart"></canvas></div>
+        <div class="overflow-x-auto nice-scroll max-h-80">
+          <table class="w-full text-xs" id="tbl-planb">
+            <thead class="sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur">
+              <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <th data-sort="str" class="text-left px-2 py-2 font-bold">Session <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-right px-2 py-2 font-bold">Spam <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-right px-2 py-2 font-bold">Inbox <span class="sort-ind">&#x2195;</span></th>
+                <th data-sort="num" class="text-left px-2 py-2 font-bold w-32">Inbox % <span class="sort-ind">&#x2195;</span></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-planb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="radar" class="w-3.5 h-3.5"></i>Channel Strength Radar</h3>
+        <div class="h-64"><canvas id="strengthRadar"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>Top Inbox Sessions (Polar)</h3>
+        <div class="h-64"><canvas id="topPolar"></canvas></div>
+      </div>
+    </div>
+    <!-- From names overview -->
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+      <span class="inline-block w-1 h-3.5 rounded bg-gradient-to-b from-rose-400 to-violet-400"></span>From Names — Spam &amp; Inbox
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="fnSummaryCards"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-500"></i>Top 15 Spam From Names</h3>
+        <div class="h-72"><canvas id="topSpamFnChart"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="inbox" class="w-3.5 h-3.5 text-emerald-500"></i>Top 15 Inbox From Names</h3>
+        <div class="h-72"><canvas id="topInboxFnChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ ENTITIES ═══ -->
+<section class="panel" id="p-entities">
+  <div id="entities-empty" class="hidden">
+    <div class="empty-overlay">
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center mb-4">
+        <i data-lucide="clock" class="w-8 h-8 text-slate-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-1">Waiting for data…</h3>
+      <p class="text-sm text-slate-400 max-w-sm">No report data found for this hour yet. The dashboard will update automatically when data arrives.</p>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-4 py-6 relative z-10" id="entities-inner">
+    <header class="flex items-start justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight grad-text">Entities Overview</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Per-entity totals — TSS1, TSS2, TSS3 &amp; Uncategorized</p>
+      </div>
+      <div class="flex flex-wrap gap-2" id="entityHeaderPills"></div>
+    </header>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6" id="entityCards"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 lg:col-span-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>Entity Domain Hits</h3>
+        <div class="h-72"><canvas id="entityBarChart"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2"><i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>Distribution</h3>
+        <div class="h-72"><canvas id="entityPie"></canvas></div>
+      </div>
+    </div>
+    <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2"><i data-lucide="table" class="w-3.5 h-3.5"></i>Entity Breakdown Table</h3>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input type="text" placeholder="Search entity..." oninput="filterTbl(this,'tbl-entity')"
+            class="pl-9 pr-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/70 text-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-sky-400 w-64"/>
+        </div>
+      </div>
+      <div class="overflow-x-auto nice-scroll">
+        <table class="w-full text-sm" id="tbl-entity">
+          <thead>
+            <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+              <th data-sort="str" class="text-left px-3 py-2 font-bold">Entity <span class="sort-ind">&#x2195;</span></th>
+              <th data-sort="num" class="text-right px-3 py-2 font-bold">Spam <span class="sort-ind">&#x2195;</span></th>
+              <th data-sort="num" class="text-right px-3 py-2 font-bold">Domains <span class="sort-ind">&#x2195;</span></th>
+              <th data-sort="num" class="text-right px-3 py-2 font-bold">Plan A <span class="sort-ind">&#x2195;</span></th>
+              <th data-sort="num" class="text-right px-3 py-2 font-bold">Plan B <span class="sort-ind">&#x2195;</span></th>
+              <th class="text-left px-3 py-2 font-bold">Status</th>
+              <th data-sort="num" class="text-left px-3 py-2 font-bold w-44">Spam Share <span class="sort-ind">&#x2195;</span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-entity"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- From names by entity -->
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+      <span class="inline-block w-1 h-3.5 rounded bg-gradient-to-b from-rose-400 to-violet-400"></span>From Names — by Entity
+    </h3>
+    <div class="flex flex-wrap gap-2 mb-4" id="entFnTabs">
+      <button class="fntab-btn px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-fntab="tss1">TSS1</button>
+      <button class="fntab-btn px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-fntab="tss2">TSS2</button>
+      <button class="fntab-btn px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-fntab="tss3">TSS3</button>
+    </div>
+    <div id="entFnPanels"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ DOMAINS ═══ -->
+<section class="panel" id="p-domains">
+  <div id="domains-empty" class="hidden">
+    <div class="empty-overlay">
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center mb-4">
+        <i data-lucide="clock" class="w-8 h-8 text-slate-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-1">Waiting for data…</h3>
+      <p class="text-sm text-slate-400 max-w-sm">No report data found for this hour yet. The dashboard will update automatically when data arrives.</p>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-4 py-6 relative z-10" id="domains-inner">
+    <header class="flex items-start justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight grad-text">Domains</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Spam &amp; Inbox domains by entity, Plan A &amp; Plan B breakdown</p>
+      </div>
+    </header>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Spam Domains by Entity</h3>
+        <div class="h-52"><canvas id="domainPie"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Inbox Domains by Entity</h3>
+        <div class="h-52"><canvas id="inboxDomainPie"></canvas></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="inboxEntityStats"></div>
+    <div class="flex flex-wrap gap-2 mb-4" id="domainEntityTabs">
+      <button class="dtab px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-dtab="tss1">TSS1</button>
+      <button class="dtab px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-dtab="tss2">TSS2</button>
+      <button class="dtab px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-dtab="tss3">TSS3</button>
+      <button class="dtab px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-dtab="uncat">Uncategorized</button>
+    </div>
+    <div id="domainPanels"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ PROFILES/PROXIES ═══ -->
+<section class="panel" id="p-proxies">
+  <div id="proxies-empty" class="hidden">
+    <div class="empty-overlay">
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center mb-4">
+        <i data-lucide="clock" class="w-8 h-8 text-slate-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-1">Waiting for data…</h3>
+      <p class="text-sm text-slate-400 max-w-sm">No report data found for this hour yet. The dashboard will update automatically when data arrives.</p>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-4 py-6 relative z-10" id="proxies-inner">
+
+    <header class="flex items-start justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight grad-text">Profiles &amp; Proxies</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Session profile ranges and proxy usage breakdown</p>
+      </div>
+    </header>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="ppKpiGrid"></div>
+
+    <!-- Charts row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Proxy Use Distribution</h3>
+        <p class="text-[11px] text-slate-400 mb-3">How many proxies were used 1x, 2x, 3x+ across all sessions</p>
+        <div class="h-64 flex items-center justify-center"><canvas id="proxyDistChart"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Profile Actions by Session</h3>
+        <p class="text-[11px] text-slate-400 mb-3">Inbox &amp; Spam actions stacked per session</p>
+        <div class="h-64"><canvas id="profileSessionChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Top proxies bar chart -->
+    <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 mb-6">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Top Proxies by Usage</h3>
+      <p class="text-[11px] text-slate-400 mb-3">Most-used proxy IPs across all warmup sessions (top 15)</p>
+      <div class="h-80"><canvas id="topProxiesChart"></canvas></div>
+    </div>
+
+    <!-- Tables row -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+      <!-- Sessions / Profile Ranges -->
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-8 h-8 rounded-lg bg-violet-400/15 text-violet-500 flex items-center justify-center shrink-0">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h3 class="text-sm font-extrabold tracking-tight">Sessions — Profile Ranges</h3>
+            <p class="text-[11px] text-slate-500">User range &amp; activity per session</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto overflow-y-auto nice-scroll" style="max-height:340px">
+          <table class="w-full text-sm">
+            <thead class="sticky top-0 bg-white dark:bg-slate-900 z-10"><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left px-3 py-2 font-bold">Session</th>
+              <th class="text-right px-3 py-2 font-bold">Profile Range</th>
+              <th class="text-right px-3 py-2 font-bold text-emerald-500">Inbox</th>
+              <th class="text-right px-3 py-2 font-bold text-rose-500">Spam</th>
+              <th class="text-right px-3 py-2 font-bold">Rate</th>
+              <th class="text-left px-3 py-2 font-bold w-20">Share</th>
+            </tr></thead>
+            <tbody id="ppSessionsTbody">
+              <tr><td colspan="6" class="px-3 py-6 text-center text-slate-400 text-xs">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Proxies table -->
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-8 h-8 rounded-lg bg-sky-400/15 text-sky-500 flex items-center justify-center shrink-0">
+            <i data-lucide="server" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h3 class="text-sm font-extrabold tracking-tight">Top Proxies</h3>
+            <p class="text-[11px] text-slate-500">Most active proxy IPs by usage count</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto nice-scroll" style="max-height:320px">
+          <table class="w-full text-sm">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-900">
+              <th class="text-left px-3 py-2 font-bold">#</th>
+              <th class="text-left px-3 py-2 font-bold">IP Address</th>
+              <th class="text-right px-3 py-2 font-bold">Uses</th>
+              <th class="text-left px-3 py-2 font-bold w-24">Share</th>
+            </tr></thead>
+            <tbody id="ppProxiesTbody">
+              <tr><td colspan="4" class="px-3 py-6 text-center text-slate-400 text-xs">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% if has_sessions_tab %}
+<!-- ═══════════════════════════════════════ SESSIONS / PROFILES ═══ -->
+<section class="panel" id="p-sessions">
+  <div id="sessions-empty" class="hidden">
+    <div class="empty-overlay">
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center mb-4">
+        <i data-lucide="clock" class="w-8 h-8 text-slate-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-1">Waiting for data…</h3>
+      <p class="text-sm text-slate-400 max-w-sm">No report data found for this hour yet. The dashboard will update automatically when data arrives.</p>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-4 py-6 relative z-10" id="sessions-inner">
+    <header class="flex items-start justify-between flex-wrap gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight grad-text">Sessions / Profiles</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Per-session user inbox &amp; spam breakdown</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="sess-plan-a" class="plan-tab active px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold hover:text-sky-500" onclick="switchSessPlan('A')">
+          <i data-lucide="wifi" class="w-3.5 h-3.5 inline-block mr-1 align-middle"></i>IP Sessions
+        </button>
+        <button id="sess-plan-b" class="plan-tab px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold hover:text-sky-500" onclick="switchSessPlan('B')">
+          <i data-lucide="mail" class="w-3.5 h-3.5 inline-block mr-1 align-middle"></i>Offer Sessions
+        </button>
+      </div>
+    </header>
+
+    <!-- Session selector cards -->
+    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-3 mb-6" id="sessCards"></div>
+
+    <!-- Per-session user detail (chart + table) -->
+    <div id="sessDetail"></div>
+  </div>
+</section>
+{% endif %}
+
+<script>
+/* ════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let G = {
+  d: null,           // processed data object
+  isLive: true,
+  silentUpdate: false, // true during background live polls → charts update in-place
+  currentHour: '{{ live_hour }}',
+  currentDate: '{{ live_date }}',
+  liveTimer: null,
+  charts: {},
+  activeDomainTab: null,
+  activeFnTab: null,
+  lastUpdated: null,  // tracks last_updated from JSON to skip re-renders when data hasn't changed
+  lastETag: null,     // ETag from last successful data fetch — sent as If-None-Match to get 304s
+};
+let SESS = { activePlan: 'A', activeSession: null };
+
+/* ════════════════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════════════ */
+function applyTheme(t) {
+  document.documentElement.classList.toggle('dark', t === 'dark');
+  document.getElementById('iconSun').classList.toggle('hidden', t !== 'dark');
+  document.getElementById('iconMoon').classList.toggle('hidden', t === 'dark');
+  localStorage.setItem('wr-theme', t);
+  if (G.d) rebuildAllCharts();
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('wr-theme') || 'dark';
+  applyTheme(saved);
+})();
+function tickColor() { return document.documentElement.classList.contains('dark') ? 'rgba(148,163,184,.5)' : 'rgba(100,116,139,.5)'; }
+function gridColor() { return document.documentElement.classList.contains('dark') ? 'rgba(148,163,184,.12)' : 'rgba(100,116,139,.12)'; }
+
+/* ════════════════════════════════════════════════════════
+   CHART HELPERS
+═══════════════════════════════════════════════════════ */
+const IC = {slate:'#94a3b8',emerald:'#34d399',rose:'#f87171',violet:'#a78bfa',sky:'#38bdf8',amber:'#fbbf24'};
+function chartDefaults() {
+  Chart.defaults.color = tickColor();
+  Chart.defaults.borderColor = gridColor();
+  Chart.defaults.font.family = "'Inter',sans-serif";
+  Chart.defaults.font.size = 11;
+}
+function destroyChart(id) { if (G.charts[id]) { G.charts[id].destroy(); delete G.charts[id]; } }
+function makeChart(id, cfg) {
+  const existing = G.charts[id];
+  if (existing && G.silentUpdate) {
+    /* Live update — patch data in-place to avoid any visual flash */
+    existing.data.labels = cfg.data.labels || [];
+    cfg.data.datasets.forEach((ds, i) => {
+      if (existing.data.datasets[i]) {
+        existing.data.datasets[i].data = ds.data;
+        if (ds.backgroundColor !== undefined) existing.data.datasets[i].backgroundColor = ds.backgroundColor;
+      }
+    });
+    existing.update('none'); /* 'none' = skip animation */
+    return;
+  }
+  destroyChart(id);
+  const el = document.getElementById(id);
+  if (!el) return;
+  chartDefaults();
+  G.charts[id] = new Chart(el, cfg);
+}
+
+/* ════════════════════════════════════════════════════════
+   DATA PROCESSING
+═══════════════════════════════════════════════════════ */
+function processRawData(raw) {
+  if (!raw) return null;
+
+  /* Support both flat format and nested-summary format */
+  const sm = raw.summary || raw;
+
+  const totalInbox = sm.total_inbox || 0;
+  const totalSpam  = sm.total_spam  || 0;
+  const total      = totalInbox + totalSpam;
+  const inboxRate  = sm.inbox_rate  || 0;
+  const activeProfiles   = sm.active_profiles   || 0;
+  const inactiveProfiles = sm.inactive_profiles || 0;
+  const activeProxies    = sm.active_proxies    || 0;
+  const reuseRatio       = sm.reuse_ratio       || 0;
+
+  /* ── Active sessions (sessions with at least 1 inbox OR spam action) ── */
+  const totalSessions       = Array.isArray(raw.sessions) ? raw.sessions.length : 0;
+  const totalActiveSessions = Array.isArray(raw.sessions)
+    ? raw.sessions.filter(s => (s.spam||0) > 0 || (s.inbox||0) > 0).length
+    : 0;
+
+  /* ── Proxy data ── */
+  const pxRaw = raw.proxies || {};
+  const proxyData = {
+    activeCount:  pxRaw.active_count  || 0,
+    totalUses:    pxRaw.total_uses    || 0,
+    reuseRatio:   pxRaw.reuse_ratio   || 0,
+    topProxy:     sm.top_proxy        || '--',
+    topProxies:   Object.entries(pxRaw.top_proxies || {})
+                    .sort(([,a],[,b]) => b - a)
+                    .map(([ip, uses]) => [ip, uses]),
+    useDistribution: (() => {
+      const vals = Object.values(pxRaw.top_proxies || {});
+      const dist = {};
+      vals.forEach(v => { dist[v] = (dist[v]||0) + 1; });
+      return Object.entries(dist).sort(([a],[b]) => Number(a)-Number(b)).map(([k,v]) => [Number(k), v]);
+    })()
+  };
+
+  /* ── KPIs ── */
+  const kpis = [
+    {label:'Total Actions',   value: total.toLocaleString(),         sub:`hour ${raw.target_hour||'--'}`,                                                                       color:'slate',   icon:'activity'},
+    {label:'Inbox Actions',   value: totalInbox.toLocaleString(),    sub: sm.inbox_change != null ? `${sm.inbox_change >= 0 ? '+' : ''}${sm.inbox_change}% vs Hour before` : '--',    color:'emerald', icon:'inbox'},
+    {label:'Spam Actions',    value: totalSpam.toLocaleString(),     sub: sm.spam_change  != null ? `${sm.spam_change  >= 0 ? '+' : ''}${sm.spam_change}% vs Hour before`  : '--',    color:'rose',    icon:'alert-triangle'},
+    {label:'Inbox Rate',      value:`${inboxRate}%`,                 sub: sm.rate_label || '--',                                                                                color:'emerald', icon:'sparkles'},
+    {label:'Spam–Inbox Gap',  value:(sm.gap||0).toLocaleString(),    sub:'healthy spread',                                                                                      color:'violet',  icon:'trending-up'},
+    {label:'Active Profiles', value: activeProfiles.toLocaleString(),sub:`${(sm.low_activity||0).toLocaleString()} inactive`,                                                                        color:'emerald', icon:'users'},
+    {label:'Active Proxies',  value: activeProxies.toLocaleString(), sub:`Reuse ${reuseRatio}x`,                                                                                color:'sky',     icon:'shield-check'},
+    {label:'Total Active Sessions', value:`${totalActiveSessions}/${totalSessions}`, sub:`${totalSessions - totalActiveSessions} idle sessions`, color:'violet', icon:'layers'},
+  ];
+
+  /* ── Sessions ── */
+  let planA = [], planB = [];
+  let planAInbox = 0, planASpam = 0, planBInbox = 0, planBSpam = 0;
+
+  if (Array.isArray(raw.sessions)) {
+    /* New format: array of {session, plan, spam, inbox, top_spam_user, top_inbox_user} */
+    raw.sessions.forEach(s => {
+      const name  = s.session || '';
+      const spam  = s.spam  || 0;
+      const inbox = s.inbox || 0;
+      const t = spam + inbox;
+      const pct = t > 0 ? Math.round(inbox / t * 100) : 0;
+      const row = [name, spam, inbox, s.top_spam_user||'--', s.top_inbox_user||'--', pct];
+      if (s.plan === 'A') { planA.push(row); planAInbox += inbox; planASpam += spam; }
+      else                { planB.push(row); planBInbox += inbox; planBSpam += spam; }
+    });
+  } else if (raw.sessions && typeof raw.sessions === 'object') {
+    /* Old format: dict of session name → stats */
+    Object.entries(raw.sessions).forEach(([name, s]) => {
+      const spam  = s.spam  || 0;
+      const inbox = s.inbox || 0;
+      const t = spam + inbox;
+      const pct = t > 0 ? Math.round(inbox / t * 100) : 0;
+      const row = [name, spam, inbox, s.max_spam_user||'--', s.max_inbox_user||'--', pct];
+      if (name.startsWith('TSS_IP_'))         { planA.push(row); planAInbox += inbox; planASpam += spam; }
+      else if (name.startsWith('TSS_OFFER_')) { planB.push(row); planBInbox += inbox; planBSpam += spam; }
+    });
+  }
+  planA.sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}));
+  planB.sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}));
+
+  /* ── Entity data ── */
+  const entityMap = {TSS1:{key:'tss1',color:'sky'}, TSS2:{key:'tss2',color:'violet'}, TSS3:{key:'tss3',color:'amber'}, Uncategorized:{key:'uncat',color:'slate'}};
+  const entityData = {};
+
+  const entitySource = raw.entity_domains || raw.domains || {};
+  if (entitySource && typeof entitySource === 'object') {
+    Object.entries(entitySource).forEach(([entName, ent]) => {
+      const meta = entityMap[entName] || {key: entName.toLowerCase().replace(/\s+/g,''), color:'slate'};
+      const spamMerged  = (ent.spam  && ent.spam.merged)  || {};
+      const inboxMerged = (ent.inbox && ent.inbox.merged) || {};
+      const spamRows = Object.entries(spamMerged).sort(([,a],[,b])=>b-a).map(([domain, tot]) => {
+        const pA = (ent.spam.plan_a  && ent.spam.plan_a[domain])  || 0;
+        const pB = (ent.spam.plan_b  && ent.spam.plan_b[domain])  || 0;
+        return [domain, tot, pA, pB];
+      });
+      const inboxRows = Object.entries(inboxMerged).sort(([,a],[,b])=>b-a).map(([domain, tot]) => {
+        const pA = (ent.inbox.plan_a && ent.inbox.plan_a[domain]) || 0;
+        const pB = (ent.inbox.plan_b && ent.inbox.plan_b[domain]) || 0;
+        return [domain, tot, pA, pB];
+      });
+      /* Derive totals from the merged dict so button labels always match table row sums */
+      const spamTotalDerived  = Object.values(spamMerged).reduce((s,v)=>s+v, 0);
+      const inboxTotalDerived = Object.values(inboxMerged).reduce((s,v)=>s+v, 0);
+      entityData[meta.key] = {
+        name: entName,
+        hits: spamTotalDerived,
+        rows: spamRows,
+        color: meta.color,
+        inboxHits: inboxTotalDerived,
+        inboxRows,
+        planASpam:  (ent.spam  && ent.spam.plan_a)  ? Object.values(ent.spam.plan_a).reduce((s,v)=>s+v,0)  : 0,
+        planBSpam:  (ent.spam  && ent.spam.plan_b)  ? Object.values(ent.spam.plan_b).reduce((s,v)=>s+v,0)  : 0,
+        planAInbox: (ent.inbox && ent.inbox.plan_a) ? Object.values(ent.inbox.plan_a).reduce((s,v)=>s+v,0) : 0,
+        planBInbox: (ent.inbox && ent.inbox.plan_b) ? Object.values(ent.inbox.plan_b).reduce((s,v)=>s+v,0) : 0,
+      };
+    });
+  }
+
+  /* ── From names ── */
+  const fnData = {};
+  if (raw.from_names) {
+    const fnMap = {TSS1:'tss1', TSS2:'tss2', TSS3:'tss3', Uncategorized:'uncat'};
+    Object.entries(raw.from_names).forEach(([entName, fn]) => {
+      if (entName === '_global') return;
+      const key = fnMap[entName] || entName.toLowerCase();
+      const spamNames  = (fn.spam  && fn.spam.names)  || {};
+      const inboxNames = (fn.inbox && fn.inbox.names) || {};
+      fnData[key] = {
+        spamRows:  Object.entries(spamNames).sort(([,a],[,b])=>b-a).map(([k,v])=>[k,v]),
+        inboxRows: Object.entries(inboxNames).sort(([,a],[,b])=>b-a).map(([k,v])=>[k,v]),
+        spamTotal:  (fn.spam  && fn.spam.total)  || 0,
+        inboxTotal: (fn.inbox && fn.inbox.total) || 0,
+      };
+    });
+  }
+
+  /* ── Top global from names (TSS1 / TSS2 / TSS3 only — Uncategorized excluded) ── */
+  const _tssOnly = ['TSS1', 'TSS2', 'TSS3'];
+  const _mSpam = {}, _mInbox = {};
+  if (raw.from_names) {
+    _tssOnly.forEach(ent => {
+      const fn = raw.from_names[ent]; if (!fn) return;
+      Object.entries((fn.spam  && fn.spam.names)  || {}).forEach(([k, v]) => { _mSpam[k]  = (_mSpam[k]  || 0) + v; });
+      Object.entries((fn.inbox && fn.inbox.names) || {}).forEach(([k, v]) => { _mInbox[k] = (_mInbox[k] || 0) + v; });
+    });
+  }
+  const topSpamFn  = Object.entries(_mSpam).sort(([,a],[,b])=>b-a).slice(0,15).map(([k,v])=>[k,v]);
+  const topInboxFn = Object.entries(_mInbox).sort(([,a],[,b])=>b-a).slice(0,15).map(([k,v])=>[k,v]);
+
+  return { kpis, planA, planB, planAInbox, planASpam, planBInbox, planBSpam,
+    totalInbox, totalSpam, activeProfiles, inactiveProfiles, activeProxies,
+    totalSessions, totalActiveSessions, proxyData,
+    entityData, fnData, topSpamFn, topInboxFn, raw };
+}
+
+/* ════════════════════════════════════════════════════════
+   RENDER FUNCTIONS
+═══════════════════════════════════════════════════════ */
+function renderAll(d) {
+  if (!d) return;
+  /* Always update: text, numbers, tables, small cards */
+  renderMeta(d);
+  renderKpis(d);
+  renderTopEntitySpam(d);
+  renderSessionHighlights(d);
+  renderSessionTable('tbody-plana', d.planA);
+  renderSessionTable('tbody-planb', d.planB);
+  renderEntityTable(d);
+  renderEntityCards(d);
+  renderFnSummaryCards(d);
+  renderInboxEntityStats(d);
+  /* Heavy DOM rebuilds only on first/explicit load, not on background polls */
+  if (!G.silentUpdate) {
+    renderEntFnPanels(d);
+    buildDomainPanels(d);
+  } else {
+    /* On silent polls: refresh tables without full DOM rebuilds */
+    updateEntFnTables(d);
+    updateDomainPanels(d);
+  }
+  updateProxiesData(d);
+  if (document.getElementById('p-sessions')) buildSessionsPanel(d);
+  if (window.lucide) lucide.createIcons();
+  buildAllCharts(d);
+}
+
+function renderMeta(d) {
+  const raw = d.raw;
+  const updated = raw.last_updated || '--';
+  const hour    = raw.target_hour  || '--';
+  document.getElementById('reportMeta').innerHTML =
+    `Last Update Was At ${updated} &middot; Hour <b>${hour}</b>`;
+
+  const total = (d.totalInbox + d.totalSpam).toLocaleString();
+  document.getElementById('headerPills').innerHTML = `
+    <span class="pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800/70 dark:text-slate-300 dark:border-slate-700">${total} Total Actions</span>
+    <span class="pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800/70 dark:text-slate-300 dark:border-slate-700">${d.activeProfiles} Active Profiles</span>
+    <span class="pill px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800/70 dark:text-slate-300 dark:border-slate-700">${d.activeProxies} Proxies</span>
+    <span class="pill px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">Made By TSSW Team</span>`;
+}
+
+function renderKpis(d) {
+  const g = document.getElementById('kpiGrid');
+  if (!g) return;
+  g.innerHTML = d.kpis.map(k => {
+    const c = IC[k.color] || '#94a3b8';
+    return `<div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${k.label}</span>
+        <i data-lucide="${k.icon}" class="w-4 h-4" style="color:${c}"></i>
+      </div>
+      <div class="text-2xl font-extrabold font-mono" style="color:${c}">${k.value}</div>
+      <div class="text-[11px] text-slate-500">${k.sub}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTopEntitySpam(d) {
+  const el = document.getElementById('topEntitySpamCard');
+  if (!el) return;
+  const ents = Object.values(d.entityData).filter(e => e.name !== 'Uncategorized');
+  if (!ents.length) { el.innerHTML = '<div class="text-slate-400 text-sm">No data</div>'; return; }
+  const top = ents.reduce((a, b) => b.hits > a.hits ? b : a, ents[0]);
+  const col = {sky:'#38bdf8', violet:'#a78bfa', amber:'#fbbf24', slate:'#94a3b8'}[top.color] || '#94a3b8';
+  el.innerHTML = `
+    <span class="px-5 py-2 rounded-xl text-xl font-extrabold tracking-wide" style="background:${col}22;color:${col}">${top.name}</span>
+    <div class="text-center">
+      <div class="text-3xl font-extrabold font-mono" style="color:${col}">${top.hits.toLocaleString()}</div>
+      <div class="text-xs text-slate-500 mt-1">spam domains</div>
+    </div>`;
+}
+
+function renderSessionHighlights(d) {
+  const g = document.getElementById('sessionHighlights');
+  if (!g) return;
+  const all = [...d.planA, ...d.planB];
+  if (!all.length) { g.innerHTML = ''; return; }
+  const topI = all.reduce((a,b) => b[2] > a[2] ? b : a, all[0]);
+  const topS = all.reduce((a,b) => b[1] > a[1] ? b : a, all[0]);
+  const sm   = d.raw.summary || d.raw;
+  const maxSpamUser  = sm.max_spam_user  || '--';
+  const maxInboxUser = sm.max_inbox_user || '--';
+  const cards = [
+    {label:'Most Inbox',       val:topI[0]||'--',  sub:(topI[2]||0).toLocaleString()+' inbox',  color:'emerald'},
+    {label:'Most Spam',        val:topS[0]||'--',  sub:(topS[1]||0).toLocaleString()+' spam',   color:'rose'},
+    {label:'Top Spam User',    val:maxSpamUser,     sub:'most spam actions',                      color:'amber'},
+    {label:'Top Inbox User',   val:maxInboxUser,    sub:'most inbox actions',                     color:'sky'},
+  ];
+  g.innerHTML = cards.map(c => {
+    const col = IC[c.color] || '#94a3b8';
+    return `<div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${c.label}</div>
+      <div class="text-sm font-extrabold mt-1 font-mono truncate" style="color:${col}">${c.val.replace('TSS_','')}</div>
+      <div class="text-xs text-slate-500">${c.sub}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSessionTable(tbodyId, rows) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="px-2 py-6 text-center italic text-slate-400 text-xs">No session data available</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const pct = r[5] || 0;
+    const bar = `<div class="flex items-center gap-2"><div class="pbar flex-1"><div class="pfill" style="width:${pct}%;background:#34d399"></div></div><span class="text-xs font-semibold w-10 text-right text-emerald-500">${pct}%</span></div>`;
+    return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5">
+      <td class="px-2 py-2 font-mono text-xs">${r[0].replace('TSS_','')}</td>
+      <td class="px-2 py-2 text-right text-rose-500 font-semibold">${r[1].toLocaleString()}</td>
+      <td class="px-2 py-2 text-right text-emerald-500 font-semibold">${r[2].toLocaleString()}</td>
+      <td class="px-2 py-2 w-32">${bar}</td>
+    </tr>`;
+  }).join('');
+}
+
+function entityColor(c) { return {sky:'#38bdf8', violet:'#a78bfa', amber:'#fbbf24', slate:'#94a3b8'}[c] || '#94a3b8'; }
+
+function renderEntityCards(d) {
+  const g = document.getElementById('entityCards');
+  const pills = document.getElementById('entityHeaderPills');
+  if (!g) return;
+  const ents = Object.values(d.entityData);
+  const total = ents.reduce((s,e) => s + e.hits, 0) || 1;
+  g.innerHTML = ents.map(ent => {
+    const col = entityColor(ent.color);
+    const pct = Math.round(ent.hits / total * 100);
+    return `<div class="card glass rounded-xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="flex items-center justify-between mb-3">
+        <span class="px-2 py-0.5 rounded-md text-xs font-bold" style="background:${col}22;color:${col}">${ent.name}</span>
+        <span class="text-[10px] text-slate-400">${pct}% of spam</span>
+      </div>
+      <div class="text-2xl font-extrabold font-mono mb-1" style="color:${col}">${ent.hits.toLocaleString()}</div>
+      <div class="text-xs text-slate-500 mb-2">spam · ${ent.rows.length} domains</div>
+      <div class="text-[11px] text-emerald-500 font-semibold mb-2">${(ent.inboxHits||0).toLocaleString()} inbox · ${ent.inboxRows?ent.inboxRows.length:0} inbox domains</div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+  if (pills) pills.innerHTML = ents.map(ent => {
+    const col = entityColor(ent.color);
+    return `<span class="pill px-2 py-0.5 rounded-full text-xs font-bold border" style="background:${col}15;color:${col};border-color:${col}40">${ent.name}: ${ent.hits}</span>`;
+  }).join('');
+}
+
+function renderEntityTable(d) {
+  const tbody = document.getElementById('tbody-entity');
+  if (!tbody) return;
+  const ents = Object.values(d.entityData);
+  const total = ents.reduce((s,e) => s + e.hits, 0) || 1;
+  tbody.innerHTML = ents.map(ent => {
+    const col = entityColor(ent.color);
+    const pA = ent.rows.reduce((s,r)=>s+(r[2]||0),0);
+    const pB = ent.rows.reduce((s,r)=>s+(r[3]||0),0);
+    const pct = Math.round(ent.hits / total * 100);
+    const status = ent.hits === 0
+      ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500">Clean</span>'
+      : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-400/15 text-amber-500">Monitor</span>';
+    return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/40 dark:hover:bg-sky-500/5" data-row="${ent.name.toLowerCase()}">
+      <td class="px-3 py-2.5 font-semibold">
+        <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold" style="background:${col}22;color:${col}">${ent.name[0]}</span>${ent.name}</div>
+      </td>
+      <td class="px-3 py-2.5 text-right font-mono font-bold">${ent.hits}</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-500">${ent.rows.length}</td>
+      <td class="px-3 py-2.5 text-right font-mono text-sky-500">${pA}</td>
+      <td class="px-3 py-2.5 text-right font-mono text-violet-500">${pB}</td>
+      <td class="px-3 py-2.5">${status}</td>
+      <td class="px-3 py-2.5"><div class="flex items-center gap-2">
+        <div class="pbar flex-1"><div class="pfill" style="width:${pct}%;background:${col}"></div></div>
+        <span class="text-xs font-semibold w-10 text-right" style="color:${col}">${pct}%</span>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderEntFnPanels(d) {
+  const container = document.getElementById('entFnPanels');
+  if (!container) return;
+  container.innerHTML = '';
+  ['tss1','tss2','tss3'].forEach(key => {
+    const fn = d.fnData[key];
+    const label = {tss1:'TSS1',tss2:'TSS2',tss3:'TSS3'}[key];
+    const div = document.createElement('div');
+    div.id = 'efp-' + key; div.className = 'ent-fn-panel';
+
+    const buildTbody = (rows, total, di) => {
+      if (!rows || !rows.length) return '<tr><td colspan="3" class="px-3 py-6 text-center italic text-slate-400">No data</td></tr>';
+      return rows.map(r => {
+        const pct = total > 0 ? Math.round(r[1]/total*100) : 0;
+        const col = di === 'spam' ? '#f87171' : '#34d399';
+        return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
+          <td class="px-3 py-2 text-xs font-medium">${r[0]}</td>
+          <td class="px-3 py-2 text-right font-mono font-semibold">${r[1].toLocaleString()}</td>
+          <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:${col}"></div></div></td>
+        </tr>`;
+      }).join('');
+    };
+
+    div.innerHTML = `
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">Top Spam From Names</h3>
+          <div class="h-64"><canvas id="efp-spam-chart-${key}"></canvas></div>
+        </div>
+        <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">Top Inbox From Names</h3>
+          <div class="h-64"><canvas id="efp-inbox-chart-${key}"></canvas></div>
+        </div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div class="flex gap-2">
+            <button class="di-btn active px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold" data-di="spam" data-ent="${key}" onclick="showDiPane(this)">Spam Names</button>
+            <button class="di-btn px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold" data-di="inbox" data-ent="${key}" onclick="showDiPane(this)">Inbox Names</button>
+          </div>
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            <input type="text" placeholder="Search..." oninput="filterFnTbl(this,'${key}')" class="pl-9 pr-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/70 text-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-sky-400 w-56"/>
+          </div>
+        </div>
+        <div id="di-spam-${key}">
+          <div class="overflow-x-auto nice-scroll max-h-80">
+            <table class="w-full text-sm" id="fn-tbl-spam-${key}">
+              <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <th class="text-left px-3 py-2 font-bold">From Name</th>
+                <th class="text-right px-3 py-2 font-bold">Count</th>
+                <th class="text-left px-3 py-2 font-bold w-32">Share</th>
+              </tr></thead>
+              <tbody>${fn ? buildTbody(fn.spamRows, fn.spamTotal, 'spam') : ''}</tbody>
+            </table>
+          </div>
+        </div>
+        <div id="di-inbox-${key}" style="display:none">
+          <div class="overflow-x-auto nice-scroll max-h-80">
+            <table class="w-full text-sm" id="fn-tbl-inbox-${key}">
+              <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <th class="text-left px-3 py-2 font-bold">From Name</th>
+                <th class="text-right px-3 py-2 font-bold">Count</th>
+                <th class="text-left px-3 py-2 font-bold w-32">Share</th>
+              </tr></thead>
+              <tbody>${fn ? buildTbody(fn.inboxRows, fn.inboxTotal, 'inbox') : ''}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function updateEntFnTables(d) {
+  const buildTbody = (rows, total, di) => {
+    if (!rows || !rows.length) return '<tr><td colspan="3" class="px-3 py-6 text-center italic text-slate-400">No data</td></tr>';
+    return rows.map(r => {
+      const pct = total > 0 ? Math.round(r[1]/total*100) : 0;
+      const col = di === 'spam' ? '#f87171' : '#34d399';
+      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
+        <td class="px-3 py-2 text-xs font-medium">${r[0]}</td>
+        <td class="px-3 py-2 text-right font-mono font-semibold">${r[1].toLocaleString()}</td>
+        <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:${col}"></div></div></td>
+      </tr>`;
+    }).join('');
+  };
+  ['tss1','tss2','tss3'].forEach(key => {
+    const fn = d.fnData[key];
+    if (!fn) return;
+    const spamTbody  = document.querySelector(`#fn-tbl-spam-${key}  tbody`);
+    const inboxTbody = document.querySelector(`#fn-tbl-inbox-${key} tbody`);
+    if (spamTbody)  spamTbody.innerHTML  = buildTbody(fn.spamRows,  fn.spamTotal,  'spam');
+    if (inboxTbody) inboxTbody.innerHTML = buildTbody(fn.inboxRows, fn.inboxTotal, 'inbox');
+  });
+}
+
+function renderFnSummaryCards(d) {
+  const g = document.getElementById('fnSummaryCards');
+  if (!g) return;
+  /* Aggregate from TSS1/TSS2/TSS3 only — exclude Uncategorized */
+  const _tss = ['TSS1','TSS2','TSS3'];
+  const _ms = {}, _mi = {};
+  if (d.raw.from_names) {
+    _tss.forEach(e => {
+      const fn = d.raw.from_names[e]; if (!fn) return;
+      Object.entries((fn.spam  && fn.spam.names)  || {}).forEach(([k,v]) => { _ms[k] = (_ms[k]||0)+v; });
+      Object.entries((fn.inbox && fn.inbox.names) || {}).forEach(([k,v]) => { _mi[k] = (_mi[k]||0)+v; });
+    });
+  }
+  const spamNames  = Object.entries(_ms).sort(([,a],[,b])=>b-a);
+  const inboxNames = Object.entries(_mi).sort(([,a],[,b])=>b-a);
+  g.innerHTML = `
+    <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Top Spam From Name</div>
+      <div class="text-sm font-extrabold text-rose-500 mt-2 truncate">${spamNames[0] ? spamNames[0][0] : '--'}</div>
+      <div class="text-xs text-slate-500 mt-1 font-mono">${spamNames[0] ? spamNames[0][1].toLocaleString()+' actions' : '--'}</div>
+    </div>
+    <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Top Inbox From Name</div>
+      <div class="text-sm font-extrabold text-emerald-500 mt-2 truncate">${inboxNames[0] ? inboxNames[0][0] : '--'}</div>
+      <div class="text-xs text-slate-500 mt-1 font-mono">${inboxNames[0] ? inboxNames[0][1].toLocaleString()+' actions' : '--'}</div>
+    </div>
+    <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Unique Spam Names</div>
+      <div class="text-3xl font-extrabold text-rose-500 mt-2">${spamNames.length}</div>
+    </div>
+    <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Unique Inbox Names</div>
+      <div class="text-3xl font-extrabold text-emerald-500 mt-2">${inboxNames.length}</div>
+    </div>`;
+}
+
+function renderInboxEntityStats(d) {
+  const g = document.getElementById('inboxEntityStats');
+  if (!g) return;
+  const ents = d.entityData;
+  const entries = [
+    {key:'tss1',label:'Inbox TSS1',col:'text-sky-500',hex:'#38bdf8'},
+    {key:'tss2',label:'Inbox TSS2',col:'text-violet-500',hex:'#a78bfa'},
+    {key:'tss3',label:'Inbox TSS3',col:'text-amber-500',hex:'#fbbf24'},
+    {key:'uncat',label:'Inbox Uncategorized',col:'text-slate-400',hex:'#94a3b8'},
+  ];
+  g.innerHTML = entries.map(e => {
+    const ent = ents[e.key] || {inboxHits:0, planAInbox:0, planBInbox:0};
+    return `<div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${e.label}</div>
+      <div class="text-2xl font-extrabold ${e.col} mt-1 font-mono">${(ent.inboxHits||0).toLocaleString()}</div>
+      <div class="flex gap-3 mt-1">
+        <span class="text-[10px] text-sky-500 font-semibold">A: ${(ent.planAInbox||0).toLocaleString()}</span>
+        <span class="text-[10px] text-violet-500 font-semibold">B: ${(ent.planBInbox||0).toLocaleString()}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildDomainPanels(d) {
+  const container = document.getElementById('domainPanels');
+  if (!container) return;
+  container.innerHTML = '';
+  Object.entries(d.entityData).forEach(([key, ent]) => {
+    const div = document.createElement('div');
+    div.id = 'dp-' + key; div.className = 'dpanel';
+    const col = entityColor(ent.color);
+
+    const buildRows = (rows, total) => {
+      if (!rows || !rows.length) return '<tr><td colspan="5" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+      return rows.map(r => {
+        const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+        return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
+          <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
+          <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
+          <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
+          <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+          <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
+        </tr>`;
+      }).join('');
+    };
+
+    div.innerHTML = `<div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <span class="px-2 py-0.5 rounded-md text-xs font-bold" style="background:${col}22;color:${col}">${ent.name}</span>
+          <div class="flex gap-1">
+            <button class="di-btn active px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors" data-di="spam" data-ent="${key}" onclick="showDomainPane(this)">
+              Spam <span class="ml-1 font-mono">${ent.hits.toLocaleString()}</span>
+            </button>
+            <button class="di-btn px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-colors" data-di="inbox" data-ent="${key}" onclick="showDomainPane(this)">
+              Inbox <span class="ml-1 font-mono">${(ent.inboxHits||0).toLocaleString()}</span>
+            </button>
+          </div>
+        </div>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+          <input type="text" placeholder="Search..." oninput="filterDomainTbl(this,'${key}')"
+            class="pl-9 pr-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/70 text-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-sky-400 w-56"/>
+        </div>
+      </div>
+      <div id="dp-spam-${key}">
+        <div class="overflow-x-auto nice-scroll">
+          <table class="w-full text-sm" id="tbl-spam-${key}">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left px-3 py-2 font-bold">Domain</th>
+              <th class="text-right px-3 py-2 font-bold">Total</th>
+              <th class="text-right px-3 py-2 font-bold">Plan A</th>
+              <th class="text-right px-3 py-2 font-bold">Plan B</th>
+              <th class="text-left px-3 py-2 font-bold w-32">Share</th>
+            </tr></thead>
+            <tbody>${buildRows(ent.rows, ent.hits)}</tbody>
+          </table>
+        </div>
+      </div>
+      <div id="dp-inbox-${key}" style="display:none">
+        <div class="overflow-x-auto nice-scroll">
+          <table class="w-full text-sm" id="tbl-inbox-${key}">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+              <th class="text-left px-3 py-2 font-bold">Domain</th>
+              <th class="text-right px-3 py-2 font-bold">Total</th>
+              <th class="text-right px-3 py-2 font-bold">Plan A</th>
+              <th class="text-right px-3 py-2 font-bold">Plan B</th>
+              <th class="text-left px-3 py-2 font-bold w-32">Share</th>
+            </tr></thead>
+            <tbody>${buildRows(ent.inboxRows||[], ent.inboxHits||0)}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+    container.appendChild(div);
+  });
+  // auto-activate first tab
+  const first = Object.keys(d.entityData)[0];
+  if (first) {
+    G.activeDomainTab = first;
+    showDomainTab(first);
+  }
+}
+
+function updateDomainPanels(d) {
+  /* Called on silent polls — refreshes button labels + table rows without rebuilding the DOM */
+  const buildRows = (rows, total) => {
+    if (!rows || !rows.length) return '<tr><td colspan="5" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+    return rows.map(r => {
+      const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
+        <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
+        <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
+        <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
+        <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+        <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
+      </tr>`;
+    }).join('');
+  };
+
+  Object.entries(d.entityData).forEach(([key, ent]) => {
+    /* Update spam / inbox button labels */
+    const spamBtn = document.querySelector(`[data-di="spam"][data-ent="${key}"]`);
+    if (spamBtn) spamBtn.innerHTML = `Spam <span class="ml-1 font-mono">${ent.hits.toLocaleString()}</span>`;
+
+    const inboxBtn = document.querySelector(`[data-di="inbox"][data-ent="${key}"]`);
+    if (inboxBtn) inboxBtn.innerHTML = `Inbox <span class="ml-1 font-mono">${(ent.inboxHits||0).toLocaleString()}</span>`;
+
+    /* Update spam table tbody */
+    const spamDiv = document.getElementById(`dp-spam-${key}`);
+    if (spamDiv) {
+      const tbody = spamDiv.querySelector('tbody');
+      if (tbody) tbody.innerHTML = buildRows(ent.rows, ent.hits);
+    }
+
+    /* Update inbox table tbody */
+    const inboxDiv = document.getElementById(`dp-inbox-${key}`);
+    if (inboxDiv) {
+      const tbody = inboxDiv.querySelector('tbody');
+      if (tbody) tbody.innerHTML = buildRows(ent.inboxRows||[], ent.inboxHits||0);
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   CHART BUILDERS
+═══════════════════════════════════════════════════════ */
+function buildAllCharts(d) {
+  chartDefaults();
+  buildOverviewCharts(d);
+  buildSessionCharts(d);
+  buildEntityCharts(d);
+  buildExtraCharts(d);
+  buildFromNameCharts(d);
+  buildDomainPieCharts(d);
+  buildProxyCharts(d);
+  if (G.activeFnTab) buildEntFnCharts(d, G.activeFnTab);
+}
+
+function rebuildAllCharts() {
+  if (!G.d) return;
+  const prev = G.silentUpdate;
+  G.silentUpdate = false; // force full recreate so theme colors apply
+  buildAllCharts(G.d);
+  G.silentUpdate = prev;
+}
+
+function buildOverviewCharts(d) {
+  makeChart('donutChart', {type:'doughnut', data:{
+    labels:['Inbox','Spam'],
+    datasets:[{data:[d.totalInbox, d.totalSpam], backgroundColor:['#34d399','#f87171'], borderWidth:0, hoverOffset:10}]
+  }, options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom',labels:{padding:14,usePointStyle:true,pointStyleWidth:8}},
+    tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return `${c.label}: ${c.raw.toLocaleString()} (${t?Math.round(c.raw/t*100):0}%)`;}}}}
+  }});
+  makeChart('planCompareChart', {type:'bar', data:{labels:['Plan A (IP)','Plan B (Offer)'],
+    datasets:[{label:'Inbox',data:[d.planAInbox, d.planBInbox],backgroundColor:'#34d399',borderRadius:6},{label:'Spam',data:[d.planASpam, d.planBSpam],backgroundColor:'#f87171',borderRadius:6}]
+  }, options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:12}}},
+    scales:{x:{grid:{color:gridColor()},beginAtZero:true},y:{grid:{display:false}}}}});
+}
+
+function buildSessionCharts(d) {
+  const allL = [...d.planA.map(r=>r[0]), ...d.planB.map(r=>r[0])];
+  const allI = [...d.planA.map(r=>r[2]), ...d.planB.map(r=>r[2])];
+  const allS = [...d.planA.map(r=>r[1]), ...d.planB.map(r=>r[1])];
+  const count = allL.length;
+  const lbl = document.getElementById('sessionCountLabel');
+  if (lbl) lbl.textContent = `${count} session${count!==1?'s':''} · ${d.planA.length} IP · ${d.planB.length} Offer`;
+
+  if (!count) return;
+  makeChart('allSessionsChart', {type:'bar', data:{labels:allL,
+    datasets:[{label:'Inbox',data:allI,backgroundColor:'rgba(52,211,153,.75)',borderRadius:4},{label:'Spam',data:allS,backgroundColor:'rgba(248,113,113,.85)',borderRadius:4}]
+  }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:12}}},
+    scales:{x:{stacked:true,grid:{display:false},ticks:{maxRotation:50,minRotation:30,font:{size:9}}},y:{stacked:true,grid:{color:gridColor()}}}}});
+
+  // Plan subtitles + badges
+  const pATotal = d.planAInbox + d.planASpam;
+  const pBTotal = d.planBInbox + d.planBSpam;
+  const elPAS = document.getElementById('planASubtitle');
+  if (elPAS) elPAS.textContent = `TSS_IP sessions · ${pATotal.toLocaleString()} actions`;
+  const elPBS = document.getElementById('planBSubtitle');
+  if (elPBS) elPBS.textContent = `TSS_OFFER sessions · ${pBTotal.toLocaleString()} actions`;
+
+  const elPAB = document.getElementById('planABadges');
+  if (elPAB) elPAB.innerHTML = `<span class="pill px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500">Inbox ${d.planAInbox.toLocaleString()}</span><span class="pill px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-400/15 text-rose-500">Spam ${d.planASpam.toLocaleString()}</span>`;
+  const elPBB = document.getElementById('planBBadges');
+  if (elPBB) elPBB.innerHTML = `<span class="pill px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500">Inbox ${d.planBInbox.toLocaleString()}</span><span class="pill px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-400/15 text-rose-500">Spam ${d.planBSpam.toLocaleString()}</span>`;
+
+  if (d.planA.length) makeChart('planAChart', {type:'bar', data:{labels:d.planA.map(r=>r[0].replace('TSS_','')),
+    datasets:[{label:'Spam',data:d.planA.map(r=>r[1]),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4},{label:'Inbox',data:d.planA.map(r=>r[2]),backgroundColor:'rgba(52,211,153,.8)',borderRadius:4}]
+  }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:12}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:gridColor()}}}}});
+  if (d.planB.length) makeChart('planBChart', {type:'bar', data:{labels:d.planB.map(r=>r[0].replace('TSS_','')),
+    datasets:[{label:'Spam',data:d.planB.map(r=>r[1]),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4},{label:'Inbox',data:d.planB.map(r=>r[2]),backgroundColor:'rgba(167,139,250,.8)',borderRadius:4}]
+  }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:12}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:gridColor()}}}}});
+}
+
+function buildExtraCharts(d) {
+  const pATotal = d.planAInbox + d.planASpam;
+  const pBTotal = d.planBInbox + d.planBSpam;
+  const maxT = Math.max(pATotal, pBTotal) || 1;
+  const pAIR = pATotal > 0 ? Math.round(d.planAInbox/pATotal*100) : 0;
+  const pBIR = pBTotal > 0 ? Math.round(d.planBInbox/pBTotal*100) : 0;
+  const pASR = pATotal > 0 ? Math.round(d.planASpam/pATotal*100)  : 0;
+  const pBSR = pBTotal > 0 ? Math.round(d.planBSpam/pBTotal*100)  : 0;
+  makeChart('strengthRadar', {type:'radar', data:{labels:['Total Actions','Inbox Rate','Spam Rate','Proxies','Profiles'],
+    datasets:[
+      {label:'Plan A (IP)',   data:[Math.round(pATotal/maxT*100),pAIR,pASR,d.activeProxies,d.activeProfiles],backgroundColor:'rgba(56,189,248,.25)',borderColor:'#38bdf8',pointBackgroundColor:'#38bdf8',borderWidth:2},
+      {label:'Plan B (Offer)',data:[Math.round(pBTotal/maxT*100),pBIR,pBSR,d.activeProxies,d.activeProfiles],backgroundColor:'rgba(167,139,250,.25)',borderColor:'#a78bfa',pointBackgroundColor:'#a78bfa',borderWidth:2}
+    ]}, options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:12}}},
+    scales:{r:{angleLines:{color:gridColor()},grid:{color:gridColor()},pointLabels:{font:{size:11,weight:'600'}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}});
+
+  const allPlan = [...d.planA, ...d.planB].sort((a,b) => b[2]-a[2]).slice(0,8);
+  if (allPlan.length) makeChart('topPolar', {type:'polarArea', data:{
+    labels: allPlan.map(r=>r[0].replace('TSS_','')),
+    datasets:[{data:allPlan.map(r=>r[2]),backgroundColor:allPlan.map((_,i)=>`hsla(${200+i*22},75%,60%,.55)`),borderWidth:1,borderColor:'rgba(255,255,255,.1)'}]
+  }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:8,padding:6,font:{size:10}}}},
+    scales:{r:{grid:{color:gridColor()},ticks:{display:false}}}}});
+}
+
+function buildFromNameCharts(d) {
+  if (d.topSpamFn.length) makeChart('topSpamFnChart', {type:'bar',
+    data:{labels:d.topSpamFn.map(r=>r[0]),datasets:[{label:'Spam Actions',data:d.topSpamFn.map(r=>r[1]),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:gridColor()},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+  if (d.topInboxFn.length) makeChart('topInboxFnChart', {type:'bar',
+    data:{labels:d.topInboxFn.map(r=>r[0]),datasets:[{label:'Inbox Actions',data:d.topInboxFn.map(r=>r[1]),backgroundColor:'rgba(52,211,153,.8)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:gridColor()},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+}
+
+function buildEntityCharts(d) {
+  const entKeys = ['tss1','tss2','tss3','uncat'];
+  const names = entKeys.map(k => (d.entityData[k]||{name:k}).name);
+  const spamHits  = entKeys.map(k => (d.entityData[k]||{hits:0}).hits);
+  const inboxHits = entKeys.map(k => (d.entityData[k]||{inboxHits:0}).inboxHits||0);
+  makeChart('entityBarChart', {type:'bar', data:{labels:names,
+    datasets:[
+      {label:'Spam',  data:spamHits,  backgroundColor:['rgba(56,189,248,.8)','rgba(167,139,250,.8)','rgba(251,191,36,.8)','rgba(148,163,184,.8)'], borderRadius:8},
+      {label:'Inbox', data:inboxHits, backgroundColor:'rgba(52,211,153,.6)', borderRadius:8}
+    ]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyleWidth:8,padding:10}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()},beginAtZero:true}}}});
+  makeChart('entityPie', {type:'doughnut', data:{labels:names,
+    datasets:[{data:spamHits.map(v=>v||0.01),backgroundColor:['#38bdf8','#a78bfa','#fbbf24','#94a3b8'],borderWidth:0,hoverOffset:10}]
+  }, options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:10,font:{size:10}}}}}});
+}
+
+function buildDomainPieCharts(d) {
+  const entKeys = ['tss1','tss2','tss3','uncat'];
+  const names = entKeys.map(k => (d.entityData[k]||{name:k}).name);
+  const spamDomains  = entKeys.map(k => (d.entityData[k]||{rows:[]}).rows.length);
+  const inboxDomains = entKeys.map(k => (d.entityData[k]||{inboxRows:[]}).inboxRows ? (d.entityData[k].inboxRows||[]).length : 0);
+  makeChart('domainPie', {type:'doughnut', data:{labels:names,
+    datasets:[{data:spamDomains.map(v=>v||0.01),backgroundColor:['#38bdf8','#a78bfa','#fbbf24','#94a3b8'],borderWidth:0,hoverOffset:8}]
+  }, options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:10,font:{size:10}}}}}});
+  makeChart('inboxDomainPie', {type:'doughnut', data:{labels:names,
+    datasets:[{data:inboxDomains.map(v=>v||0.01),backgroundColor:['#38bdf8','#a78bfa','#fbbf24','#94a3b8'],borderWidth:0,hoverOffset:8}]
+  }, options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:10,font:{size:10}}}}}});
+}
+
+/* ════════════════════════════════════════════════════════
+   PROFILES / PROXIES
+═══════════════════════════════════════════════════════ */
+function updateProxiesData(d) {
+  /* ── KPI cards ── */
+  const ppKpiGrid = document.getElementById('ppKpiGrid');
+  if (ppKpiGrid) {
+    const sm = d.raw.summary || d.raw;
+    const px = d.proxyData;
+    const kpis = [
+      {label:'Active Profiles',    value:(sm.active_profiles||0).toLocaleString(),  sub:`profiles used`,          color:'#34d399'},
+      {label:'Inactive Profiles',       value:(sm.low_activity||0).toLocaleString(),      sub:'profiles Not used',                     color:'#fbbf24'},
+      {label:'Active Sessions',    value:`${d.totalActiveSessions}/${d.totalSessions}`, sub:`${d.totalSessions - d.totalActiveSessions} idle`, color:'#a78bfa'},
+      {label:'Active Proxies',     value:(px.activeCount||0).toLocaleString(),       sub:'in proxy pool',                                color:'#38bdf8'},
+      {label:'Total Proxy Uses',   value:(px.totalUses||0).toLocaleString(),         sub:'across all sessions',                          color:'#38bdf8'},
+      {label:'Reuse Ratio',        value:`${px.reuseRatio||0}x`,                     sub:'avg uses per proxy',                           color:'#f87171'},
+    ];
+    ppKpiGrid.innerHTML = kpis.map(k => `
+      <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 flex flex-col gap-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${k.label}</div>
+        <div class="text-2xl font-extrabold font-mono" style="color:${k.color}">${k.value}</div>
+        <div class="text-[11px] text-slate-500">${k.sub}</div>
+      </div>`).join('');
+  }
+
+  /* ── Sessions / Profile Ranges table ── */
+  const tbody = document.getElementById('ppSessionsTbody');
+  if (tbody) {
+    const sessions = d.raw.sessions || [];
+    const maxInbox  = Math.max(...sessions.map(s => s.inbox||0), 1);
+    tbody.innerHTML = sessions.length ? sessions.map(s => {
+      const inbox   = s.inbox || 0;
+      const spam    = s.spam  || 0;
+      const t       = inbox + spam;
+      const rate    = t > 0 ? Math.round(inbox / t * 100) : 0;
+      const pct     = Math.round(inbox / maxInbox * 100);
+      const isIdle  = inbox === 0 && spam === 0;
+      const pColor  = s.plan === 'A' ? '#38bdf8' : '#a78bfa';
+      const from    = s.user_from != null ? s.user_from : '--';
+      const to      = s.user_to   != null ? s.user_to   : '--';
+      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5 ${isIdle ? 'opacity-40' : ''}">
+        <td class="px-3 py-2.5">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:${pColor}22;color:${pColor}">P${s.plan||'?'}</span>
+            <span class="text-xs font-semibold truncate max-w-[110px]" title="${s.session||''}">${(s.session||'--').replace('TSS_','')}</span>
+          </div>
+        </td>
+        <td class="px-3 py-2.5 text-right font-mono text-xs text-slate-500">${from}–${to}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-semibold text-emerald-500">${inbox.toLocaleString()}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-semibold text-rose-500">${spam}</td>
+        <td class="px-3 py-2.5 text-right font-mono text-xs">${isIdle ? '<span class="text-slate-400">idle</span>' : rate + '%'}</td>
+        <td class="px-3 py-2.5"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#34d399"></div></div></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="6" class="px-3 py-6 text-center italic text-slate-400 text-xs">No session data</td></tr>';
+  }
+
+  /* ── Top Proxies table ── */
+  const pbody = document.getElementById('ppProxiesTbody');
+  if (pbody) {
+    const rows    = d.proxyData.topProxies;
+    const maxUses = rows.length ? rows[0][1] : 1;
+    pbody.innerHTML = rows.length ? rows.map(([ip, uses], i) => {
+      const pct = Math.round(uses / maxUses * 100);
+      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5">
+        <td class="px-3 py-2 text-xs text-slate-400 font-mono w-8">${i+1}</td>
+        <td class="px-3 py-2 font-mono text-xs">${ip}</td>
+        <td class="px-3 py-2 text-right font-semibold font-mono text-sky-500">${uses}</td>
+        <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="4" class="px-3 py-6 text-center italic text-slate-400 text-xs">No proxy data</td></tr>';
+  }
+}
+
+function buildProxyCharts(d) {
+  const px = d.proxyData;
+
+  /* ── Proxy use distribution donut ── */
+  if (px.useDistribution.length) {
+    const labels   = px.useDistribution.map(([uses]) => `Used ${uses}x`);
+    const values   = px.useDistribution.map(([, count]) => count);
+    const colors   = ['#38bdf8','#a78bfa','#34d399','#fbbf24','#f87171'];
+    makeChart('proxyDistChart', {type:'doughnut', data:{
+      labels,
+      datasets:[{data:values, backgroundColor:colors.slice(0, labels.length), borderWidth:0, hoverOffset:10}]
+    }, options:{responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{legend:{position:'bottom', labels:{usePointStyle:true, pointStyleWidth:8, padding:14}},
+        tooltip:{callbacks:{label: c => {
+          const total = c.dataset.data.reduce((a,b) => a+b, 0);
+          return `${c.label}: ${c.raw} proxies (${total ? Math.round(c.raw/total*100) : 0}%)`;
+        }}}}}});
+  }
+
+  /* ── Profile Actions by Session (stacked bar) ── */
+  const sessions = d.raw.sessions || [];
+  if (sessions.length) {
+    const labels    = sessions.map(s => (s.session||'').replace('TSS_',''));
+    const inboxData = sessions.map(s => s.inbox||0);
+    const spamData  = sessions.map(s => s.spam||0);
+    makeChart('profileSessionChart', {type:'bar', data:{labels,
+      datasets:[
+        {label:'Inbox', data:inboxData, backgroundColor:'rgba(52,211,153,.8)',  borderRadius:4},
+        {label:'Spam',  data:spamData,  backgroundColor:'rgba(248,113,113,.8)', borderRadius:4}
+      ]}, options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top', labels:{usePointStyle:true, pointStyleWidth:8, padding:10}}},
+      scales:{
+        x:{stacked:true, grid:{display:false}, ticks:{font:{size:8}, maxRotation:45}},
+        y:{stacked:true, grid:{color:gridColor()}, beginAtZero:true}
+      }}});
+  }
+
+  /* ── Top Proxies horizontal bar chart (top 15) ── */
+  const top15 = px.topProxies.slice(0, 15);
+  if (top15.length) {
+    makeChart('topProxiesChart', {type:'bar', data:{
+      labels: top15.map(r => r[0]),
+      datasets:[{
+        label:'Uses',
+        data: top15.map(r => r[1]),
+        backgroundColor: top15.map((_, i) => i < 4 ? 'rgba(56,189,248,.9)' : 'rgba(56,189,248,.55)'),
+        borderRadius: 4
+      }]
+    }, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label: c => `${c.raw} uses`}}},
+      scales:{
+        x:{grid:{color:gridColor()}, beginAtZero:true, ticks:{precision:0}},
+        y:{grid:{display:false}, ticks:{font:{size:9}, color: () => document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b'}}
+      }}});
+  }
+}
+
+function buildEntFnCharts(d, key) {
+  const fn = d.fnData[key]; if (!fn) return;
+  const sr = fn.spamRows.slice(0,10);
+  const ir = fn.inboxRows.slice(0,10);
+  if (sr.length) makeChart('efp-spam-chart-'+key,{type:'bar',
+    data:{labels:sr.map(r=>r[0]),datasets:[{label:'Spam',data:sr.map(r=>r[1]),backgroundColor:'rgba(248,113,113,.8)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:gridColor()},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+  if (ir.length) makeChart('efp-inbox-chart-'+key,{type:'bar',
+    data:{labels:ir.map(r=>r[0]),datasets:[{label:'Inbox',data:ir.map(r=>r[1]),backgroundColor:'rgba(52,211,153,.8)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:gridColor()},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+}
+
+/* ════════════════════════════════════════════════════════
+   SESSIONS / PROFILES
+═══════════════════════════════════════════════════════ */
+function buildSessionsPanel(d) {
+  const sessions = (d.raw.sessions || []);
+  const planA = sessions.filter(s => s.plan === 'A');
+  const planB = sessions.filter(s => s.plan === 'B');
+
+  /* Sync plan buttons */
+  const btnA = document.getElementById('sess-plan-a');
+  const btnB = document.getElementById('sess-plan-b');
+  if (btnA) btnA.classList.toggle('active', SESS.activePlan === 'A');
+  if (btnB) btnB.classList.toggle('active', SESS.activePlan === 'B');
+
+  const planSessions = SESS.activePlan === 'A' ? planA : planB;
+
+  /* Auto-select first if nothing is selected or the selection no longer exists */
+  if (!SESS.activeSession || !planSessions.find(s => s.session === SESS.activeSession)) {
+    SESS.activeSession = planSessions.length ? planSessions[0].session : null;
+  }
+
+  renderSessCards(planSessions);
+
+  if (SESS.activeSession) {
+    const sess = sessions.find(s => s.session === SESS.activeSession);
+    if (sess) renderSessionDetail(d, sess);
+  }
+}
+
+function renderSessCards(planSessions) {
+  const container = document.getElementById('sessCards');
+  if (!container) return;
+  container.innerHTML = planSessions.map(s => {
+    const usersRaw  = (s.users && typeof s.users === 'object' && !Array.isArray(s.users)) ? s.users : {};
+    const fromId    = Number(s.user_from);
+    const toId      = Number(s.user_to);
+    const fullRange = [];
+    if (fromId && toId && fromId <= toId) {
+      for (let uid = fromId; uid <= toId; uid++) {
+        const v = usersRaw[String(uid)] || { inbox:0, spam:0 };
+        fullRange.push(v);
+      }
+    } else {
+      Object.values(usersRaw).forEach(v => fullRange.push(v));
+    }
+    const activeUsers   = fullRange.filter(v => (v.inbox||0) + (v.spam||0) > 0).length;
+    const inactiveUsers = fullRange.length - activeUsers;
+    const noData        = fullRange.length === 0;
+    const isActive     = s.session === SESS.activeSession;
+    const pColor       = s.plan === 'A' ? '#38bdf8' : '#a78bfa';
+    const shortName    = (s.session || '').replace('TSS_', '');
+    return `<div class="sess-btn cursor-pointer card rounded-xl p-3 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50 hover:border-sky-400/50 transition-colors ${isActive ? 'active' : ''}"
+        data-session="${s.session}" onclick="selectSessCard(this,'${s.session}')">
+      <div class="flex items-center gap-1.5 mb-2">
+        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:${pColor}22;color:${pColor}">P${s.plan}</span>
+        <span class="text-xs font-bold truncate">${shortName}</span>
+      </div>
+      ${noData
+        ? `<div class="text-[10px] text-slate-400 italic">No data yet</div>`
+        : `<div class="flex gap-2 text-[11px] font-mono flex-wrap">
+             <span class="text-violet-500 font-semibold">${activeUsers.toLocaleString()} active</span>
+             <span class="text-amber-500">/ ${inactiveUsers} inactive</span>
+           </div>`
+      }
+    </div>`;
+  }).join('') || '<div class="text-slate-400 text-sm col-span-full text-center py-6">No sessions available</div>';
+}
+
+function selectSessCard(el, sessionName) {
+  SESS.activeSession = sessionName;
+  SESS_FILTER = 'all';
+  document.querySelectorAll('#sessCards .sess-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const sess = G.d && (G.d.raw.sessions || []).find(s => s.session === sessionName);
+  if (sess) renderSessionDetail(G.d, sess);
+}
+
+function switchSessPlan(plan) {
+  SESS.activePlan = plan;
+  const d = G.d; if (!d) return;
+  const sessions = (d.raw.sessions || []);
+  const planSessions = sessions.filter(s => s.plan === plan);
+  SESS.activeSession = planSessions.length ? planSessions[0].session : null;
+  const btnA = document.getElementById('sess-plan-a');
+  const btnB = document.getElementById('sess-plan-b');
+  if (btnA) btnA.classList.toggle('active', plan === 'A');
+  if (btnB) btnB.classList.toggle('active', plan === 'B');
+  renderSessCards(planSessions);
+  if (SESS.activeSession) {
+    const sess = sessions.find(s => s.session === SESS.activeSession);
+    if (sess) renderSessionDetail(d, sess);
+  }
+}
+
+function renderSessionDetail(d, sess) {
+  const detailEl = document.getElementById('sessDetail');
+  if (!detailEl) return;
+
+  /* ── Build the FULL user range from user_from / user_to ── */
+  const fromId = Number(sess.user_from);
+  const toId   = Number(sess.user_to);
+  const usersRaw = (sess.users && typeof sess.users === 'object' && !Array.isArray(sess.users))
+    ? sess.users : {};
+
+  /* Always produce an entry for every ID in [fromId, toId], missing ones → zeros */
+  const fullRange = [];
+  if (fromId && toId && fromId <= toId) {
+    for (let uid = fromId; uid <= toId; uid++) {
+      const key = String(uid);
+      const v   = usersRaw[key] || { inbox:0, spam:0, total:0, inbox_rate:0, status:'Inactive' };
+      fullRange.push([key, v]);
+    }
+  } else {
+    /* Fallback: use whatever keys are in users */
+    Object.entries(usersRaw).sort(([a],[b])=>Number(a)-Number(b)).forEach(e => fullRange.push(e));
+  }
+
+  const labels    = fullRange.map(([u])   => '#' + u);
+  const inboxData = fullRange.map(([,v])  => v.inbox || 0);
+  const spamData  = fullRange.map(([,v])  => v.spam  || 0);
+  const rateData  = fullRange.map(([,v])  => {
+    const t = (v.inbox||0) + (v.spam||0);
+    return v.inbox_rate != null ? v.inbox_rate : (t > 0 ? Math.round((v.inbox||0)/t*100) : 0);
+  });
+
+  const totalInbox    = inboxData.reduce((a,b)=>a+b,0);
+  const totalSpam     = spamData.reduce((a,b)=>a+b,0);
+  const totalAll      = totalInbox + totalSpam;
+  const activeUsers   = fullRange.filter(([,v]) => (v.inbox||0) + (v.spam||0) > 0).length;
+  const inactiveUsers = fullRange.length - activeUsers;
+  const pColor        = sess.plan === 'A' ? '#38bdf8' : '#a78bfa';
+  const shortName     = (sess.session || '').replace('TSS_', '');
+
+  const statusBadge = s => {
+    if (!s || s === 'Inactive') return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-400/15 text-slate-400">Inactive</span>`;
+    const map = { Excellent:'emerald', Good:'sky', Average:'amber', Poor:'rose' };
+    const col = map[s] || 'slate';
+    return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-${col}-400/15 text-${col}-500">${s}</span>`;
+  };
+  const rateColor = r => r >= 80 ? '#34d399' : r >= 60 ? '#fbbf24' : '#f87171';
+
+  /* ── Determine if scaffold already exists for this session ── */
+  const sameSession = SESS.lastRenderedSession === sess.session && document.getElementById('sessUserChart');
+
+  if (!sameSession) {
+    /* Full scaffold rebuild (session switched or first load) */
+    SESS.lastRenderedSession = sess.session;
+    destroyChart('sessUserChart');
+    destroyChart('sessRateChart');
+
+    detailEl.innerHTML = `
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <span class="px-3 py-1.5 rounded-xl text-sm font-extrabold tracking-tight" style="background:${pColor}22;color:${pColor}">${shortName}</span>
+        <span class="text-xs text-slate-500">Per-user breakdown &mdash; <span id="sd-user-count">${fullRange.length}</span> users (range ${fromId||'?'}–${toId||'?'})</span>
+      </div>
+
+      <!-- KPI mini-cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Session Inbox</div>
+          <div class="text-2xl font-extrabold font-mono text-emerald-500 mt-1" id="sd-kpi-inbox">${totalInbox.toLocaleString()}</div>
+        </div>
+        <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Session Spam</div>
+          <div class="text-2xl font-extrabold font-mono text-rose-500 mt-1" id="sd-kpi-spam">${totalSpam.toLocaleString()}</div>
+        </div>
+        <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Inactive Users</div>
+          <div class="text-2xl font-extrabold font-mono text-amber-500 mt-1" id="sd-kpi-inactive">${inactiveUsers}</div>
+          <div class="text-[11px] text-slate-500" id="sd-kpi-inactive-sub">of ${fullRange.length} total</div>
+        </div>
+        <div class="card rounded-xl p-4 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Users</div>
+          <div class="text-2xl font-extrabold font-mono text-violet-500 mt-1" id="sd-kpi-active">${activeUsers}</div>
+          <div class="text-[11px] text-slate-500" id="sd-kpi-active-sub">of ${fullRange.length} total</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+        <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>Inbox &amp; Spam per User
+          </h3>
+          <div class="h-72"><canvas id="sessUserChart"></canvas></div>
+        </div>
+        <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+            <i data-lucide="percent" class="w-3.5 h-3.5"></i>Inbox Rate per User
+          </h3>
+          <div class="h-72"><canvas id="sessRateChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- User detail table -->
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <i data-lucide="table" class="w-3.5 h-3.5"></i>User Detail Table
+          </h3>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/70 rounded-lg p-1">
+              <button onclick="filterSessTable('all')" id="sf-all" class="sess-filter-btn px-3 py-1 rounded-md text-xs font-bold transition-colors bg-white dark:bg-slate-700 text-sky-500 shadow-sm">All</button>
+              <button onclick="filterSessTable('active')" id="sf-active" class="sess-filter-btn px-3 py-1 rounded-md text-xs font-bold transition-colors text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">Active</button>
+              <button onclick="filterSessTable('inactive')" id="sf-inactive" class="sess-filter-btn px-3 py-1 rounded-md text-xs font-bold transition-colors text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">Inactive</button>
+            </div>
+            <div class="relative">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+              <input type="text" placeholder="Search user…" oninput="filterTbl(this,'tbl-sess-users')"
+                class="pl-9 pr-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/70 text-sm border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-sky-400 w-52"/>
+            </div>
+          </div>
+        </div>
+        <div class="overflow-x-auto nice-scroll" style="max-height:420px">
+          <table class="w-full text-sm" id="tbl-sess-users">
+            <thead class="sticky top-0 bg-white dark:bg-slate-900 z-10">
+              <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+                <th class="text-left px-3 py-2 font-bold">User #</th>
+                <th class="text-right px-3 py-2 font-bold text-emerald-500">Inbox</th>
+                <th class="text-right px-3 py-2 font-bold text-rose-500">Spam</th>
+                <th class="text-right px-3 py-2 font-bold">Total</th>
+                <th class="text-right px-3 py-2 font-bold">Rate</th>
+                <th class="text-left px-3 py-2 font-bold">Status</th>
+                <th class="text-left px-3 py-2 font-bold w-28">Inbox Share</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-sess-body">
+              ${_buildSessTableRows(fullRange, statusBadge, rateColor)}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    if (window.lucide) lucide.createIcons();
+  } else {
+    /* ── In-place data update — same session, live refresh ── */
+    const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setTxt('sd-kpi-inbox',         totalInbox.toLocaleString());
+    setTxt('sd-kpi-spam',          totalSpam.toLocaleString());
+    setTxt('sd-kpi-inactive',      inactiveUsers);
+    setTxt('sd-kpi-inactive-sub',  `of ${fullRange.length} total`);
+    setTxt('sd-kpi-active',        activeUsers);
+    setTxt('sd-kpi-active-sub',    `of ${fullRange.length} total`);
+    setTxt('sd-user-count',        fullRange.length);
+
+    /* Re-render table body rows in place */
+    const tbody = document.getElementById('tbl-sess-body');
+    if (tbody) { tbody.innerHTML = _buildSessTableRows(fullRange, statusBadge, rateColor); applyActiveSessFilter(); }
+  }
+
+  chartDefaults();
+  const rateColors = rateData.map(r => r>=80?'rgba(52,211,153,.8)':r>=60?'rgba(251,191,36,.8)':'rgba(248,113,113,.8)');
+
+  /* Inbox vs Spam stacked bar — makeChart handles in-place updates automatically */
+  makeChart('sessUserChart', {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label:'Inbox', data:inboxData, backgroundColor:'rgba(52,211,153,.8)',  borderRadius:3, stack:'s' },
+      { label:'Spam',  data:spamData,  backgroundColor:'rgba(248,113,113,.8)', borderRadius:3, stack:'s' }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ usePointStyle:true, pointStyleWidth:8, padding:10 }}},
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{font:{size:8}, maxRotation:90, minRotation:45}},
+        y:{ stacked:true, grid:{color:gridColor()}, beginAtZero:true }
+      }}
+  });
+
+  /* Inbox rate bar — colour-coded, makeChart in-place on live refresh */
+  makeChart('sessRateChart', {
+    type: 'bar',
+    data: { labels, datasets: [{ label:'Inbox Rate %', data:rateData, backgroundColor:rateColors, borderRadius:3 }]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:8}, maxRotation:90, minRotation:45}},
+        y:{ grid:{color:gridColor()}, beginAtZero:true, max:100, ticks:{callback: v => v+'%'}}
+      }}
+  });
+}
+
+function _buildSessTableRows(fullRange, statusBadge, rateColor) {
+  return fullRange.map(([uid, v]) => {
+    const inbox = v.inbox || 0;
+    const spam  = v.spam  || 0;
+    const t     = inbox + spam;
+    const ir    = v.inbox_rate != null ? v.inbox_rate : (t > 0 ? Math.round(inbox/t*100) : 0);
+    const pct   = t > 0 ? Math.round(inbox/t*100) : 0;
+    const isInactive = t === 0;
+    return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5${isInactive?' opacity-50':''}" data-row="${uid}" data-active="${isInactive?'inactive':'active'}">
+      <td class="px-3 py-2.5 font-mono text-xs font-semibold">#${uid}</td>
+      <td class="px-3 py-2.5 text-right font-mono font-semibold text-emerald-500">${inbox.toLocaleString()}</td>
+      <td class="px-3 py-2.5 text-right font-mono font-semibold text-rose-500">${spam}</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-500">${t}</td>
+      <td class="px-3 py-2.5 text-right font-mono font-semibold" style="color:${isInactive?'#94a3b8':rateColor(ir)}">${isInactive?'—':ir+'%'}</td>
+      <td class="px-3 py-2.5">${statusBadge(v.status)}</td>
+      <td class="px-3 py-2.5"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#34d399"></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+let SESS_FILTER = 'all';
+
+function filterSessTable(filter) {
+  SESS_FILTER = filter;
+  applyActiveSessFilter();
+}
+
+function applyActiveSessFilter() {
+  /* Update button styles */
+  document.querySelectorAll('.sess-filter-btn').forEach(btn => {
+    const isActive = btn.id === 'sf-' + SESS_FILTER;
+    btn.classList.toggle('bg-white',        isActive);
+    btn.classList.toggle('dark:bg-slate-700', isActive);
+    btn.classList.toggle('text-sky-500',    isActive);
+    btn.classList.toggle('shadow-sm',       isActive);
+    btn.classList.toggle('text-slate-500',  !isActive);
+  });
+  /* Show/hide rows */
+  document.querySelectorAll('#tbl-sess-body tr[data-active]').forEach(row => {
+    if (SESS_FILTER === 'all') {
+      row.style.display = '';
+    } else {
+      row.style.display = row.dataset.active === SESS_FILTER ? '' : 'none';
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   NAVIGATION / TABS
+═══════════════════════════════════════════════════════ */
+function showPanel(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('p-' + tab);
+  if (panel) panel.classList.add('active');
+  document.querySelectorAll(`[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
+  if (window.lucide) lucide.createIcons();
+}
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => showPanel(btn.dataset.tab));
+});
+
+function showFnTab(key) {
+  G.activeFnTab = key;
+  document.querySelectorAll('.fntab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ent-fn-panel').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`[data-fntab="${key}"]`);
+  const panel = document.getElementById('efp-' + key);
+  if (btn) btn.classList.add('active');
+  if (panel) panel.classList.add('active');
+  if (G.d) { chartDefaults(); buildEntFnCharts(G.d, key); }
+  if (window.lucide) lucide.createIcons();
+}
+document.querySelectorAll('.fntab-btn').forEach(btn => btn.addEventListener('click', () => showFnTab(btn.dataset.fntab)));
+
+function showDomainTab(key) {
+  G.activeDomainTab = key;
+  document.querySelectorAll('.dtab').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-dtab="${key}"]`);
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.dpanel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('dp-' + key);
+  if (panel) panel.classList.add('active');
+}
+document.querySelectorAll('.dtab').forEach(btn => btn.addEventListener('click', () => showDomainTab(btn.dataset.dtab)));
+
+function showDomainPane(b) {
+  const ent = b.dataset.ent, di = b.dataset.di;
+  document.querySelectorAll(`[data-ent="${ent}"].di-btn`).forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('dp-spam-'+ent).style.display  = di==='spam'  ? 'block' : 'none';
+  document.getElementById('dp-inbox-'+ent).style.display = di==='inbox' ? 'block' : 'none';
+}
+function showDiPane(b) {
+  const ent = b.dataset.ent, di = b.dataset.di;
+  document.querySelectorAll(`[data-ent="${ent}"].di-btn`).forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('di-spam-'+ent).style.display  = di==='spam'  ? 'block' : 'none';
+  document.getElementById('di-inbox-'+ent).style.display = di==='inbox' ? 'block' : 'none';
+}
+
+/* ════════════════════════════════════════════════════════
+   SEARCH / SORT
+═══════════════════════════════════════════════════════ */
+function filterTbl(input, tblId) {
+  const q = input.value.trim().toLowerCase();
+  const tbl = document.getElementById(tblId);
+  if (!tbl) return;
+  tbl.querySelectorAll('tbody tr').forEach(r => {
+    r.style.display = (!q || (r.getAttribute('data-row')||r.textContent).toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+function filterFnTbl(input, ent) {
+  const q = input.value.trim().toLowerCase();
+  ['spam','inbox'].forEach(di => {
+    const t = document.getElementById('fn-tbl-'+di+'-'+ent); if (!t) return;
+    t.querySelectorAll('tbody tr').forEach(r => { r.style.display = (!q || (r.getAttribute('data-row')||r.textContent).toLowerCase().includes(q)) ? '' : 'none'; });
+  });
+}
+function filterDomainTbl(input, ent) {
+  const q = input.value.trim().toLowerCase();
+  ['spam','inbox'].forEach(di => {
+    const t = document.getElementById('tbl-'+di+'-'+ent); if (!t) return;
+    t.querySelectorAll('tbody tr').forEach(r => { r.style.display = (!q || (r.getAttribute('data-row')||r.textContent).toLowerCase().includes(q)) ? '' : 'none'; });
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   DATA LOADING
+═══════════════════════════════════════════════════════ */
+function setLoading(on) {
+  const bar = document.getElementById('loadingBar');
+  if (bar) { bar.classList.toggle('hidden', !on); bar.style.animation = on ? 'loadProg 1.5s ease-in-out infinite' : 'none'; }
+}
+
+async function loadData(hour, date, silent) {
+  G.silentUpdate = !!silent;
+  if (!silent) setLoading(true);
+  try {
+    const fetchHeaders = { 'Cache-Control': 'no-cache' };
+    // Send ETag from last fetch so the server can return 304 if nothing changed
+    if (silent && G.lastETag) fetchHeaders['If-None-Match'] = G.lastETag;
+    const r = await fetch(`/api/warmup-reports/data?hour=${hour}&date=${date}`, {
+      cache: 'no-cache',
+      headers: fetchHeaders
+    });
+    // 304 = file unchanged, skip re-render entirely
+    if (r.status === 304) { G.silentUpdate = false; return; }
+    const j = await r.json();
+    if (!j.success) { console.error('API error:', j.error); return; }
+    if (j.empty || !j.data) {
+      // Show waiting state on all panels regardless of silent/live mode
+      document.getElementById('emptyState').classList.remove('hidden');
+      const oi = document.getElementById('overview-inner');
+      if (oi) oi.style.display = 'none';
+      ['entities','domains','proxies','sessions'].forEach(p => {
+        const inner = document.getElementById(p + '-inner');
+        const empty = document.getElementById(p + '-empty');
+        if (inner) inner.style.display = 'none';
+        if (empty) empty.classList.remove('hidden');
+      });
+      return;
+    }
+    // Restore all panels
+    document.getElementById('emptyState').classList.add('hidden');
+    const oi = document.getElementById('overview-inner');
+    if (oi) oi.style.display = '';
+    ['entities','domains','proxies','sessions'].forEach(p => {
+      const inner = document.getElementById(p + '-inner');
+      const empty = document.getElementById(p + '-empty');
+      if (inner) inner.style.display = '';
+      if (empty) empty.classList.add('hidden');
+    });
+
+    // Store ETag for next poll — enables 304 short-circuit on silent updates
+    G.lastETag = r.headers.get('ETag') || null;
+
+    // Skip re-render if data hasn't changed (last_updated is the same)
+    const incomingUpdated = j.data.last_updated || null;
+    if (silent && incomingUpdated && incomingUpdated === G.lastUpdated) return;
+    G.lastUpdated = incomingUpdated;
+
+    const processed = processRawData(j.data);
+    G.d = processed;
+    renderAll(processed);
+  } catch(e) {
+    console.error('Load error:', e);
+  } finally {
+    if (!silent) setLoading(false);
+    G.silentUpdate = false;
+  }
+}
+
+function startLivePolling() {
+  stopPolling();
+  document.getElementById('liveBadge').classList.remove('hidden');
+  loadData(G.currentHour, G.currentDate, false);
+  G.liveTimer = setInterval(() => loadData(G.currentHour, G.currentDate, true), 10000);
+}
+
+function stopPolling() {
+  if (G.liveTimer) { clearInterval(G.liveTimer); G.liveTimer = null; }
+  document.getElementById('liveBadge').classList.add('hidden');
+}
+
+/* ════════════════════════════════════════════════════════
+   HOUR SELECTOR
+═══════════════════════════════════════════════════════ */
+document.getElementById('hourSelect').addEventListener('change', function() {
+  const opt = this.options[this.selectedIndex];
+  const h = opt.dataset.hour;
+  const dt = opt.dataset.date;
+  if (this.value === 'live') {
+    G.isLive = true;
+    G.currentHour = h;
+    G.currentDate = dt;
+    G.lastUpdated = null;
+    G.lastETag = null;
+    startLivePolling();
+  } else {
+    G.isLive = false;
+    stopPolling();
+    G.currentHour = h;
+    G.currentDate = dt;
+    G.lastUpdated = null;
+    G.lastETag = null;
+    loadData(h, dt, false);
+  }
+});
+
+/* ════════════════════════════════════════════════════════
+   HOUR DROPDOWN AUTO-REFRESH
+   Polls /api/warmup-reports/hours every 60 s.
+   • Rebuilds non-live options when new hour files appear.
+   • Updates the Live label when the clock ticks to a new hour.
+   • If the user is on Live and the hour rolled over, updates
+     G.currentHour/G.currentDate and loads the new hour's data.
+═══════════════════════════════════════════════════════ */
+async function refreshHourDropdown() {
+  try {
+    const r = await fetch('/api/warmup-reports/hours');
+    const j = await r.json();
+    if (!j.success) return;
+
+    const newLiveHour = j.live_hour;
+    const newLiveDate = j.live_date;
+    const sel    = document.getElementById('hourSelect');
+    const selMob = document.getElementById('hourSelectMob');
+
+    // Detect hour roll-over before mutating the DOM
+    const prevLiveHour = sel.querySelector('option[value="live"]')?.dataset.hour;
+    const liveHourChanged = !!prevLiveHour && prevLiveHour !== newLiveHour;
+
+    function rebuildSelect(s) {
+      if (!s) return;
+      const currentVal = s.value;
+
+      // Update the live option label + data attributes
+      const liveOpt = s.querySelector('option[value="live"]');
+      if (liveOpt) {
+        liveOpt.dataset.hour = newLiveHour;
+        liveOpt.dataset.date = newLiveDate;
+        liveOpt.textContent  = `⚡ Live (${newLiveHour}:00)`;
+      }
+
+      // Snapshot existing non-live values so we can skip unchanged options
+      const existingVals = new Set(
+        Array.from(s.options).filter(o => o.value !== 'live').map(o => o.value)
+      );
+
+      // Remove all non-live options, then re-insert sorted list from API
+      Array.from(s.options).forEach(o => { if (o.value !== 'live') o.remove(); });
+
+      j.available_hours.forEach(h => {
+        // Skip the current live hour (it is already the live option)
+        if (h.hour === newLiveHour && h.date === newLiveDate) return;
+        const val = `${h.hour}_${h.date}`;
+        const opt = new Option(h.display, val);
+        opt.dataset.hour = h.hour;
+        opt.dataset.date = h.date;
+        s.appendChild(opt);
+      });
+
+      // Restore selection — fall back to live if the old value is gone
+      if (s.querySelector(`option[value="${currentVal}"]`)) {
+        s.value = currentVal;
+      } else {
+        s.value = 'live';
+      }
+    }
+
+    rebuildSelect(sel);
+    rebuildSelect(selMob);
+
+    // If live and hour just rolled over → update state & fetch new hour data
+    if (G.isLive && liveHourChanged) {
+      G.currentHour = newLiveHour;
+      G.currentDate = newLiveDate;
+      loadData(G.currentHour, G.currentDate, false);
+    }
+  } catch(e) { /* silent — network blip, try again next tick */ }
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) lucide.createIcons();
+  // Start with live
+  G.isLive = true;
+  startLivePolling();
+  // Auto-refresh the hour dropdown every 60 seconds
+  setInterval(refreshHourDropdown, 60000);
+});
+</script>
+</body>
+</html>

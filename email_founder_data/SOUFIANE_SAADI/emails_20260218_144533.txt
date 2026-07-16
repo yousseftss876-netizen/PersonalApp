@@ -1,0 +1,1979 @@
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp280098lkc;
+        Fri, 6 Feb 2026 08:02:36 -0800 (PST)
+X-Received: by 2002:a05:6a21:7a49:b0:38b:ea89:700a with SMTP id adf61e73a8af0-393ad01ee31mr3246506637.34.1770393755728;
+        Fri, 06 Feb 2026 08:02:35 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770393755; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ewc1uCJ/djrMQo/a6XK+g6z3O7+PrCaFMncV/N/CZvKg93khl5FZF2x+PAUuqPkYCY
+         Z1GrIzj9zVR4Y62sAQ4CSI7Zd1HNSjFyUJyVnMKAWjsajZjNCgU12tMWAEDPakbbFRlM
+         ZqVTS7zcSTZAZlLmj2+j0TNi8sJm70zsTT+4SPOI9l48PIBZucEOEqyhmn6ABeVtjkDr
+         VjBteUkwEza2swCTd2UdRkeL9NJIsx4WMo2ef26RhlZ8UYQAK4ygDRBC27CvUQseI5D/
+         7l68mpbIUsvmQIryuRr7Ku/asYeh/Gi7CQmkRo9Kcsm3JZhWli8QF/dB/sIJT1TfNWKE
+         WaMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:date:message-id:subject:to:from:mime-version
+         :list-unsubscribe:dkim-signature:dkim-signature;
+        bh=OsagwVMUhnQSuDJo0w7g5PsbiDgLWhsjFDrbjvMoloA=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=XijHVfEyleyNHQfZI29dCjHrb95Wo0ar+ZBgBULKLEYCt/obshyYHBWWSGPv8OrxjQ
+         tm6TBemtx+HkDblnI9siH9pQVK2wFErp3dU7uPpFBUlkWxJ7KzipKpVhv/0vn3qpMjXw
+         bT1Cerhq0YqVtWX3Hi1MfSboRJodyMTsATAPvVXWWO5Swk5iAMBM82QLovKbfm1gOgCx
+         iPHRW06LxHimvuBLy7omfKueeGCau3baBcEWre31WWoXO164pIYNM+t7O2/F6ReXfVJZ
+         inSZQS+cAzZqeq5nFJ/85oZP2K/oz7oqZTYsyzP4dBPy/d4z1r0A18JfT5VvXfm5lvVC
+         92lQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@sportsyou.com header.s=2cbsxdhemjp5he3ymfqahmdl34gy2nhv header.b=w62a2mrL;
+       dkim=pass header.i=@amazonses.com header.s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx header.b=CbeXo+ca;
+       spf=pass (google.com: domain of 0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com designates 54.240.87.69 as permitted sender) smtp.mailfrom=0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=sportsyou.com
+Return-Path: <0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com>
+Received: from a87-69.smtp-out.us-west-2.amazonses.com (a87-69.smtp-out.us-west-2.amazonses.com. [54.240.87.69])
+        by mx.google.com with ESMTPS id 41be03b00d2f7-c6dcb7e1f42si4203713a12.402.2026.02.06.08.02.35
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Feb 2026 08:02:35 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com designates 54.240.87.69 as permitted sender) client-ip=54.240.87.69;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@sportsyou.com header.s=2cbsxdhemjp5he3ymfqahmdl34gy2nhv header.b=w62a2mrL;
+       dkim=pass header.i=@amazonses.com header.s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx header.b=CbeXo+ca;
+       spf=pass (google.com: domain of 0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com designates 54.240.87.69 as permitted sender) smtp.mailfrom=0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@mail.sportsyou.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=sportsyou.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=2cbsxdhemjp5he3ymfqahmdl34gy2nhv; d=sportsyou.com; t=1770393755;
+	h=Content-Type:List-Unsubscribe:MIME-Version:From:To:Subject:Message-ID:Date;
+	bh=4JV7hnfNl9UYk08DhCwwpeb+zbd8kh7WrYxnpup2cgw=;
+	b=w62a2mrLetG6ZyB2KdoxQ/LBNoPa5seAr7cfT0SrfzBUJoHe7MdER6eqeFd+IKOO
+	I68QXUJBm1u7pG4U3a2Xplew/dzO5U/cmGQYMvxkAYOqAc2qBBVy5dJmqcWsQ2rO0hl
+	HVVCTc/ZZLkTDcDwt5YxPCHnfHr14dO549VVcVe8hFrmjHgK9iSnuX92DgUQF8YmTQ3
+	fvFhxWwsHy4yPJ4MBz13Q5IdUftLgRAmrC+JhGGVGq8fmD/BHlASt4/+uuXgltKAE3G
+	HhAk33o0tG3XREVF3ru43qqKV3oX/osaYtQAdt6EsALHFbrvYJW9pc9Rbs7dEvp85+O
+	//0p2lhlgA==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1770393755;
+	h=Content-Type:List-Unsubscribe:MIME-Version:From:To:Subject:Message-ID:Date:Feedback-ID;
+	bh=4JV7hnfNl9UYk08DhCwwpeb+zbd8kh7WrYxnpup2cgw=;
+	b=CbeXo+cacp62ALtiA3H7xpseI18+I0MAkG8YSKsrz0wdvfrL2A+Y9bUdBM8EjdoD
+	jKVM5Yy9IWJiNwyiVfupenJmSzwcRJbbyz8P5F/Gvzm9KJK3FByfpf7Ck6LcnmlXIsB
+	zI3IrIfsFk1QfozW09r8g/YlqqIU8POlGT69+jhM=
+Content-Type: multipart/alternative;boundary=ApH62z97
+List-Unsubscribe: <https://www.sportsyou.com/unsubscribe/?unsubscribeId=oo-bfc9040e-988e-46d3-a7ca-fc43c9c52920>
+MIME-Version: 1.0
+From: sportsYou <noreply@sportsyou.com>
+To: odin.ragnarok.vallhala@gmail.com
+Subject: Welcome to sportsYou
+Message-ID: <0101019c33b0de22-96d408e2-f94c-488b-b9fc-0373ea90f321-000000@us-west-2.amazonses.com>
+Date: Fri, 6 Feb 2026 16:02:35 +0000
+Feedback-ID: ::1.us-west-2.IMMiI/imKTdSDEim1PTdSCGZ8dB7oyfbRiaHvtxLJJ4=:AmazonSES
+X-SES-Outgoing: 2026.02.06-54.240.87.69
+
+--ApH62z97
+Content-Type: text/plain; charset="utf-8"; format=flowed
+
+https://www.sportsyou.com/
+
+Welcome to sportsYou!
+
+Please confirm your email account with the link below:
+
+Confirm Your Email https://www.sportsyou.com/signup/confirm.html?token=4da6544b-1d6b-4846-83cc-9b7f2afb157b
+
+Thanks for signing up!
+
+Can't see the button?
+Confirm your email by clicking this link https://www.sportsyou.com/signup/confirm.html?token=4da6544b-1d6b-4846-83cc-9b7f2afb157b
+
+Get all of these features on your mobile device with the sportsYou app!
+
+https://apps.apple.com/us/app/sportsyou/id1186906455https://play.google.com/store/apps/details?id=com.sportsyou.sportsYou
+
+This message was sent to odin.ragnarok.vallhala@gmail.com odin.ragnarok.vallhala@gmail.com.
+
+If you don't want to receive these emails from sportsYou in the future, you can
+manage notification settings https://www.sportsyou.com/settings/alerts.html or
+unsubscribe to all emails https://www.sportsyou.com/unsubscribe/?unsubscribeId=oo-bfc9040e-988e-46d3-a7ca-fc43c9c52920.
+--ApH62z97
+Content-Type: text/html; charset="utf-8"
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html style="font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;font-size:16px" dir="ltr" lang="en">
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Please confirm your email address.</title>
+</head>
+
+<body style="margin:0;text-align:center">
+  <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">
+    Welcome to sportsYou! Please Confirm your email to get started.<div>
+       ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+    </div>
+  </div>
+  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:rgb(243,243,243);padding:15px">
+    <tbody>
+      <tr>
+        <td>
+          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:37.5em">
+            <tbody>
+              <tr style="width:100%">
+                <td>
+                  <center><a href="https://www.sportsyou.com/" style="color:#067df7;text-decoration:none;display:inline-block;margin-top:20px;margin-bottom:20px;padding-top:10px;padding-bottom:10px" target="_blank"><img title="sportsYou" alt="sportsYou Logo" height="42" src="https://webassets.sportsyou.com/images/brand/sportsyou-wordmark.png" style="display:block;outline:none;border:none;text-decoration:none" width="240"></a></center>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:37.5em;background-color:#fff;font-size:16px;padding-left:15px;padding-right:15px">
+            <tbody>
+              <tr style="width:100%">
+                <td>
+                  <h1 style="font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;font-size:28px;font-weight:700;line-height:1.4;text-transform:unset">
+                    Welcome to sportsYou!</h1>
+                  <p style="font-size:16px;line-height:1.4;margin:16px 0;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif">
+                    Please confirm your email account with the link below:</p><a href="https://www.sportsyou.com/signup/confirm.html?token=4da6544b-1d6b-4846-83cc-9b7f2afb157b" style="line-height:100%;text-decoration:none;display:inline-block;max-width:100%;background-color:#4A90E2;color:#fff;border-radius:6px;cursor:pointer;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;font-size:16px;padding-bottom:12px;padding-top:12px;min-width:120px;padding-left:20px;padding-right:20px;padding:12px 20px 12px 20px" target="_blank"><span><!--[if mso]><i style="letter-spacing: 20px;mso-font-width:-100%;mso-text-raise:18" hidden>&nbsp;</i><![endif]--></span><span style="max-width:100%;display:inline-block;line-height:120%;mso-padding-alt:0px;mso-text-raise:9px">Confirm
+                      Your
+                      Email</span><span><!--[if mso]><i style="letter-spacing: 20px;mso-font-width:-100%" hidden>&nbsp;</i><![endif]--></span></a>
+                  <p style="font-size:16px;line-height:1.4;margin:16px 0;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;margin-bottom:30px;margin-top:30px">
+                    Thanks for signing up!</p>
+                  <p style="font-size:16px;line-height:1.4;margin:16px 0;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif">
+                    Can't see the button?<br>Confirm your email by clicking
+                    this <a href="https://www.sportsyou.com/signup/confirm.html?token=4da6544b-1d6b-4846-83cc-9b7f2afb157b" style="color:#4A90E2;text-decoration:underline;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif" target="_blank">link</a></p>
+                  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#fff;font-size:16px;padding-bottom:30px;padding-top:30px">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <p style="font-size:14px;line-height:1.2;margin:auto;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;margin-bottom:20px;margin-top:10px;width:240px;text-align:center">
+                            Get all of these features on your mobile device with
+                            the sportsYou app!</p>
+                            <center><a href="https://apps.apple.com/us/app/sportsyou/id1186906455" title="Download sportsYou on Apple App Store" style="color:#067df7;text-decoration:none;display:inline-block;margin-left:10px;margin-right:10px;height:36px;width:122px;text-align:center" target="_blank"><img alt="Apple App Store" height="36" src="https://webassets.sportsyou.com/images/badges/apple-ios-app-store-badge@2x.png" style="display:inline-block;outline:none;border:none;text-decoration:none;font-size:12px" width="122"></a><a href="https://play.google.com/store/apps/details?id=com.sportsyou.sportsYou" title="Download sportsYou on Google Play Store" style="color:#067df7;text-decoration:none;display:inline-block;margin-left:10px;margin-right:10px;height:36px;width:122px;text-align:center" target="_blank"><img alt="Google Play Store" height="36" src="https://webassets.sportsyou.com/images/badges/google-play-store-badge@2x.png" 
+  style="display:inline-block;outline:none;border:none;text-decoration:none;font-size:12px" width="122"></a></center>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:37.5em;font-size:16px;color:#9B9B9B;margin-bottom:45px;margin-top:30px">
+            <tbody>
+              <tr style="width:100%">
+                <td>
+                  <p style="font-size:14px;line-height:1.2;margin:16px 0;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;text-align:center">
+                    This message was sent to <a href="mailto:odin.ragnarok.vallhala@gmail.com" style="color:#4A90E2;text-decoration:underline;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif" target="_blank">odin.ragnarok.vallhala@gmail.com</a>.</p>
+                  <p style="font-size:14px;line-height:1.2;margin:16px 0;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;text-align:center">
+                    If you don't want to receive these emails from sportsYou in
+                    the future, you can <a href="https://www.sportsyou.com/settings/alerts.html" style="color:#4A90E2;text-decoration:underline;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;white-space:nowrap" target="_blank">manage notification settings</a> or <a href="https://www.sportsyou.com/unsubscribe/?unsubscribeId=oo-bfc9040e-988e-46d3-a7ca-fc43c9c52920" style="color:#4A90E2;text-decoration:underline;font-family:Figtree, Helvetica Neue, Helvetica, Arial, sans-serif;white-space:nowrap" target="_blank">unsubscribe to all emails</a>.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>
+--ApH62z97--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp827647lkc;
+        Sat, 7 Feb 2026 04:49:09 -0800 (PST)
+X-Received: by 2002:a05:6000:4383:b0:432:85eb:a3cc with SMTP id ffacd0b85a97d-43629658b17mr8540249f8f.19.1770468548863;
+        Sat, 07 Feb 2026 04:49:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770468548; cv=none;
+        d=google.com; s=arc-20240605;
+        b=SHgDm8T6eH4OBYopZxurUOIZ1E3/A2vCtX9UXz+7sghFEDhPl4V60qrLJe9cO/k3Kk
+         qzqyHjPgz6aG7wrU9WHLRMzTOqWbNEizy8LJPUXSl8duu1tZst8zcA7ZEohkPYXavEck
+         fFN2jVZk8OoQeWI1VOE9IeOwKwEgFa+F281WvMvxzWA3sGDW+0yP+VeuSY4Mf4TmnODG
+         nIF68GYdN7DR8zenWs2is2YGYGxY47MdI1kx5PFU2dv2Ij+hs5gv6I7uL9FQg9C363vQ
+         qlsC57h0qRDhWPYB39bibQlpck7pLhsdjYhp5OSTwGdq9Cd7btjUqAkXK6SkZkLZ9qhA
+         hm/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=mime-version:reply-to:to:message-id:subject:date:from:sender
+         :dkim-signature:dkim-signature;
+        bh=VKc8EWgfnfY7U6h3KMNFaluD+koLVOgz15ikysdqEN8=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=HXKmb2QDKoOZK4X922EGpC5pQv8yP1D0YAnle+zPv03VUyGPUOFZetCYmOKxwfPSKF
+         JbY5ZnOKPll4l7EeN4rE0UQ4lgvK6EH9D/jBwym3CJoy3lRBsZ3vQv7vinOrn7iRb+2I
+         jtgLGffc2+Zg7PS5B93wa7hyKzKbNUls3TDcTqIZd3YfZfra88s1kV7IGFDjOt5bn6EW
+         f4owZZjcRMRni/s1kfyg1nDR+P+nqrPxVvmEAbghcldKEOWpK8ViRX4+im9gGpXzx6Vu
+         kiTFEMa4C1idY7No3apOBDcGkZzi/AMsI61qGdcg0HdwNLBIAN98irzhkvUKgZBRXnd9
+         MXzA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@mg.mitto.ch header.s=mta header.b=hY8FALUv;
+       dkim=pass header.i=@eu.mailgun.org header.s=krs2 header.b=X21kyNl7;
+       spf=pass (google.com: domain of bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch designates 185.250.239.7 as permitted sender) smtp.mailfrom="bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=mitto.ch
+Return-Path: <bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch>
+Received: from m239-7.eu.mailgun.net (v57.v54282eed.euw1.send.eu.mailgun.net. [185.250.239.7])
+        by mx.google.com with UTF8SMTPS id ffacd0b85a97d-43634d4f5ffsi3190196f8f.33.2026.02.07.04.49.08
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 07 Feb 2026 04:49:08 -0800 (PST)
+Received-SPF: pass (google.com: domain of bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch designates 185.250.239.7 as permitted sender) client-ip=185.250.239.7;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@mg.mitto.ch header.s=mta header.b=hY8FALUv;
+       dkim=pass header.i=@eu.mailgun.org header.s=krs2 header.b=X21kyNl7;
+       spf=pass (google.com: domain of bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch designates 185.250.239.7 as permitted sender) smtp.mailfrom="bounce+8a9490.77f6b-odin.ragnarok.vallhala=gmail.com@mg.mitto.ch";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=mitto.ch
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.mitto.ch; q=dns/txt; s=mta; t=1770468548; x=1770475748;
+ h=Content-Type: MIME-Version: Reply-To: To: To: Message-Id: Subject: Subject: Date: From: From: Sender: Sender: X-Feedback-Id;
+ bh=VKc8EWgfnfY7U6h3KMNFaluD+koLVOgz15ikysdqEN8=;
+ b=hY8FALUvUpwbQAl7qfkyX8zI6deFXdMV4iU8YKZRYnYF/GXZr1AZtV5NwEzASEiqmBvigDlrMFLzJ/wtJjxcLPTPmdeB7YS5faRqTA32q2HY4yrneGhdZnlAubSkmwKvtrdu6NJyEqr+J2jPYtXxKVdASCUvPMfNe3M9gjufi+M=
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=eu.mailgun.org; q=dns/txt; s=krs2; t=1770468548; x=1770475748;
+ h=Content-Type: MIME-Version: Reply-To: To: To: Message-Id: Subject: Subject: Date: From: From: Sender: Sender: X-Feedback-Id;
+ bh=VKc8EWgfnfY7U6h3KMNFaluD+koLVOgz15ikysdqEN8=;
+ b=X21kyNl7wn+bSunzZSUvUr3UeiUnX525lCAyzaTfhk9f2yFc0L5R1rX5hfXPwMTA7TpY6AVbcB1x+i6VHGCGezTXn3bMPDtDKl0/8TUDZwxeas+KmF2+AP1z4/Zh/XfVioph0jFXeb/VX5tfE1GX1W5yYQu/8dqfZ5dqO+F4Lkc=
+X-Mailgun-Sid: WyI0Mjg4MyIsIm9kaW4ucmFnbmFyb2sudmFsbGhhbGFAZ21haWwuY29tIiwiNzdmNmIiXQ==
+X-Feedback-Id: noreply@mg.mitto.ch::60941110f5ef587031c3779b:mailgun
+Received: from mcp-78d8bfbcc-v2xn9 (unknown [20.79.226.228]) by
+ af3041cc78b3df86cf1c9acf62610c088515af9548778c3d7b78708f0c7030e4 with SMTP id
+ 698734c4161849b36946e33f (version=TLS1.3, cipher=TLS_AES_128_GCM_SHA256);
+ Sat, 07 Feb 2026 12:49:08 GMT
+X-Mailgun-Sending-Ip: 185.250.239.7
+Sender: noreply@mg.mitto.ch
+From: noreply@mg.mitto.ch
+Date: Sat, 07 Feb 2026 12:49:08 +0000
+Subject: Mitto - Verify your email address
+Message-Id: <MCQG9AF3GSU4.HDFB1BADXP5V3@mcp-78d8bfbcc-v2xn9>
+To: odin.ragnarok.vallhala@gmail.com
+Reply-To: noreply@mg.mitto.ch
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-MfYcIPPU4BfsYnL20MmeBA=="
+
+--=-MfYcIPPU4BfsYnL20MmeBA==
+Content-Type: text/plain; charset=utf-8
+
+Hi there!
+
+Let's get you started! Use the code below to activate your Mitto account.
+The code is valid for the next 5 minutes.
+
+828391
+
+Best regards,
+Mitto team
+--=-MfYcIPPU4BfsYnL20MmeBA==--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp507065lkc;
+        Fri, 6 Feb 2026 14:12:47 -0800 (PST)
+X-Received: by 2002:a05:620a:2910:b0:8c6:a4a6:b3e2 with SMTP id af79cd13be357-8caeeb4e8afmr528031285a.3.1770415966836;
+        Fri, 06 Feb 2026 14:12:46 -0800 (PST)
+ARC-Seal: i=2; a=rsa-sha256; t=1770415966; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=jgp/wIUmF9TVOxkVnezbne0FgAMIkU8/nTNEuhpMWiezJkd/6mm7heHRTwJTsghX/E
+         D3agA9EJRi6lZzjVZCtiAkKvhkc3c0nbQ98y6TWHFfARALFyFt+FrRRZyTv+HspfroO6
+         Add6y5OgI+dgS4ReY1tMbyH0snmjhFGR0nz54gQ9uRLyxj9SGZUozcVFKyAeYwBwqaZH
+         AbXZcxTOUXDo9XhE7Svvgb5P/V+aNKhGEvWdIMh5/QaSyyfl4p48T4/ghn1cvG2Yj971
+         1BLv0rRXk+bibk3OoWvBeFqqJJNvW9D0ZoiVzsXrDHZx/LERHUi5C6iF5Q6d3seeFrRH
+         ZjZw==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:mime-version:from:dkim-signature;
+        bh=Sa50TF1mQPTrce3wtzJoQDhB7bWTVIZTGiKuNBY5P8I=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=OZCEmX6HpppqyRvI6MOcxMTPCZmj9IMs0UYWHMSjkEYrhaEn8jFCXQiNp4VMs/1uFG
+         uRWjDg55A6bfhJskzpx284HecFYRjWCf6/nfk+oqWw/saoyRSWQVLIiiCeP2aUgBuvS0
+         DNkn/T0bwxWAruSu6OATdH4smhZtpGgDAw2HYth8pAiZlUD1Hx+PmEkZu4HjoHG1yoC5
+         3Mi2zoazdKBNaE3kptCWS5DPBJ2uOOVuo4uby8l3JQcaD7B1EE2+7/0l7cjBb1mWQ8/H
+         W4nRE+ME/N0FiQ/Oh1N4GliljsruWuAav7zB2iqvPyItmA94uPavpdJSpPv4+nNg28TK
+         2rMQ==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@voltathletics.com header.s=google header.b="IXM/Y8X3";
+       arc=pass (i=1);
+       spf=pass (google.com: domain of mike.winkler@voltathletics.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=mike.winkler@voltathletics.com;
+       dmarc=pass (p=QUARANTINE sp=NONE dis=NONE) header.from=voltathletics.com;
+       dara=pass header.i=@gmail.com
+Return-Path: <mike.winkler@voltathletics.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id af79cd13be357-8caf78f586csor241741085a.8.2026.02.06.14.12.46
+        for <odin.ragnarok.vallhala@gmail.com>
+        (Google Transport Security);
+        Fri, 06 Feb 2026 14:12:46 -0800 (PST)
+Received-SPF: pass (google.com: domain of mike.winkler@voltathletics.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@voltathletics.com header.s=google header.b="IXM/Y8X3";
+       arc=pass (i=1);
+       spf=pass (google.com: domain of mike.winkler@voltathletics.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=mike.winkler@voltathletics.com;
+       dmarc=pass (p=QUARANTINE sp=NONE dis=NONE) header.from=voltathletics.com;
+       dara=pass header.i=@gmail.com
+ARC-Seal: i=1; a=rsa-sha256; t=1770415966; cv=none;
+        d=google.com; s=arc-20240605;
+        b=emKRBopvieG05+BtCLgjcq4zXGeHWAfuOWz267ROiFfNigvJm0cmkpOCGMDkknsmox
+         4v0v6Zvs2PhorimFljilyhysaGtxqr0KBQ1mL+/UR5zy5BOO1jvP7yK8osReYMiM4heF
+         L9IZr3ABnj0204zwuxarVbKpOd9Hcrorz4Rl1zwEjpUMNtkLr5ytUV1pMWVziZy7MNu+
+         JvPcrMSUSeg2GHpsEgb5K+Hfnv8TuSctt3R2ulgl/3xwB8Xfw1G9Er8u4yquhmz52EfH
+         Z22btrrx+0W8OfrNxcLgY5f+ck88yz2u1ykk2HN8WohpkVkwaLRqmjgHxIXCsJ6e1VEz
+         aM6A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:mime-version:from:dkim-signature;
+        bh=Sa50TF1mQPTrce3wtzJoQDhB7bWTVIZTGiKuNBY5P8I=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=iECw9ahL70l+H1/lqv6pFwFNiG5b2ZBPqyOaClivlFE/VQgbK6151w0+Km6RTfcqPx
+         NFsStZSW2K8s4wJ5fc7TEJJJW9hg0hLNEG+83RMW2Z5Fj1ien30i5jLYwUIiyjjSyBHH
+         J8gh8LcTq4eWQKW8D/aVe3fNPvOsU9vTBOr2U0aYoShD1XIPfBL6g4GCDqYwaeu+iQBr
+         TMTinXr4toy2Dzk5XwlkKoNZR/Dn11DhodF+XMXEKKXTn0IM942aJQrNfh1IAa3Rh8GK
+         VM4d48pa3KKctJlBvrTPOCW+XHllkrbjrZNsrR9LU1ADwYEUMGZDy6C10S4t7QuIXjSI
+         FArA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=voltathletics.com; s=google; t=1770415966; x=1771020766; dara=google.com;
+        h=to:subject:message-id:date:mime-version:from:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Sa50TF1mQPTrce3wtzJoQDhB7bWTVIZTGiKuNBY5P8I=;
+        b=IXM/Y8X3KeBZnwvJNfjAHNyjeNqItGrixVI4/yb1VVz6FzMjLRdmrSpjsn4qZvY6BQ
+         o1p/z9Ubv2XW+vd16Gd0h87/rugcSFWFuV02oUE1CjFN34FbJ00gCTanVErDTios7wky
+         wkZn3gF5VSGzUtLWXaQYj/P4DAQEbIAadsJbxEyq/btC67hn4KBu7cFZjtfWMNvnjZBt
+         zdl33OmGHHN451ZGxL0uLgHrjuDaLPiF45RjtOFuN3E4EJ/93VcS2D+T7uUDVWWYG1ph
+         cUaHRUMA44AbkKY8e+Uur/SML3+HgQ453uV4s9I6vxnfUwUBAg3D6zcvkt9pvDoouRKk
+         15Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770415966; x=1771020766;
+        h=to:subject:message-id:date:mime-version:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Sa50TF1mQPTrce3wtzJoQDhB7bWTVIZTGiKuNBY5P8I=;
+        b=LJSIaI33b2AlBsEZnkH/tecRVBJbwGnod7tN9Q8PP7WeI7KUjiV3NKsFsFjVUVc5kE
+         I/719LnWi0SqQ173TT+eiUubuUrcoTQQ5WzYftgbHKd7nr/e+EF7P+qSXlrzAjXX+gdd
+         0s7PpCG93JWKycsTT5Cgi9yhrvmWELKZdJy+/sHnZe5OiClcjXHh30ZRn6jgbuxbCC2k
+         jDFDtPwdl17YM97s/cQ/LBSvhJRY3H8uQCAkK3JyGr0KbapB1scbRHiBpF31E26V7z/R
+         AsAOgXgycB0hH0vXY5hqqoSrEIHyKGQsP27MxMVM6JOIrMwdUvlKpO9l/JlVfCxyJ4vl
+         zuiQ==
+X-Gm-Message-State: AOJu0YwRwDS9s4a2WmMavYdglUjDNbB5JHCQoHtPn5mG971vK70YXwBc
+	OVJ9gY8a94p8Y4nxwiIkRPwqwAF2ERkUnitfiLhVkQS0YbIkKGsNF9I/yTAzsA3ae/8rU34I11O
+	z7pt7LSYQ8YE2B8TbKTluit0qW53+JwfyjJeELOw+hj9kfREjOaU8
+X-Gm-Gg: AZuq6aIelF5YP+dxD78NOMGi3/1y4Lm/3GMWtl/iR6iIQhBu66iGLPBWXJnJJrf6o/f
+	6bnjwh7fgHDyG5c9xXPx75TPSxl0Kfg6v+SvWQXpP4u3v/qT25B7XHQ+FteTm5JF9zxhVOtgCr/
+	cMm3dK2Rbsw+GzdJ36tc611kY5Uh+a923g9W31RKmbj4s+swEUSuM+GQS8MtubfM6nwcT54xIh2
+	fPCNNWiECM7X/fCN1uXx/v+0kpFPYA4SRy0phNFQCGARoXUWWE48+GTi+/Yw6qUd/zDB5o=
+X-Received: by 2002:a05:620a:2954:b0:8c9:f4ed:c383 with SMTP id
+ af79cd13be357-8caef408eeamr549914585a.33.1770415965861; Fri, 06 Feb 2026
+ 14:12:45 -0800 (PST)
+Received: from 466680526474 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 6 Feb 2026 14:12:44 -0800
+Received: from 466680526474 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 6 Feb 2026 14:12:44 -0800
+From: Mike Winkler <mike.winkler@voltathletics.com>
+MIME-Version: 1.0
+X-HS-Fax-Cid: 1ckyugvwrpthhby2ssxnj98xs37lmfy9tga5eq1omsl0vq6ksfcg5x5w2u44jprp9414qkyutkje5yfknwlayfkh1oxu4ml0g5i6zo5zbq7bw1jb2nr80w6fq5kf1xxqe
+Date: Fri, 6 Feb 2026 14:12:44 -0800
+X-Gm-Features: AZwV_QhR04tvgmsa_zXtuq4fKVj5GsIAH1jD4vCxdiICtqazCqNWmLFXg-on_Cc
+Message-ID: <CA+At4rzrHUnCEvarM4s+Z-qmSZfjHH03M=Q3oko1j1CO0D2NNA@mail.gmail.com>
+Subject: Welcome to Volt
+To: odin.ragnarok.vallhala@gmail.com
+Content-Type: multipart/alternative; boundary="000000000000c00b44064a2f16f9"
+
+--000000000000c00b44064a2f16f9
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+ Hi Rolland,
+
+Thanks for starting a trial. I recommend watching the Setup Videos
+<https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/Jl22-6qcW7lCd=
+LW6lZ3m1W3vpC4z93QBfzW15KxK19hjQ9bW6kljt44qzJLDVxJShR4LkxvHW2y9hN08l2Vq2W5K=
+LZsR8WNcJ6W5DYNsR6gRG9jVcX-_g4C_5gMW2V24QV7YgzWhW8LV4YJ7mcl0WW935DTz4RzZmVV=
+VSHD31z_-8dN8t9Tn0W3GSWW52vwq76KkYcMW31Vddg6GY0ggW4TFzs37vs1w8W4KmJSw6-Q3f0=
+W6DTrTC7KRY25Vf7YB88LN7T-W7XvM2h6lcKpjW6sDrvk19-8f0W6ct2L_8-TJgwW8l8r2Y5MNw=
+1jW63X0hy93N2Qtf2NN_b804>
+for help navigating the platform.
+
+If you'd like, we can schedule a call to walk through your account and
+priorities. Book a time here: My Calendar
+<https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/Jl22-6qcW7lCd=
+LW6lZ3ndW3LbsVp4Pv-0hW6tJ1761Cs2PGN2SWF3KhvZs_W11xsKB7mTrZSW3_sLbH4TrQc5W2c=
+dGj21j-QBqW9j1DMp2Hyf_7W2pRyhk4FkCTxW17ty8z3F7ckQW13gs723NZnkHW1jYhwx7Dg-d4=
+W6YFmq-6Y3_P1W2rDgtD20YJjtW4HWLG18KdktxW51GZyG51p4DcN1RcDCNccSJ0VmrKNh4yBxH=
+7N3WPfQK1SHtkVkhpPX78mlb7W476PCF3w_N_rV5J3jf6pdhcyW1DWsDh8Jjm1bW1jgR9p4fVvV=
+xW5NPgZG8qXtkBf7yh00M04>
+
+Best,
+
+
+*Mike Winkler | Volt Athletics
+<https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/Jks2-6qcW69sM=
+D-6lZ3nMW7wgGK823x9cyN7c4Nt_6JjsgW95fL2Y6dPsmHW43RCp13fTXZ9W8b-ZcQ1Ff5nQW4y=
+7mf165-C51V8xFw93GC2h1W1KTzPM77_VDJW1_xLDh6B4jgYW2Mwtbj6PggjXW1144Jc60Vxd6N=
+5GHkk1KBj6pW46p_Hh4NZwk5W69Dhv57V0_jjVrVqsR5ShfLZW8KC2c18R-KxpW5N1lGx3ng7nb=
+W5RDl2v3mb26pW5mqXJz4C-CQ8W53xWpv3VXZq9f6JhCXY04>*
+mike.winkler@voltathletics.com
+Book a Call
+<https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/JlY2-6qcW95js=
+WP6lZ3lmW7k4MLl8-TqKHW7v7PNr2fZV0yV5Zzj63__gvwW5-SbMY47gqVzW6z2vrx2_TLWfW4B=
+0Yk473lqNYW4YYg0854bqlVW2zKdsB58VkJ4W6l7_6k3QR1DcW1pt84J435llRW4LdX706L3rM0=
+W6WP-3c2F_GG1VDwb3Y31RHv6VpNLM_6FZFYVM6Z-rkD9k4lVGSRwb5KvxCWW2F9H7_4hZ5W8W4=
+xxL8X5MdXZ9W3tl6Cc947NndW2bqwGQ3gNxrHW43Wf5m6nvHWPVk9G8l7nd5HKW7_SCHb5s62M_=
+W81qqGd6yGkyrW8zmtkv7G3P5_W3rNsNF21qh45W8R07DW61J6y2W45LBmX3sCvjtW2nRc_06Wn=
+Q65VZ9j-H278jF9f3yR7sH04>
+
+--000000000000c00b44064a2f16f9
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html><head></head><body><div>
+   Hi Rolland,
+  </div>
+  <br>
+  <div>
+   Thanks for starting a trial. I recommend watching the=20
+   <a href=3D"https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/=
+Jl22-6qcW7lCdLW6lZ3m1W3vpC4z93QBfzW15KxK19hjQ9bW6kljt44qzJLDVxJShR4LkxvHW2y=
+9hN08l2Vq2W5KLZsR8WNcJ6W5DYNsR6gRG9jVcX-_g4C_5gMW2V24QV7YgzWhW8LV4YJ7mcl0WW=
+935DTz4RzZmVVVSHD31z_-8dN8t9Tn0W3GSWW52vwq76KkYcMW31Vddg6GY0ggW4TFzs37vs1w8=
+W4KmJSw6-Q3f0W6DTrTC7KRY25Vf7YB88LN7T-W7XvM2h6lcKpjW6sDrvk19-8f0W6ct2L_8-TJ=
+gwW8l8r2Y5MNw1jW63X0hy93N2Qtf2NN_b804" target=3D"_blank">Setup Videos</a> f=
+or help navigating the platform.=20
+  </div>
+  <br>
+  <div style=3D"text-align:start">
+   If you&#39;d like, we can schedule a call to walk through your account a=
+nd priorities. Book a time here:=20
+   <a href=3D"https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04/=
+Jl22-6qcW7lCdLW6lZ3ndW3LbsVp4Pv-0hW6tJ1761Cs2PGN2SWF3KhvZs_W11xsKB7mTrZSW3_=
+sLbH4TrQc5W2cdGj21j-QBqW9j1DMp2Hyf_7W2pRyhk4FkCTxW17ty8z3F7ckQW13gs723NZnkH=
+W1jYhwx7Dg-d4W6YFmq-6Y3_P1W2rDgtD20YJjtW4HWLG18KdktxW51GZyG51p4DcN1RcDCNccS=
+J0VmrKNh4yBxH7N3WPfQK1SHtkVkhpPX78mlb7W476PCF3w_N_rV5J3jf6pdhcyW1DWsDh8Jjm1=
+bW1jgR9p4fVvVxW5NPgZG8qXtkBf7yh00M04">My Calendar</a>
+  </div>
+  <div style=3D"text-align:start">
+   <br>Best,
+   <br>
+  </div>
+  <div>
+   <br>
+   <figure style=3D"margin:0">
+    <img src=3D"https://help.voltathletics.com/hubfs/VoltAthletics_January2=
+020/Others/shield-color-medium.png" width=3D"38" height=3D"48">
+   </figure>
+   <br>
+   <div>
+    <strong>Mike Winkler | <a href=3D"https://cNjgN04.na1.hs-sales-engage.c=
+om/Ctc/ZT+23284/cNjgN04/Jks2-6qcW69sMD-6lZ3nMW7wgGK823x9cyN7c4Nt_6JjsgW95fL=
+2Y6dPsmHW43RCp13fTXZ9W8b-ZcQ1Ff5nQW4y7mf165-C51V8xFw93GC2h1W1KTzPM77_VDJW1_=
+xLDh6B4jgYW2Mwtbj6PggjXW1144Jc60Vxd6N5GHkk1KBj6pW46p_Hh4NZwk5W69Dhv57V0_jjV=
+rVqsR5ShfLZW8KC2c18R-KxpW5N1lGx3ng7nbW5RDl2v3mb26pW5mqXJz4C-CQ8W53xWpv3VXZq=
+9f6JhCXY04" target=3D"_blank">Volt Athletics</a></strong>
+   </div>
+   <div>
+    <a href=3D"mailto:mike.winkler@voltathletics.com">mike.winkler@voltathl=
+etics.com</a>
+   </div>
+   <div>
+    <a href=3D"https://cNjgN04.na1.hs-sales-engage.com/Ctc/ZT+23284/cNjgN04=
+/JlY2-6qcW95jsWP6lZ3lmW7k4MLl8-TqKHW7v7PNr2fZV0yV5Zzj63__gvwW5-SbMY47gqVzW6=
+z2vrx2_TLWfW4B0Yk473lqNYW4YYg0854bqlVW2zKdsB58VkJ4W6l7_6k3QR1DcW1pt84J435ll=
+RW4LdX706L3rM0W6WP-3c2F_GG1VDwb3Y31RHv6VpNLM_6FZFYVM6Z-rkD9k4lVGSRwb5KvxCWW=
+2F9H7_4hZ5W8W4xxL8X5MdXZ9W3tl6Cc947NndW2bqwGQ3gNxrHW43Wf5m6nvHWPVk9G8l7nd5H=
+KW7_SCHb5s62M_W81qqGd6yGkyrW8zmtkv7G3P5_W3rNsNF21qh45W8R07DW61J6y2W45LBmX3s=
+CvjtW2nRc_06WnQ65VZ9j-H278jF9f3yR7sH04" target=3D"_blank">Book a Call</a>
+   </div>
+  </div>
+  <br>
+=20
+<img width=3D"1" height=3D"1" style=3D"display:none" alt=3D"" src=3D"https:=
+//cNjgN04.na1.hs-sales-engage.com/Cto/ZT+23284/cNjgN04/R5S8b44XlN56g7nX2d1j=
+_W22XB301X1QKdW25d0_61Zm4jxW3z96m71S2cd5W1S4n3Z25cxstW1T_Y251N6mVXVhPQ-z7g8=
+BSK0"></body></html>
+
+--000000000000c00b44064a2f16f9--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp798922lkc;
+        Sat, 7 Feb 2026 03:40:26 -0800 (PST)
+X-Received: by 2002:a05:6214:e66:b0:888:fc28:7d0a with SMTP id 6a1803df08f44-8953cb7da3emr85850326d6.51.1770464426352;
+        Sat, 07 Feb 2026 03:40:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770464426; cv=none;
+        d=google.com; s=arc-20240605;
+        b=beVlkh0hDK1lGqTnbAKZj7GPJ2wiQ7mJe2fXEhcVFUvZHvQ+L5Q1u1C61He/6jZaNM
+         rEjwyBcu8J/hSTdAJ2kCcOUiqyhQgRzWjFL/kv2aFk5oZEb+4kQfKaVMr2CoLM5kK3D4
+         KxzEff+Cj9FCpH0CT9AaYqFiMEf+EQ8oDAl0tKNDtW4VeNkQWyhM1nSc0jBZ0Ji8W/kP
+         I50qNaTDkmnfJJNbtD+t45KpmERtqdvdflfxmM9WRITKnbicFLZmgdP4LlLrmDF6FbEE
+         07GJYKB7h/BZrkyTR4Ta75iJFK259fbVHxrSF08Uz0bWwzL5pOy4g+X86uvDfSlf/Zap
+         i4vg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:date:message-id:mime-version:subject:to:from
+         :dkim-signature:dkim-signature;
+        bh=QqAzPCBpheZFNnaxBZbp+w0JNZYkfuymoczFlTEpKRA=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=E528DFFwjSB0RzJD4New3Tb8ByBeGHbqQBcT68IiR/cOHfEJvsLTLPclzxEza+uJiM
+         //HX+QR3B0rLYTMx1/jMnZzra67QdhM9480DiVzCZWDx4Ki1jAscND5c9cZjP7tK0xKT
+         gRy5heq+gAD7iUC7MvRphaijZwmzJqM/rFnUpJ8E/85wqIwIk2ckD/mVJFqC67R8Alq5
+         lKDbIynSx1lO+z2Hozh7my0K4Xzpqe5FaUa2+OBt2FoLPdNpNND002XCWq6EwssbLrHY
+         Xx8U6CmeM2o11ri9bSY2v4dIv1DZp9awAq6qejjlP4p15+ZHeocbPaS21cJM5wHZNTGE
+         eDtA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@fluentcrm.com header.s=tosend header.b=DhjekYDA;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=N6w2OLQA;
+       spf=pass (google.com: domain of 0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com designates 23.251.253.116 as permitted sender) smtp.mailfrom=0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=fluentcrm.com
+Return-Path: <0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com>
+Received: from e253-116.smtp-out.amazonses.com (e253-116.smtp-out.amazonses.com. [23.251.253.116])
+        by mx.google.com with ESMTPS id 6a1803df08f44-8953bf5abd4si51882826d6.4.2026.02.07.03.40.26
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 07 Feb 2026 03:40:26 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com designates 23.251.253.116 as permitted sender) client-ip=23.251.253.116;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@fluentcrm.com header.s=tosend header.b=DhjekYDA;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=N6w2OLQA;
+       spf=pass (google.com: domain of 0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com designates 23.251.253.116 as permitted sender) smtp.mailfrom=0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@send.fluentcrm.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=fluentcrm.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=tosend;
+	d=fluentcrm.com; t=1770464425;
+	h=From:To:Subject:MIME-Version:Content-Type:Message-ID:Date;
+	bh=gPtp+EZgcTHL2LxUsSBapKZZVouXUtOHHoTaqUzEhT4=;
+	b=DhjekYDARG1VSj8ymTirsMdzsNm5yRAqoyyFa+GUQQS3f49VA1SswGnpLrdIIq4A
+	eCZu9IVSZxpjFV+6eiL3yNj2l0EFM1O/WQ6BzZCJ6qHIHLkOpO7Y7RfG74INyhrORHS
+	KpZF/QYA4nNfehCkwbO4IGB5n9Hhe9L7qQRYp18Z2uzk2mx5eqRPIqoHRs4D1FKQZlH
+	FVLx4APOtoS7V9KQihxyD6qIjwQNBJQUMDLGyXAk1GYc76qSOWqdm0O6ReTxtMxpAbR
+	jIam+4wcXe62EpMcStPtePj5gBkF90Uz6fRzEykuVPtRN4AwjC9oWuDG7jtUv3jotPx
+	NJlf/8umNg==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1770464425;
+	h=From:To:Subject:MIME-Version:Content-Type:Message-ID:Date:Feedback-ID;
+	bh=gPtp+EZgcTHL2LxUsSBapKZZVouXUtOHHoTaqUzEhT4=;
+	b=N6w2OLQAc+TyNixzX/5TpzmIPaGvx0i/kZ0lMxsjmhvI1ySule6cCtf1B250fdk9
+	4v3TpMPD+7h2Yf4DLfSJSK07D1NNjqcSaHzveenWgEsbOi9saqe+8aFp6Grh/71EMw2
+	sojEHlTi5Oahl/xOgAAp2MKhztkrAbGnaas5MVEs=
+From: Team FluentCRM <contact@fluentcrm.com>
+To: odin.ragnarok.vallhala@gmail.com
+Subject: Please Confirm Your Subscription
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_482594_1774335474.1770464425590"
+Message-ID: <0100019c37e73676-9af44b96-3b4d-4207-8750-969078142d4e-000000@email.amazonses.com>
+Date: Sat, 7 Feb 2026 11:40:25 +0000
+Feedback-ID: :1.us-east-1.at07bYTIthCW1xJDgofyQCscw3xgtv3Z/QdMME/kNfoowsyTMBMyb7bKvupqu1MzGcQDU77yweR+T7X9jgel/kZlOOUs55F/F8KeS0OTY0YkN6lHI/FQIRlgwf/XYsVGZ6aHj9z8NjgUItp3PgQIYA==:1.us-east-1.7diuWERjDIuC074RVAdCRRvwHS0Gn/Hb042sLAAJudA=:AmazonSES
+X-SES-Outgoing: 2026.02.07-23.251.253.116
+
+------=_Part_482594_1774335474.1770464425590
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Please Confirm Subscription
+
+[Yes, subscribe me to the mailing list](https://fluentcrm.com/?fluentcrm=1&route=confirmation&hash=c89d65fc8fc4a6ab665cfc1aa5944174&secure_hash=d31454564cdd3c6b79c6960884fd4c1a)
+
+If you received this email by mistake, simply delete it. You won't be subscribed if you don't click the confirmation link above.
+
+For questions about this list, please contact:
+------=_Part_482594_1774335474.1770464425590
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html lang=3D"en-US">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+    <!--[if gte mso 15]>
+    <xml>
+    <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+    <meta charset=3D"UTF-8">
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=
+=3D1.0">
+    <link rel=3D"profile" href=3D"https://gmpg.org/xfn/11">
+    <meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+       =20
+
+
+
+
+
+
+
+<style type=3D"text/css">@media only screen and (max-width: 480px) {
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: none !important;
+        }
+        #bodyCell {
+            padding: 0px !important;
+        }
+        .fcTextBlockInner {
+            padding-top: 0px !important;
+        }
+        .mcnTextBlockOuter .fc_email_body {
+            padding-top: 10px !important;
+           =20
+            padding-bottom: 10px !important;
+           =20
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+        }
+        .fc_column_content {
+            padding: 0;
+        }
+        table.fc_media_table {
+            width: 100% !important;
+            display: block;
+        }
+        table.fc_media_text {
+            width: 100% !important;
+            display: block;
+        }
+        .wp-block-media-text__media {
+            background-image: none !important;
+        }
+        .wp-block-media-text__media img {
+            opacity: 1 !important;
+        }
+        table.fce_buttons_row {
+            margin-bottom: 10px;
+        }
+        table.fce_buttons_row .fce_column {
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        img, a img {
+            height: auto !important;
+        }
+    }@media only screen and (max-width: 480px) {
+        body {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+    }@media only screen and (max-width: 480px) {
+        .fcTextContentContainer {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+    }@media only screen and (max-width: 480px) {
+        h2 {
+            font-size: 20px !important;
+            line-height: 125% !important;
+        }
+    }</style>
+</head>
+<body style=3D"background: none no-repeat center/cover; background-color: #=
+FAFAFA; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-fa=
+mily: Helvetica; height: 100%; margin: 0; padding: 0; width: 100%; backgrou=
+nd-image: none; background-repeat: no-repeat; background-position: center; =
+background-size: cover;">
+<center>
+    <table id=3D"templateWrapper" align=3D"center" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" height=3D"100%" width=3D"100%" style=3D"border-col=
+lapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-siz=
+e-adjust: 100%; -webkit-text-size-adjust: 100%; background: #FAFAFA; backgr=
+ound-color: #FAFAFA; height: 100%; margin: 0; padding: 0; width: 100%; back=
+ground-image: none; background-repeat: no-repeat; background-position: cent=
+er; background-size: cover; color: inherit;">
+        <tr>
+            <td align=3D"center" valign=3D"top" id=3D"bodyCell" style=3D"ms=
+o-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-=
+adjust: 100%; padding: 10px; border-top: 0; height: 100%; margin: 0; width:=
+ 100%;">
+                <!-- BEGIN TEMPLATE // -->
+                <!--[if (gte mso 9)|(IE)]>
+                <table align=3D"center" border=3D"0" cellspacing=3D"0" cell=
+padding=3D"0" width=3D"600" style=3D"width:600px;color:inherit;">
+                <tr>
+                    <td align=3D"center" valign=3D"top" width=3D"600" style=
+=3D"width:600px;">
+                <![endif]-->
+                <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" wid=
+th=3D"100%" class=3D"templateContainer" style=3D"border-collapse: collapse;=
+ mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; =
+-webkit-text-size-adjust: 100%; max-width: 700px; border: 0; color: inherit=
+;">
+                    <tr>
+                        <td valign=3D"top" id=3D"templateBody" style=3D"mso=
+-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-a=
+djust: 100%; border-top: 0; border-bottom: 0;"><table border=3D"0" cellpadd=
+ing=3D"0" cellspacing=3D"0" width=3D"100%" class=3D"fcTextBlock" style=3D"b=
+order-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms=
+-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; min-width: 100%; c=
+olor: inherit;">
+                                <tbody class=3D"fcTextBlockOuter">
+                                <tr>
+                                    <td valign=3D"top" class=3D"fcTextBlock=
+Inner" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; =
+-webkit-text-size-adjust: 100%; padding-top: 9px;">
+                                        <!--[if mso]>
+                                        <table align=3D"left" border=3D"0" =
+cellspacing=3D"0" cellpadding=3D"0" width=3D"100%" style=3D"width:100%;colo=
+r:inherit;">
+                                        <tr>
+                                        <![endif]-->
+
+                                        <!--[if mso]>
+                                        <td valign=3D"top" width=3D"600" st=
+yle=3D"width:600px;">
+                                        <![endif]-->
+                                        <table align=3D"left" border=3D"0" =
+cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" class=3D"fcTextContentCo=
+ntainer" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tab=
+le-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;=
+ max-width: 100%; min-width: 100%; color: inherit;">
+                                            <tbody>
+                                            <tr>
+                                                <td valign=3D"top" class=3D=
+"fcTextContentBody" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; background: #FFFFFF none no-re=
+peat center/cover; background-color: #FFFFFF; color: #202020; font-family: =
+-apple-system, BlinkMacSystemFont, &amp;#039; background-image: none; backg=
+round-repeat: no-repeat; background-position: center; background-size: cove=
+r; border-top: 0; padding-top: 0; padding-bottom: 9px;">
+                                                    <table align=3D"left" b=
+order=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" class=3D"fcT=
+extContentContainer" style=3D"border-collapse: collapse; mso-table-lspace: =
+0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-a=
+djust: 100%; max-width: 100%; min-width: 100%; color: inherit;">
+                                                        <tbody class=3D"mcn=
+TextBlockOuter">
+                                                        <tr>
+                                                            <td class=3D"fc=
+_email_body" align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: e=
+xactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; backgro=
+und: #FFFFFF; background-color: #FFFFFF; font-family: -apple-system, BlinkM=
+acSystemFont, &amp;#039; box-sizing: border-box; padding-top: 20px; padding=
+-bottom: 10px; word-break: break-word; font-size: 16px; line-height: 180%; =
+text-align: left; padding-left: 20px; padding-right: 20px;">
+                                                                <h2 style=
+=3D"display: block; margin: 7px 0px; padding: 0; font-size: 22px; font-styl=
+e: normal; line-height: 125%; letter-spacing: normal; box-sizing: border-bo=
+x; font-family: -apple-system, BlinkMacSystemFont, &amp;#039; color: #20202=
+0; font-weight: 700;">Please Confirm Subscription</h2>
+<p style=3D"margin: 10px 0; padding: 0; mso-line-height-rule: exactly; -ms-=
+text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-=
+box;"><a href=3D"https://fluentcrm.com/?fluentcrm=3D1&amp;route=3Dconfirmat=
+ion&amp;hash=3Dc89d65fc8fc4a6ab665cfc1aa5944174&amp;secure_hash=3Dd31454564=
+cdd3c6b79c6960884fd4c1a" style=3D"text-decoration: none; mso-line-height-ru=
+le: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; bo=
+x-sizing: border-box; color: #ffffff; background-color: #454545; font-size:=
+ 16px; border-radius: 5px; font-weight: normal; font-style: normal; padding=
+: 0.8rem 1rem; border-color: #0072ff;">Yes, subscribe me to the mailing lis=
+t</a></p>
+<p style=3D"margin: 10px 0; padding: 0; mso-line-height-rule: exactly; -ms-=
+text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-=
+box;">=C2=A0</p>
+<p style=3D"margin: 10px 0; padding: 0; mso-line-height-rule: exactly; -ms-=
+text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-=
+box;">If you received this email by mistake, simply delete it. You won't be=
+ subscribed if you don't click the confirmation link above.</p>
+<p style=3D"margin: 10px 0; padding: 0; mso-line-height-rule: exactly; -ms-=
+text-size-adjust: 100%; -webkit-text-size-adjust: 100%; box-sizing: border-=
+box;">For questions about this list, please contact:</p>                   =
+                                         </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+</table>
+                                        <!--[if mso]>
+                                        </td>
+                                        <![endif]-->
+                                        <!--[if mso]>
+                                        </tr>
+                                        </table>
+                                        <![endif]-->
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table></td>
+                    </tr>
+                                    </table>
+                <!--[if (gte mso 9)|(IE)]>
+                </td>
+                </tr>
+                </table>
+                <![endif]-->
+                <!-- // END TEMPLATE -->
+            </td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>
+
+------=_Part_482594_1774335474.1770464425590--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp834571lkc;
+        Sat, 7 Feb 2026 05:04:11 -0800 (PST)
+X-Received: by 2002:a05:6000:2006:b0:435:dd81:4f4d with SMTP id ffacd0b85a97d-43629342036mr9457570f8f.26.1770469451416;
+        Sat, 07 Feb 2026 05:04:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770469451; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ILjhlFrnU+mS4XQw1q23GXSeQK0qDqISCIZjVJHEXxv4LA0lDl61C29v6xfvK+Upfe
+         XclR4sHWhLVIVoPyhOkC0IGmkBlb7H8TxOLU7L8FYVvBLGCszV3b+NYv1T1a95Cu0z4r
+         1nxBQZhDBSM4rMEmD9/CJCbDXZb6o3X+jmCSfGcXOH6dLVilOwE5p1LtJ7uOn0V/uEhs
+         3rU4H2En9whLqHWf8yQUh+BmYBh4rgR5pF74efvgtVu6HUU6NwvDO5ffiJQz2y2BtRm5
+         A6wAXNTJ1dleQyjrWUDhYGIcPdqaQ0QSBd1ojzxec9HzaXsQouQS8XVI94mWq29upW4j
+         dk0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:mime-version:from:list-unsubscribe-post
+         :message-id:subject:date:list-unsubscribe:feedback-id:reply-to
+         :origin-messageid:to:dkim-signature;
+        bh=WJySt3xq4YYlp5NLWKGd68EJfSCILmj6jJHzToD/oyc=;
+        fh=TgIJoPGiZhlvSuTsvhLpnFkS+8FeGFya0Wx9bYXKX7s=;
+        b=PWfyJoEf1YmxRjCKPvg6S3PUSHIz1s41Ro7FdTpBoTPKYrpNd4ztRxdiTTB+DUVvx4
+         FJ6uhvzhdS5CFs03paUcNuLoITD7SSGTaQWoHoe3OTfg6b//VDi5PNTQmaCLvOovyRTO
+         Ge6LMx8dQWrqCBnflpsVj3xLTFESQzrtRTgjDzGdJTp2Y4Xw4eq1oJ9aRa/NUaEWSyEu
+         Yy0sZKvMcewnM8Bi2bpi+qO8MvKvqP5hJbKLu1wYz2FTUpv+9JY+QmCY1VV7L4JEKczu
+         zrOevdkJqdQqsDehb6VKToJ6zI7myHQb+sjEY7PJT14riQGbvPpy0N4891puHwuezKyV
+         sq6w==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@instantpopupbuilder.com header.s=brevo1 header.b=GcXTqVLD;
+       spf=pass (google.com: domain of bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net designates 77.32.149.2 as permitted sender) smtp.mailfrom=bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=instantpopupbuilder.com
+Return-Path: <bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net>
+Received: from shared-p200-i2.d.sp2-brevo.net (shared-p200-i2.d.sp2-brevo.net. [77.32.149.2])
+        by mx.google.com with ESMTPS id ffacd0b85a97d-43629a7471esi9743031f8f.511.2026.02.07.05.04.11
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Feb 2026 05:04:11 -0800 (PST)
+Received-SPF: pass (google.com: domain of bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net designates 77.32.149.2 as permitted sender) client-ip=77.32.149.2;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@instantpopupbuilder.com header.s=brevo1 header.b=GcXTqVLD;
+       spf=pass (google.com: domain of bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net designates 77.32.149.2 as permitted sender) smtp.mailfrom=bounces-335701042-2197933263@shared-p200-i2.d.sp2-brevo.net;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=instantpopupbuilder.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=instantpopupbuilder.com;
+ q=dns/txt; s=brevo1; bh=WJySt3xq4YYlp5NLWKGd68EJfSCILmj6jJHzToD/oyc=;
+ h=from:reply-to:subject:date:to:mime-version:content-type:content-transfer-encoding:list-unsubscribe:x-csa-complaints:list-unsubscribe-post:message-id:x-sib-id:feedback-id;
+        b=GcXTqVLDeBGh23IN7Y1tnwTRqa3430fED8nEh7OWvenW1vXOif3VhzFgBt9vPM0VhC/dppSaTMbE
+        B1TxnGXvBQpdrll2iMho8ZnzrtGEI88kYMvtZ9ga2u0zYBKxPbr31Zly1n12TZ5M3WWQllg662Tl
+        2VHGjMJWZHX4W5CTfzAVBTQ5GgwxuqhIEKgtwMQtCg3IOhsXW07nYy+pyFpi47/VFz1IS97vene6
+        8fjzg9FzyN1RhHZdX5a6+AYov/PRBjG1FHP8jdW7C7wgx0qnO/uWPL/9UXQTAMOmDkyjcXPCCkTu
+        fXNOD2Foepw+6HyCfOXsHITEc+BzpugVF7tyIQ==
+X-Mailin-EID: MzM1NzAxMDQyfm9kaW4ucmFnbmFyb2sudmFsbGhhbGFAZ21haWwuY29tfjwyMDI2MDIwNzEzMDQuMjU4MjIwODMxMzhAc210cC1yZWxheS5tYWlsaW4uZnI%2BfnNoYXJlZC1wMjAwLWkyLmQuc3AyLWJyZXZvLm5ldA%3D%3D
+To: <odin.ragnarok.vallhala@gmail.com>
+Origin-messageId: <202602071304.25822083138@smtp-relay.mailin.fr>
+Reply-To: <support@instantpopupbuilder.com>
+Feedback-ID: 77.32.149.2:9451352_-1:9451352:Sendinblue
+List-Unsubscribe: <https://jefbdfc.r.bh.d.sendibt3.com/tr/un/li/PDdKVaxERzcmoXWEgq_1z8utj893zi99NDLiUt3vpXlgaKw6tnIu-lUHYvjVyRh3_s399DEJv0SBJbOJIR8lv7oC_3SWwRhGlDv7jLLn0Iygdyczbll1YALTakaRbaMfkPZUfgbiKZmhp5_IHk9STYomHfJJUJQfAtRsTUKJVXykAogQ6Df8WUSqgMg8zTWTP7gHEqdyfuyC_V9J1-uf7b_ZIyxzgiLgH1zWrS7yksL-T4Q6BooQ9Eu5-F4_2PgffR-nmPijk4E>
+Date: Sat, 07 Feb 2026 13:04:09 +0000
+Subject: You\'re In! Thanks for Joining Instant Popup Builder
+X-sib-id: -faYr4MGnvoFVVdZM31qUSKRO1GG--JC5CuyM2Zwi7SiumYWuIKjWXjGSfJgmYrKafoNiConV2ZMN09Jf0G2S6Z8tf0hzTDWS-BcRZuX3QkYEXXe3fXI_orfqPGVUyrGtDQBkHDwLm8EaT8Z3Ni-vBhYlFje-wkxWkUODGF8ZfoHDWsbxGS2gPPdqptXyA
+Message-Id: <202602071304.25822083138@smtp-relay.mailin.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+From: "Instant Popup Builder" <admin@instantpopupbuilder.com>
+X-CSA-Complaints: csa-complaints@eco.de
+X-Api-Version: v3
+Content-Type: text/html; charset=utf-8
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: WPMailSMTP/Mailer/sendinblue 4.7.1
+
+<html><head><title>Welcome to Instant Popup Builder</title>
+
+
+
+
+</head><body><img width=3D"1" height=3D"1" src=3D"https://jefbdfc.r.bh.d.se=
+ndibt3.com/tr/op/wmLP73hLEG54MHSxPbYLAMP4FW4WUh2YWWfUFDZ1u5NMViRE5NID-8cevd=
+4jow6jEz4tAnz6ht9L9EdOj7Un8AHwYlrywy-Xk4XHiuVwi5B2Ud9HyeDzcpXB3Bgrgvppi2cbs=
+FT1XW5BTSr5BBswGHDz3kXqvCW4wqhhLJvHQVzd27LbhKbmqyGEWeWPktg8Rb3RUhuQY8nZg9Za=
+lbsCIje3qclegoixsUCuigMnpSg" style=3D"mso-hide:all"/><table width=3D"100%" =
+cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"background-color:=
+#f5f7fa;padding:40px 0">
+  <tbody><tr>
+    <td align=3D"center">
+
+      <!-- CONTAINER -->
+      <table width=3D"600" cellpadding=3D"0" cellspacing=3D"0" border=3D"0"=
+ style=3D"background:#ffffff;border-radius:8px;border:1px solid #e5e5e5;fon=
+t-family:Arial, Helvetica, sans-serif">
+
+        <!-- LOGO -->
+        <tbody><tr>
+          <td align=3D"center" style=3D"padding:24px 20px 10px">
+            <img src=3D"https://jefbdfc.r.bh.d.sendibt3.com/im/9451352/b4c6=
+216e5895f8f74eabb091df117b17d890c6a767efe811ff179f1be3a5f308.jpg?e=3D0DaLrx=
+V9PwUDojaTftB6q86raqovCvOKBAEawUjc1XXTfKcIiQNEur1Xi9daYzYJULrGm9LaKA9UjDq99=
+QsbvBoUYNhyAZTMxGhuTdZ5_cI4O6dvVwQ5ieEnzH-4jAqPpRhuNnL3KGA4eJLsrJFAURc0jKcM=
+gunERrWOpmeIMtRZt-Hw044swK4v_K5l_cv0uYNpCXM4rDFImfhzjC0x41TRUROfyq5UW8pt2jV=
+3MnsqVjOhITNcv1YlBg1k-FbViypXPG7M-owxdyHOM_Z58HRFbjl5CgIdDdOIxL_7j_bZ7M0" w=
+idth=3D"60" height=3D"60" alt=3D"Instant Popup Builder" style=3D"border:0"/=
+>
+          </td>
+        </tr>
+
+        <!-- HEADER -->
+        <tr>
+          <td align=3D"center" style=3D"padding:10px 30px 5px">
+            <h1 style=3D"margin:0;font-size:26px;color:#333333;font-weight:=
+bold">
+              Welcome to Instant Popup Builder
+            </h1>
+          </td>
+        </tr>
+
+        <!-- SUBHEADER -->
+        <tr>
+          <td align=3D"center" style=3D"padding:5px 30px 20px">
+            <p style=3D"margin:0;font-size:16px;color:#555555;line-height:2=
+4px">
+              Thanks for subscribing, we=E2=80=99re excited to have you <im=
+g src=3D"https://jefbdfc.r.bh.d.sendibt3.com/im/9451352/46e249146cede96b352=
+41353495769e68df4d904f592f4fecb59e34f31d14ab4.png?e=3DmOybwwhwYc00ol4XEkuU-=
+v7E0qicVl_9U9Q4N7VvM3aCduGKqQTylM_kAcOdcf1UJhDXlMMNhl8zA6cUIQ3EuNopaitTVLMs=
+1e2F6ZhIoitMn38p9m7uOsaUZJ4uCDjQqiCC7FTVQ8hEKE77nM_6zn9syA9Ta8dsiGFGvbXZbyk=
+hcZRkAlSzC3q2mR7PhmcLXwlPxgS5zllrDavzmzbWRuXBdun3ZVrk17cABx4gW56EaZKkMy-tV-=
+W6L3Va_GKa_uLgRLFRbu0b1-WiFxjVxcE" alt=3D"=F0=9F=8E=89" class=3D"wp-smiley"=
+ style=3D"height: 1em; max-height: 1em;"/>
+            </p>
+          </td>
+        </tr>
+
+        <!-- DIVIDER -->
+        <tr>
+          <td style=3D"padding:0 30px">
+            <hr style=3D"border:0;height:1px;background:#eeeeee"/>
+          </td>
+        </tr>
+
+        <!-- INTRO TEXT -->
+        <tr>
+          <td style=3D"padding:20px 30px">
+            <p style=3D"margin:0;font-size:15px;color:#444444;line-height:2=
+4px">
+              You=E2=80=99re now officially part of our community. You=E2=
+=80=99ll receive product updates,
+              exclusive offers, and important announcements directly in you=
+r inbox.
+            </p>
+          </td>
+        </tr>
+
+        <!-- COUPON BOX -->
+        <tr>
+          <td style=3D"padding:0 30px 20px">
+            <table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" borde=
+r=3D"0" style=3D"background:#f9fafb;border:1px dashed #cfd4dc;border-radius=
+:6px">
+              <tbody><tr>
+                <td style=3D"padding:18px">
+
+                  <p style=3D"margin:0 0 12px;font-size:15px;color:#222222;=
+line-height:22px">
+                    Use the code below at checkout to get a
+                    <strong>$10 fixed discount</strong> on the
+                    <a href=3D"https://jefbdfc.r.bh.d.sendibt3.com/tr/cl/JE=
+kn26rGtB-tAaDhKYEQj5UCaYSi1O3E4XPCOyQkkKmiqjEPTOk8zjFQzehaIkWsh-LnRnPHmVyv-=
+eICl9mOvsTnnWaImeLYQAHuExgvLIPeGvSHjxDY1kcQit70XdimBn1B0L7TZ2IXFzjuLd16dnGu=
+4--20cinh9OWEF6nR2sy3ziqILy3DCc_bCCeI9VGSx9egVtSlLff6ytNiQ51bEMNPoh3JhfQ0TL=
+-DwKhIBXfl8zizCQiniG5KqaW-rohzJYZ2I3_RZAMGS57IJ0wxdylNq4T59OG6PgCXHiapWRg2C=
+8jnnBcbgRBJEpQoiv4VjgmrkonJOBaK6j3QYG5Ps1K-WiS8NBkEK9GwVIluz_iXWkCHqmzmunCw=
+DYbV-iV2lSe86WW0uFI0eOW4uWsLA3VJ2WzaSSAfA5BrNFXKz1nkk5erSbanmA" style=3D"co=
+lor:#0a66c2;font-weight:bold;text-decoration:underline" target=3D"_blank">
+                      Starter Bundle</a>.
+                  </p>
+
+                  <table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0"=
+ border=3D"0">
+                    <tbody><tr>
+                      <td align=3D"center" style=3D"padding:10px 0">
+                        <span style=3D"padding:12px 20px;font-size:20px;fon=
+t-weight:bold;letter-spacing:1px;color:#111111;background:#ffffff;border:2p=
+x solid #111111">
+                          WC10DIS
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody></table>
+
+                  <p style=3D"margin:8px 0 0;font-size:13px;color:#555555">
+                    Valid for <strong>24 hours only</strong>.
+                  </p>
+
+                </td>
+              </tr>
+            </tbody></table>
+          </td>
+        </tr>
+
+        <!-- SUPPORT TEXT -->
+        <tr>
+          <td style=3D"padding:0 30px 20px">
+            <p style=3D"margin:0;font-size:15px;color:#444444;line-height:2=
+4px">
+              Need help or have questions? Our support team is always happy=
+ to assist you.
+            </p>
+          </td>
+        </tr>
+
+        <!-- CTA BUTTON -->
+        <tr>
+          <td align=3D"center" style=3D"padding:10px 30px 30px">
+            <a href=3D"https://jefbdfc.r.bh.d.sendibt3.com/tr/cl/WLgq84qcug=
+hpElTYDWyZxR_GdnXs0Go-hgoDhjiQfcCMuo1bGvU1QUzzhoK1nu2WbbB-PYR7SMvhD-_WStxNk=
+jfMu69vmlkhZti3g0BC4eR-P9a54pFQ3we6-9f_Z-0MqWMdABWNQvsUGKEgPhN4hJ7jIcqCroeG=
+HYKN4t-hOiAa8uhH3iWOGYmCn0VRjtEmEjABzEZKBtZWpdqPUIX6vrKJm_mJLSyApRs6oKt8gs-=
+HEX6xfuQBx2qQpnq09og_mgQQ0e35J6QqR3F4Ri2wL1VAisKGn43KcvLIl0o5jizwyP-V6NJ0Z0=
+WfjPUm" style=3D"background:#4a7dff;color:#ffffff;padding:14px 30px;font-si=
+ze:16px;text-decoration:none;border-radius:4px;font-weight:bold" target=3D"=
+_blank">
+              Explore Extensions
+            </a>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td align=3D"center" style=3D"padding:20px 30px">
+            <p style=3D"margin:0;font-size:12px;color:#888888;line-height:2=
+0px">
+              You=E2=80=99re receiving this email because you subscribed to=
+ Instant Popup Builder.
+            </p>
+
+            <p style=3D"margin:10px 0 0;font-size:12px">
+              <a href=3D"https://jefbdfc.r.bh.d.sendibt3.com/tr/cl/z9GnirZ6=
+ZkbS_app-VxbVteuKkNLt1VVaM_jlddjjUy-TOW9YrgFHcHuc5qI5CBWsnklzeET_slRRP8UNT3=
+61ldbRtBLPaHnCP_r_5MIZd3tUHpJqKhO_Vm3tC_OZvLXMKFisNLwL-LVp5dzzaKJJPROCpicAT=
+gmmXKAfM9rTXy_IwsrHy0bxShgt8nP97TJfsKwe5xXqaXLkAeQRCA9EJ_GlLmOoAzfdNGN79gg8=
+151C4Y4bzoZfF-pRyWOmtP16mecdKYZKaSE6P-v-xc6yEt3RicxuawNLlo3PIcwvzDvGqrKrVFc=
+brTdzXBLWw" style=3D"color:#4a7dff;text-decoration:underline">
+                Unsubscribe
+              </a>
+            </p>
+
+            <p style=3D"margin:15px 0 0;font-size:12px;color:#aaaaaa">
+              =C2=A9 2026 Instant Popup Builder. All rights reserved.
+            </p>
+          </td>
+        </tr>
+
+      </tbody></table>
+      <!-- END CONTAINER -->
+
+    </td>
+  </tr>
+</tbody></table>
+
+
+
+
+</body></html>
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp831368lkc;
+        Sat, 7 Feb 2026 04:59:55 -0800 (PST)
+X-Received: by 2002:a5d:5e01:0:b0:435:faa5:c15e with SMTP id ffacd0b85a97d-43629388957mr8183523f8f.30.1770469195465;
+        Sat, 07 Feb 2026 04:59:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770469195; cv=none;
+        d=google.com; s=arc-20240605;
+        b=aHWfVtd/qGU4GshMpezlDOlEgFbrYAwzoWNnhMNKWWmpQ/qpfFleXrcdf8yWnTaNJJ
+         GNZtVuE4Ydoe4eqIAlSB55X724e3OJUQD9ZejRU2nTlCJtNm13G0k3AeAlYYK8k8TgPl
+         V9gxcXXFrIl87jFp0XHKSiM8xin38LiZU4sDeJvuOh3JMl13/kkGDwNYGF2qa1fq9NkZ
+         WImWgFDXkpWyARneadXghY3q4GxiWIDaY515Z598WwK/OOaDqtziRoraUdsWSNoeuD1Y
+         DPGBgtJb9ob6CgldV3XwN8jVKP2ukalJtIDCiEWhp4fP1jGxSGYkk1tZ8gH5h4pk417S
+         gyLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:message-id:mime-version:date:subject:to:from
+         :dkim-signature:dkim-signature;
+        bh=FPO1m7ZL3G6h362haf30ZESOZhUO1Wh+eVm1rQJWwZE=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=Qa4P69uDMnYKyQ4mO3N4Z4n7LhqSUpdlRKtjsntkgj0WWQFEfWP33/d2yVqCYHH/Ty
+         TP7tg8IyAnYP/LuN7btsKXM2HnaW+0klvtyDrRrj2hcrtyy/G+3rucdjE1x9w+mSB1r6
+         UXfvG3YVv7oeI4zLhv86dYqwQtv0Yeib6AwACdPSBcnutABSn24SiVC2nDlyEt+1fF6h
+         YbYveTJk+5YfGPsUFW1tDRMQjIFYUD+gLMJdCooNDaLlMNEYOZ5tXGMK/huA4nSgQvYD
+         HYSbf3vAyxyb3xeNEoiuj2+jWqXXlBBBA6uWVEJ9tVNZ3oNFDWT3WSIAvVvqs2Q/ih36
+         3mDg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@performance-watcher.com header.s=rb475dafrhyghpanmx74glda3ud2kboi header.b=4in7vvnJ;
+       dkim=pass header.i=@amazonses.com header.s=sokbgaaqhfgd6qjht2wmdajpuuanpimv header.b=bIWIWDXy;
+       spf=pass (google.com: domain of 0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com designates 69.169.224.2 as permitted sender) smtp.mailfrom=0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=performance-watcher.com
+Return-Path: <0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com>
+Received: from b224-2.smtp-out.eu-central-1.amazonses.com (b224-2.smtp-out.eu-central-1.amazonses.com. [69.169.224.2])
+        by mx.google.com with ESMTPS id ffacd0b85a97d-436296b19cfsi9911379f8f.28.2026.02.07.04.59.55
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 07 Feb 2026 04:59:55 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com designates 69.169.224.2 as permitted sender) client-ip=69.169.224.2;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@performance-watcher.com header.s=rb475dafrhyghpanmx74glda3ud2kboi header.b=4in7vvnJ;
+       dkim=pass header.i=@amazonses.com header.s=sokbgaaqhfgd6qjht2wmdajpuuanpimv header.b=bIWIWDXy;
+       spf=pass (google.com: domain of 0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com designates 69.169.224.2 as permitted sender) smtp.mailfrom=0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@mail.performance-watcher.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=performance-watcher.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=rb475dafrhyghpanmx74glda3ud2kboi; d=performance-watcher.com;
+	t=1770469195;
+	h=From:To:Subject:Date:Content-Type:MIME-Version:Message-ID;
+	bh=bzN2I1dJb3ADcDx3PRyaOKS1oZYJw9kkAyoWgPmxKwA=;
+	b=4in7vvnJeT7Cex75q/WYLx9QdwEBqdfdU+kQedRKLXoLlphTsQq2zm9aAtpugHHN
+	7itW58YwB+dp0wWu1IuMIU9MYkw5U+Y9lGQCkYUPIO7a0aP0RSFIPGYvoW184ZUbA7z
+	iE1vWCvai8s6NNOw5QzHYkbG8wpjZyjN3JBBk/L8POTg8upKD5do7j7BT/hSuDbP10+
+	edtdIuDjEXtkMWz1zuI+Rtm90sOIa2tURqOL4eE77SJhOquystircUeTwOR8+AUzaWY
+	1e+MwUoHYawcee4eDabET1Ky0Ze4CVN2dd46XTXMwa18PabkHU681gfYsGRPSsU/cJR
+	n5zyWlhFGw==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=sokbgaaqhfgd6qjht2wmdajpuuanpimv; d=amazonses.com; t=1770469195;
+	h=From:To:Subject:Date:Content-Type:MIME-Version:Message-ID:Feedback-ID;
+	bh=bzN2I1dJb3ADcDx3PRyaOKS1oZYJw9kkAyoWgPmxKwA=;
+	b=bIWIWDXyGFOVfef6iAklZL1Q2XQxZQkglRxZJekiKNgTnzPy7rk65SFErYJss/bm
+	0P68tAi7eUDOKW0zjJH2uXwjLsM255YJi8KS5Xm6oX+fffhXXdo2Noz1kZHdgRQbTTU
+	4jTSWgP455BB0TiZEwd3siUJFxYTDA+c5VJGvRbw=
+From: Performance Watcher <noreply@performance-watcher.com>
+X-GENERATOR: Virtua Framework 3.3
+X-Auto-Response-Suppress: DR, NDR, RN, NRN, OOF, AutoReply
+To: odin.ragnarok.vallhala@gmail.com
+Subject: Performance Watcher - Account activated
+Date: Sat, 7 Feb 2026 12:59:54 +0000
+Content-Type: multipart/alternative;
+ boundary="=_44333643c93d6c20429d48e15d29c08d"
+MIME-Version: 1.0
+Message-ID: <0107019c382ffcbf-9a0124c6-45cd-451e-bbd2-b6efddba17b0-000000@eu-central-1.amazonses.com>
+Feedback-ID: ::1.eu-central-1.RlFgkBd0VOepNF5AgtotWfWaDA3sMv+gPhbb/K9AAkc=:AmazonSES
+X-SES-Outgoing: 2026.02.07-69.169.224.2
+
+--=_44333643c93d6c20429d48e15d29c08d
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Performance Watcher    =0A=0ADear Performance Watcher User,=0A=0AYOUR AC=
+COUNT IS NOW ACTIVATED. Please click=C2=A0HERE=C2=A0to login.=0A=0AYour=
+ Performance Watcher Team
+
+--=_44333643c93d6c20429d48e15d29c08d
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://w=
+ww.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">=0D=0A<html xmlns=3D"ht=
+tp://www.w3.org/1999/xhtml">=0D=0A<head>=0D=0A    <title>Performance Wat=
+cher</title>=0D=0A    <meta http-equiv=3D"Content-Type" content=3D"text/=
+html; charset=3Dutf-8" />=0D=0A    <style type=3D"text/css">=0D=0A     =
+   body{font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12p=
+x; color:#463e30;}=0D=0A    </style>=0D=0A</head>=0D=0A<body>=0D=0A    <=
+img src=3D"https://www.performance-watcher.com/images/global/corporate/w=
+atcher/logo.png" /><br/><br/><br/>=0D=0A=0D=0A    Dear Performance Watch=
+er User,<br /><br /><strong>Your account is now activated.</strong> Plea=
+se click=C2=A0<a href=3D"https://app.performance-watcher.com/"><strong>H=
+ERE</strong></a>=C2=A0to login.<br /><br />Your Performance Watcher Team=
+</body>=0D=0A</html>=0D=0A
+
+--=_44333643c93d6c20429d48e15d29c08d--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp831956lkc;
+        Sat, 7 Feb 2026 05:00:45 -0800 (PST)
+X-Received: by 2002:a05:6000:4007:b0:431:8f8:7f1e with SMTP id ffacd0b85a97d-4362937dd68mr8783878f8f.48.1770469245659;
+        Sat, 07 Feb 2026 05:00:45 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770469245; cv=none;
+        d=google.com; s=arc-20240605;
+        b=QnPBLya1xvu5pZdlbjy4GPcfN/S5ZauVCEjx1y5967owJ2MMnzspBHQ+3cR/Kasgc6
+         dZ9CbW6uyhLEwtutgOAU0XqF9wItMwWqLA2JS4aGpVq+CFVTKiVGpWEjB27aJyOtkZaw
+         IYqug737TIY+P9n7InXPsR6cxMMRnMZTdEyRXQF0XrQBU6HfI9a7PqcnbtaZ1fOak5l/
+         XYo9ac4lwIWDHjOdVc8nOInxtrxxkdhYQFz97GF5PxtJKx1hJLTDOal+lD3EK+lPGFj3
+         4cralbwKqcYTwH7MFR7/omcjvrKKtppsIbgH64KJTc0UdbKOxP0yVBaGtD4jjg9+zLfB
+         kL7g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=date:mime-version:message-id:subject:to:from:sender:dkim-signature
+         :dkim-signature;
+        bh=tHpi8d/x+qxYVXyDPBFkQ13qUXXGrYMF+IfJKALV178=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=kpR3wf/gobRFUjYhPmPiKIPtD1XHGSkx10kz9ZQzRAp1ybazXNaUrs/12ZUD+XLhHc
+         L3G9m24JnOJJZw6k6JuzwacUevcnyMVkGxsdiAs1oGNni3T9owTU3k6IcTpXEvB3T6xP
+         Raof1/ybjipYCUXFe0sTlxKFodooHXdjYiT0ZzG6B63HGO730HkyASYRYHMs6RXgm9Om
+         T4GAsYwMCuTSaRR36ryKcYcJbPEIo+DDVda361pyXl/U+7iq9d0TmUo4UGhi9D9MDVhZ
+         yOc5ZNC/i8I8ok1DfMfUs/VhWj5CZMD8sqrVPSp5GPYVGjU6F1C5ASxmQJ3kzJ9XPTDt
+         LRJQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@mail.genevemonde.ch header.s=email header.b=YirbJG+K;
+       dkim=pass header.i=@eu.mailgun.org header.s=krs2 header.b="bKIC6/bn";
+       spf=pass (google.com: domain of bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch designates 161.38.204.228 as permitted sender) smtp.mailfrom="bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch"
+Return-Path: <bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch>
+Received: from m204-228.eu.mailgun.net (v5228.v57ae4e16.euw1.send.eu.mailgun.net. [161.38.204.228])
+        by mx.google.com with UTF8SMTPS id ffacd0b85a97d-436296b1e21si9930150f8f.109.2026.02.07.05.00.45
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 07 Feb 2026 05:00:45 -0800 (PST)
+Received-SPF: pass (google.com: domain of bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch designates 161.38.204.228 as permitted sender) client-ip=161.38.204.228;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@mail.genevemonde.ch header.s=email header.b=YirbJG+K;
+       dkim=pass header.i=@eu.mailgun.org header.s=krs2 header.b="bKIC6/bn";
+       spf=pass (google.com: domain of bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch designates 161.38.204.228 as permitted sender) smtp.mailfrom="bounce+3416d4.e2c7b9-odin.ragnarok.vallhala=gmail.com@mail.genevemonde.ch"
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mail.genevemonde.ch; q=dns/txt; s=email; t=1770469245; x=1770476445;
+ h=Content-Type: Date: MIME-Version: Message-ID: Subject: Subject: To: To: From: From: Sender: Sender: X-Feedback-Id;
+ bh=tHpi8d/x+qxYVXyDPBFkQ13qUXXGrYMF+IfJKALV178=;
+ b=YirbJG+Kqv/OdambZzu8IDhhcCFKoX0qXiS8AG4quoRpNzVPRNIu5A2QIdJk1NLay6KrzTpHhJLLB4pd4oEijQsEqVuK8qxnUPC7Bm0nMOhxGGbrxjXE5ll/ap+wJGYEfKFfQ0E40FFftU9ROhbW4y1OJsoe60v4/hFyjYJAZTs=
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=eu.mailgun.org; q=dns/txt; s=krs2; t=1770469245; x=1770476445;
+ h=Content-Type: Date: MIME-Version: Message-ID: Subject: Subject: To: To: From: From: Sender: Sender: X-Feedback-Id;
+ bh=tHpi8d/x+qxYVXyDPBFkQ13qUXXGrYMF+IfJKALV178=;
+ b=bKIC6/bnzL8kCXLWFTd6JC7q7tGagiFWDzHIOTaKzJ3Rn+ORYwYasF0VH0L+yDA2oA5eRAFhUJPm4RWX/I+4PH0oP6pMoiWfXeR4zUvdvdK4uQlnrsPfX7cjY+MhIMEl6Y+ZCIYnLjvab2OQkpZChOoqhbQi6gvte9XtphqJYUc=
+X-Mailgun-Sid: WyI4ODJmNCIsIm9kaW4ucmFnbmFyb2sudmFsbGhhbGFAZ21haWwuY29tIiwiZTJjN2I5Il0=
+X-Feedback-Id: postmaster@mail.genevemonde.ch::6226bf300653437f32138958:mailgun
+Received: by d25866a3e3fb51a1dbf244e7828b677a33a8e8e7538842de6946333fe6b9a77e with HTTP
+ id 6987377d952c62a7347acb87; Sat, 07 Feb 2026 13:00:45 GMT
+X-Mailgun-Sending-Ip: 161.38.204.228
+Sender: no-reply=mail.gvh.notrehistoire.ch@mail.genevemonde.ch
+From: "geneveMonde.ch" <no-reply@mail.gvh.notrehistoire.ch>
+To: odin.ragnarok.vallhala@gmail.com
+Subject: =?utf-8?Q?V=C3=A9rifier?= l'adresse =?utf-8?Q?=C3=A9lectronique?=
+Message-ID: <f02112c9975179ea289ee33dcde2e883@mail.gvh.notrehistoire.ch>
+MIME-Version: 1.0
+Date: Sat, 07 Feb 2026 13:00:45 +0000
+Content-Type: multipart/alternative; boundary=rd9N33U2
+
+--rd9N33U2
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+geneveMonde.ch: https://genevemonde.ch
+
+# Bonjour !
+
+Veuillez cliqu=
+er sur le bouton ci-dessous pour v=C3=A9rifier votre adresse =C3=A9lectroni=
+que.
+
+V=C3=A9rifier l'adresse =C3=A9lectronique: https://genevemonde.ch=
+/verify-email/12798/415581b82fb17de1aa21c2393c77e30c98b621a6?expires=3D1770=
+472845&signature=3Db88b713c51a6cc03c96605a40ee1d53e8ffe05607f45098ce07f41a8=
+4e87a328
+
+Si vous n'avez pas cr=C3=A9=C3=A9 de compte, aucune autre act=
+ion n'est requise.
+
+Meilleures salutations,
+geneveMonde.ch
+
+Si vo=
+us ne parvenez pas =C3=A0 cliquer sur le bouton "V=C3=A9rifier l'adresse =
+=C3=A9lectronique", copiez et collez l'URL ci-dessous
+dans votre navigate=
+ur web : [https://genevemonde.ch/verify-email/12798/415581b82fb17de1aa21c23=
+93c77e30c98b621a6?expires=3D1770472845&signature=3Db88b713c51a6cc03c96605a4=
+0ee1d53e8ffe05607f45098ce07f41a84e87a328](https://genevemonde.ch/verify-ema=
+il/12798/415581b82fb17de1aa21c2393c77e30c98b621a6?expires=3D1770472845&sign=
+ature=3Db88b713c51a6cc03c96605a40ee1d53e8ffe05607f45098ce07f41a84e87a328)=
+
+
+=C2=A9 2026 FONSART. Tous droits r=C3=A9serv=C3=A9s.
+
+--rd9N33U2
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=3D"http://www.=
+w3.org/1999/xhtml">
+<head>
+<title>geneveMonde.ch</title>
+<meta name=
+=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.0">
+<met=
+a http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">
+<me=
+ta name=3D"color-scheme" content=3D"light">
+<meta name=3D"supported-color=
+-schemes" content=3D"light">
+<style>
+@media only screen and (max-width:=
+ 600px) {
+.inner-body {
+width: 100% !important;
+}
+
+.footer {
+wi=
+dth: 100% !important;
+}
+}
+
+@media only screen and (max-width: 500px=
+) {
+.button {
+width: 100% !important;
+}
+}
+</style>
+
+</head>=
+
+<body style=3D"box-sizing: border-box; font-family: -apple-system, Blink=
+MacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Col=
+or Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; -webkit=
+-text-size-adjust: none; background-color: #ffffff; color: #718096; height:=
+ 100%; line-height: 1.4; margin: 0; padding: 0; width: 100% !important;">=
+
+
+<table class=3D"wrapper" width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" role=3D"presentation" style=3D"box-sizing: border-box; font-family: =
+-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sa=
+ns-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; positio=
+n: relative; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -premail=
+er-width: 100%; background-color: #edf2f7; margin: 0; padding: 0; width: 10=
+0%;">
+<tr>
+<td align=3D"center" style=3D"box-sizing: border-box; font-f=
+amily: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Ar=
+ial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; =
+position: relative;">
+<table class=3D"content" width=3D"100%" cellpadding=
+=3D"0" cellspacing=3D"0" role=3D"presentation" style=3D"box-sizing: border-=
+box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, He=
+lvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe U=
+I Symbol'; position: relative; -premailer-cellpadding: 0; -premailer-cellsp=
+acing: 0; -premailer-width: 100%; margin: 0; padding: 0; width: 100%;">
+<=
+tr>
+<td class=3D"header" style=3D"box-sizing: border-box; font-family: -a=
+pple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans=
+-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position:=
+ relative; padding: 25px 0; text-align: center;">
+<a href=3D"https://gene=
+vemonde.ch" style=3D"box-sizing: border-box; font-family: -apple-system, Bl=
+inkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple =
+Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; colo=
+r: #3d4852; font-size: 19px; font-weight: bold; text-decoration: none; disp=
+lay: inline-block;">
+<img src=3D"https://dktz15xw9547q.cloudfront.net/wVb=
+g8tmjztr6f1G9quH5GD75aI-jXvVJSk8GIp7l7_4/q:95/h:64/el:1/czM6Ly93d3dnZW5l/dm=
+Vtb25kZWRvdGNo/L2xvZ29zL0sveS9L/eXlWeFhDVW1XWW01/bGNPbjh1SnpEckhC/WXNXMEY2Y=
+UN3a29G/SDFKLnBuZw.png" alt=3D"geneveMonde.ch" style=3D"box-sizing: border-=
+box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, He=
+lvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe U=
+I Symbol'; position: relative; max-width: 100%; border: none; width: auto; =
+height: 30px;">
+</a>
+</td>
+</tr>
+
+<!-- Email Body -->
+<tr>
+<t=
+d class=3D"body" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" style=
+=3D"box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont,=
+ 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Se=
+goe UI Emoji', 'Segoe UI Symbol'; position: relative; -premailer-cellpaddin=
+g: 0; -premailer-cellspacing: 0; -premailer-width: 100%; background-color: =
+#edf2f7; border-bottom: 1px solid #edf2f7; border-top: 1px solid #edf2f7; m=
+argin: 0; padding: 0; width: 100%; border: hidden !important;">
+<table cl=
+ass=3D"inner-body" align=3D"center" width=3D"570" cellpadding=3D"0" cellspa=
+cing=3D"0" role=3D"presentation" style=3D"box-sizing: border-box; font-fami=
+ly: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial=
+, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; pos=
+ition: relative; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -pre=
+mailer-width: 570px; background-color: #ffffff; border-color: #e8e5ef; bord=
+er-radius: 2px; border-width: 1px; box-shadow: 0 2px 0 rgba(0, 0, 150, 0.02=
+5), 2px 4px 0 rgba(0, 0, 150, 0.015); margin: 0 auto; padding: 0; width: 57=
+0px;">
+<!-- Body content -->
+<tr>
+<td class=3D"content-cell" style=3D=
+"box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'S=
+egoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe=
+ UI Emoji', 'Segoe UI Symbol'; position: relative; max-width: 100vw; paddin=
+g: 32px;">
+<h1 style=3D"box-sizing: border-box; font-family: -apple-syste=
+m, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'A=
+pple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative;=
+ color: #3d4852; font-size: 18px; font-weight: bold; margin-top: 0; text-al=
+ign: left;">Bonjour !</h1>
+<p style=3D"box-sizing: border-box; font-famil=
+y: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,=
+ sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; posi=
+tion: relative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-al=
+ign: left;">Veuillez cliquer sur le bouton ci-dessous pour v=C3=A9rifier vo=
+tre adresse =C3=A9lectronique.</p>
+<table class=3D"action" align=3D"cente=
+r" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" role=3D"presentation"=
+ style=3D"box-sizing: border-box; font-family: -apple-system, BlinkMacSyste=
+mFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji=
+', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; -premailer-cell=
+padding: 0; -premailer-cellspacing: 0; -premailer-width: 100%; margin: 30px=
+ auto; padding: 0; text-align: center; width: 100%; float: unset;">
+<tr>=
+
+<td align=3D"center" style=3D"box-sizing: border-box; font-family: -appl=
+e-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-se=
+rif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: re=
+lative;">
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" role=3D"presentation" style=3D"box-sizing: border-box; font-family:=
+ -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, s=
+ans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; positi=
+on: relative;">
+<tr>
+<td align=3D"center" style=3D"box-sizing: border-b=
+ox; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Hel=
+vetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI=
+ Symbol'; position: relative;">
+<table border=3D"0" cellpadding=3D"0" cel=
+lspacing=3D"0" role=3D"presentation" style=3D"box-sizing: border-box; font-=
+family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, A=
+rial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';=
+ position: relative;">
+<tr>
+<td style=3D"box-sizing: border-box; font-f=
+amily: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Ar=
+ial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; =
+position: relative;">
+<a href=3D"https://genevemonde.ch/verify-email/1279=
+8/415581b82fb17de1aa21c2393c77e30c98b621a6?expires=3D1770472845&amp;signatu=
+re=3Db88b713c51a6cc03c96605a40ee1d53e8ffe05607f45098ce07f41a84e87a328" clas=
+s=3D"button" target=3D"_blank" rel=3D"noopener" style=3D"box-sizing: border=
+-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, H=
+elvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe =
+UI Symbol'; position: relative; -webkit-text-size-adjust: none; border-radi=
+us: 4px; color: #fff; display: inline-block; overflow: hidden; text-decorat=
+ion: none; word-break: break-all; background-color: #26a25f; border-bottom:=
+ 8px solid #26a25f; border-left: 18px solid #26a25f; border-right: 18px sol=
+id #26a25f; border-top: 8px solid #26a25f;">V=C3=A9rifier l'adresse =C3=
+=A9lectronique</a>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+=
+</td>
+</tr>
+</table>
+<p style=3D"box-sizing: border-box; font-family:=
+ -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, s=
+ans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; positi=
+on: relative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-alig=
+n: left;">Si vous n'avez pas cr=C3=A9=C3=A9 de compte, aucune autre action =
+n'est requise.</p>
+<p style=3D"box-sizing: border-box; font-family: -appl=
+e-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-se=
+rif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: re=
+lative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: lef=
+t;">Meilleures salutations,<br>
+geneveMonde.ch</p>
+
+
+<table class=
+=3D"subcopy" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" role=3D"pre=
+sentation" style=3D"box-sizing: border-box; font-family: -apple-system, Bli=
+nkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple C=
+olor Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; borde=
+r-top: 1px solid #e8e5ef; margin-top: 25px; padding-top: 25px;">
+<tr>
+<=
+td style=3D"box-sizing: border-box; font-family: -apple-system, BlinkMacSys=
+temFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emo=
+ji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative;">
+<p style=
+=3D"box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont,=
+ 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Se=
+goe UI Emoji', 'Segoe UI Symbol'; position: relative; line-height: 1.5em; m=
+argin-top: 0; text-align: left; font-size: 14px;">Si vous ne parvenez pas =
+=C3=A0 cliquer sur le bouton "V=C3=A9rifier l'adresse =C3=A9lectronique", c=
+opiez et collez l'URL ci-dessous
+dans votre navigateur web : <span class=
+=3D"break-all" style=3D"box-sizing: border-box; font-family: -apple-system,=
+ BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'App=
+le Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; w=
+ord-break: break-all;"><a href=3D"https://genevemonde.ch/verify-email/12798=
+/415581b82fb17de1aa21c2393c77e30c98b621a6?expires=3D1770472845&amp;signatur=
+e=3Db88b713c51a6cc03c96605a40ee1d53e8ffe05607f45098ce07f41a84e87a328" style=
+=3D"box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont,=
+ 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Se=
+goe UI Emoji', 'Segoe UI Symbol'; position: relative; color: #3869d4; word-=
+break: break-all;">https://genevemonde.ch/verify-email/12798/415581b82fb17d=
+e1aa21c2393c77e30c98b621a6?expires=3D1770472845&amp;signature=3Db88b713c51a=
+6cc03c96605a40ee1d53e8ffe05607f45098ce07f41a84e87a328</a></span></p>
+
+<=
+/td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr=
+>
+<td style=3D"box-sizing: border-box; font-family: -apple-system, BlinkM=
+acSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Colo=
+r Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative;">
+<tab=
+le class=3D"footer" align=3D"center" width=3D"570" cellpadding=3D"0" cellsp=
+acing=3D"0" role=3D"presentation" style=3D"box-sizing: border-box; font-fam=
+ily: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Aria=
+l, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; po=
+sition: relative; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -pr=
+emailer-width: 570px; margin: 0 auto; padding: 0; text-align: center; width=
+: 570px;">
+<tr>
+<td class=3D"content-cell" align=3D"center" style=3D"bo=
+x-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Sego=
+e UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI=
+ Emoji', 'Segoe UI Symbol'; position: relative; max-width: 100vw; padding: =
+32px;">
+<p style=3D"box-sizing: border-box; font-family: -apple-system, B=
+linkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple=
+ Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; lin=
+e-height: 1.5em; margin-top: 0; color: #b0adc5; font-size: 12px; text-align=
+: center;">=C2=A9 2026 FONSART. Tous droits r=C3=A9serv=C3=A9s.</p>
+
+</=
+td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table=
+>
+</body>
+</html>
+--rd9N33U2--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp831736lkc;
+        Sat, 7 Feb 2026 05:00:29 -0800 (PST)
+X-Received: by 2002:a17:907:868f:b0:b88:6542:868e with SMTP id a640c23a62f3a-b8edf11f3ecmr313462266b.8.1770469229626;
+        Sat, 07 Feb 2026 05:00:29 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770469229; cv=none;
+        d=google.com; s=arc-20240605;
+        b=I7Am6vaZ4F1FsZQoloh3UenBqg2TLnu3Z59HttSHsXeGZwjXmMkXFJBqEe252Qbdq1
+         fV7ghQTPNS1eSrtTP/igeeNaG8Cp4CYFh2rmJ31I/4evWDct4eV0Va52H5sQetuvZsm0
+         2ZL8Y6iXEW3yDOp/4h827FcRpPvXbJaxPeaDBHPZRkqef0YUh/aBuAP0Iln6FAh8PLhd
+         1JPgDNgtSaP+LqWXCVOir3pqIaxEcWlhrW6BRBL033wHfDqsZXrkEq+jH/K5E0pRfTMR
+         7CDNuqgCKrhdScevlrH7dHDdFqRY8IWxnQpfrme94atv7ykUqASsCjDNnJp+mpLvKYlk
+         c56Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:mime-version:message-id:subject:from:to
+         :date:dkim-signature:dkim-signature:dkim-signature;
+        bh=t2XwyTYT/y/bKLF7Bnuy6W76tNskwk+VIdFwtMmQHiY=;
+        fh=ETrupfFpxIGiwVW6QUHfaqdhaitSs2HZqADyBmkxLW0=;
+        b=K/c9ixZOP0u5MdohwtUKw42lpZKeXSn7b/hnW3YMQSh6Bj6eseN8aQqXd/lE+VplMW
+         pgG/wLMa+Dv5eAYaxh177PJOdyIwfU9KTX4uyUl9Gd1kEOcUbIWwnxOVsBgU4W0zHYzM
+         2gqhyugy6UbNFS39PMbSVHSL8K/3Nr/0WRzw4yHqlowvzqzFPnEqV6GsJKf0SbKmTbqs
+         lM57DH08xyo6A7EkNWYiVinvKYF662mCA780iK1upFFJ2qJK0lDRTVO2ccjSj4sK+NDb
+         MQnxetOV7JDpZX704mozliOnD5Qe7MC4B8lg5tjiFx8zhUnaQk3vU9XOyJhg+o/wCN7e
+         Gjsg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@mailout.one.com header.s=cust202305 header.b=Lag3fCaV;
+       dkim=pass header.i=@core-edu.ch header.s=rsa2 header.b=LgqzNQpb;
+       dkim=neutral (no key) header.i=@core-edu.ch header.s=ed2 header.b=+DLukJh6;
+       spf=none (google.com: noreply@core-edu.ch does not designate permitted sender hosts) smtp.mailfrom=noreply@core-edu.ch
+Return-Path: <noreply@core-edu.ch>
+Received: from mailout-egress8.pub.mailoutpod2-cph3.one.com (mailout-egress8.pub.mailoutpod2-cph3.one.com. [2a02:2350:5:517::1])
+        by mx.google.com with ESMTPS id a640c23a62f3a-b8edae8f5a8si393562466b.172.2026.02.07.05.00.29
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Feb 2026 05:00:29 -0800 (PST)
+Received-SPF: none (google.com: noreply@core-edu.ch does not designate permitted sender hosts) client-ip=2a02:2350:5:517::1;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@mailout.one.com header.s=cust202305 header.b=Lag3fCaV;
+       dkim=pass header.i=@core-edu.ch header.s=rsa2 header.b=LgqzNQpb;
+       dkim=neutral (no key) header.i=@core-edu.ch header.s=ed2 header.b=+DLukJh6;
+       spf=none (google.com: noreply@core-edu.ch does not designate permitted sender hosts) smtp.mailfrom=noreply@core-edu.ch
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1770469229; x=1771074029;
+	d=mailout.one.com; s=cust202305;
+	h=content-transfer-encoding:content-type:mime-version:message-id:subject:from:
+	 to:date:from;
+	bh=t2XwyTYT/y/bKLF7Bnuy6W76tNskwk+VIdFwtMmQHiY=;
+	b=Lag3fCaVY3Nvt/98CJR+eZorAHqCRX0k1DkzS7zkYL6q1nz92IttE0NbRqFwwL0ns0GfVFncAAJAw
+	 z+74jpLZHfKoYvfECbsbUL3EwmxfSTOn6x/ZJL3IwXefMEuKnZWrH1CHyO62eg/WgEagE5Ierj3hFG
+	 RDXYrYdnX9mbkAMkU17CnYn3Dy6Alq3BKh76EB2YN+B5jTvrxA1k0TMd7KZn9vspa74sO6o9qYmNFV
+	 +g9kIqiosdMuc2AXh/KkwfhjSi5O+89xjqSmFImAojlZ1HwjYE91bNh8aXmd7Zi2FUf7Tjw+/Sxp5h
+	 HkOzkHAt5K/B0Hv6ZnNdJtPCxAM3zxA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1770469229; x=1771074029;
+	d=core-edu.ch; s=rsa2;
+	h=content-transfer-encoding:content-type:mime-version:message-id:subject:from:
+	 to:date:from;
+	bh=t2XwyTYT/y/bKLF7Bnuy6W76tNskwk+VIdFwtMmQHiY=;
+	b=LgqzNQpb6Ft9RhcI1ubyF8Rp5XzTndVaNLsj1Iix5qRY9K0H2DkMxRMtMyEI3Qo72W5wUUcPYxvTr
+	 jgg2poiHTUZWX0DIxOBYW6n2JcAbWpjs2SrFV7z5S73SVzBaFKJHJF76OfHDy4h26Qm5SrE1gFLQ2E
+	 Q+gqhlUkuRQ46tcZdRFmQLe+iS2YoXwVnvwu0bmiIwrNAzogbvOdA3fwkyiHipaSLAXIdg99FieGwl
+	 m8EU0ma24RxyaCT0ikQi6G+QmLhAuyOYYf7TF6N4R6cYUdEsHxei8a7kuLb05ThCAFekLlbGiSP9Mo
+	 aOAn34ZE/cUsX13t6K1X0Uy7340Hhzw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1770469229; x=1771074029;
+	d=core-edu.ch; s=ed2;
+	h=content-transfer-encoding:content-type:mime-version:message-id:subject:from:
+	 to:date:from;
+	bh=t2XwyTYT/y/bKLF7Bnuy6W76tNskwk+VIdFwtMmQHiY=;
+	b=+DLukJh6wNRbfcG1/9oSIKUVhdWG1daEyW8EQki+o0pSWn+gaCd9KqGYcqoM5UELTwi5lLbnEr8by
+	 OPQo7P/DQ==
+X-HalOne-ID: f9c2ee27-0424-11f1-99db-bdec652e575c
+Received: from core-edu.ch (customer-nat.pub.webpod13-cph3.one.com [193.202.110.30])
+	by mailout4.pub.mailoutpod3-cph3.one.com (Halon) with ESMTPSA
+	id f9c2ee27-0424-11f1-99db-bdec652e575c;
+	Sat, 07 Feb 2026 13:00:29 +0000 (UTC)
+Date: Sat, 7 Feb 2026 13:00:29 +0000
+To: rockjack1911 <odin.ragnarok.vallhala@gmail.com>
+From: CORE Community <noreply@core-edu.ch>
+Subject: Welcome to CORE Community!
+Message-ID: <iDK1yhnP4Jf2EhyXqcaSA8GmhLh68etasV2dsqBBoRA@core-edu.ch>
+X-Mailer: PHPMailer 6.10.0 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="b1=_iDK1yhnP4Jf2EhyXqcaSA8GmhLh68etasV2dsqBBoRA"
+Content-Transfer-Encoding: 8bit
+
+--b1=_iDK1yhnP4Jf2EhyXqcaSA8GmhLh68etasV2dsqBBoRA
+Content-Type: text/plain; charset=us-ascii
+
+
+
+
+    
+    
+    Welcome to CORE Community!
+    
+        body { margin:0; padding:0; background-color:#f9f9f9; font-family: Poppins, Arial, sans-serif; font-size: 16px; color: #333333; }
+        a { color: #d40000; text-decoration: none; }
+        h2 { color: #d40000; margin-top: 0; margin-bottom: 20px; font-size: 22px;}
+        p { margin-bottom: 15px; line-height: 1.7; }
+        .button { background-color: #d40000; color: #ffffff !important; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; border: none; }
+        .footer { padding: 20px; background-color: #f0f0f0; font-size: 12px; color: #666666; border-top: 1px solid #dddddd; text-align: center;}
+        .content { padding: 30px 40px; line-height: 1.7; }
+        .header { padding: 20px; background-color: #550000; border-bottom: 3px solid #d40000; text-align: center;}
+        .main-table { width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 5px; overflow: hidden; border: 1px solid #dddddd; margin: 0 auto; }
+    
+
+
+    
+        
+            
+                
+                    
+                        
+                    
+                
+                
+                    Welcome to CORE Community!
+                    Hello rockjack1911,Thank you for registering at CORE Community. We're excited to have you in the community!You can now log in using your username or email address.If you did not create this account, please contact us immediately by replying to this email or sending a message to luan@core-edu.ch.
+                     
+                        If you have any questions, please don't hesitate to contact us.
+                    
+                
+                
+                    &copy; {date('Y')} CORE Community. All Rights Reserved.
+                    Visit Forum
+                
+            
+        
+    
+
+
+--b1=_iDK1yhnP4Jf2EhyXqcaSA8GmhLh68etasV2dsqBBoRA
+Content-Type: text/html; charset=us-ascii
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to CORE Community!</title>
+    <style>
+        body { margin:0; padding:0; background-color:#f9f9f9; font-family: Poppins, Arial, sans-serif; font-size: 16px; color: #333333; }
+        a { color: #d40000; text-decoration: none; }
+        h2 { color: #d40000; margin-top: 0; margin-bottom: 20px; font-size: 22px;}
+        p { margin-bottom: 15px; line-height: 1.7; }
+        .button { background-color: #d40000; color: #ffffff !important; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; border: none; }
+        .footer { padding: 20px; background-color: #f0f0f0; font-size: 12px; color: #666666; border-top: 1px solid #dddddd; text-align: center;}
+        .content { padding: 30px 40px; line-height: 1.7; }
+        .header { padding: 20px; background-color: #550000; border-bottom: 3px solid #d40000; text-align: center;}
+        .main-table { width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 5px; overflow: hidden; border: 1px solid #dddddd; margin: 0 auto; }
+    </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Poppins, Arial, sans-serif; font-size: 16px; color: #333333;">
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f9f9f9">
+        <tr><td align="center" style="padding: 20px 0;">
+            <table class="main-table" width="600" border="0" cellpadding="0" cellspacing="0">
+                <tr><td class="header">
+                    <a href="https://core-edu.ch/forum" target="_blank">
+                        <img src="https://core-edu.ch/forum/logo.png" alt="CORE Community Logo" style="max-height: 50px; width: auto; display: block; margin: 0 auto;">
+                    </a>
+                </td></tr>
+                <tr><td class="content">
+                    <h2>Welcome to CORE Community!</h2>
+                    <p>Hello rockjack1911,</p><p>Thank you for registering at CORE Community. We're excited to have you in the community!</p><p>You can now log in using your username or email address.</p><p style='margin-top: 25px; font-size: 14px; color: #555;'>If you did not create this account, please contact us immediately by replying to this email or sending a message to luan@core-edu.ch.</p>
+                     <p style="margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px; font-size: 14px; color: #666666;">
+                        If you have any questions, please don't hesitate to contact us.
+                    </p>
+                </td></tr>
+                <tr><td class="footer">
+                    &copy; {date('Y')} CORE Community. All Rights Reserved.<br>
+                    <a href="https://core-edu.ch/forum" target="_blank">Visit Forum</a>
+                </td></tr>
+            </table>
+        </td></tr>
+    </table>
+</body>
+</html>
+
+
+--b1=_iDK1yhnP4Jf2EhyXqcaSA8GmhLh68etasV2dsqBBoRA--
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp828112lkc;
+        Sat, 7 Feb 2026 04:50:24 -0800 (PST)
+X-Received: by 2002:a05:620a:4553:b0:8b2:d26f:14b0 with SMTP id af79cd13be357-8caefcca7e4mr768970085a.3.1770468623977;
+        Sat, 07 Feb 2026 04:50:23 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770468623; cv=none;
+        d=google.com; s=arc-20240605;
+        b=H8FeqHnfHDFIlhnrPyRp5USknRG+yT9CcIhHX95sW/WIG7cMiQYh8ZZmPYzZKaPzDF
+         Itwi8OH5+64M7n+NbowXsw86R0gxLQZmERvD9iRpsuVk/PnHSoR7IgV/Qzp4Utm4WJab
+         b7ANqdYfo2GU1VeyPM5iv0nMkNpyOb80WN9Bvafab0x9sjN6JlTy3/GjrSMsrj1bK9pj
+         Im4yFjyiprvxEVZwzWiYpFV2/fdHBpblfzRKU9Y9lFV8eIRAKUMfveMklws+ulseH/li
+         nCP3oxtCVEJZWUMggfUkrZJ4XEYrDnjuPrr7ZpM7dv0DaxZeyJe7BFHTxfg68a7MM3MR
+         BNvg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:mime-version:date:content-transfer-encoding:message-id
+         :subject:to:from:dkim-signature:dkim-signature;
+        bh=20VTRCuA/jLAfXYsvVO/synk84TqNwQMO9a8tml9nL4=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=Dd0hwNFDmZZaPx0c6VIdZWzuQ4zO9HT9bby9GxmqaaBmOzfU6wbiGCfP6vEjxlh+ey
+         +laLrgnsr3tvfjDN+ORWNX/WBcGaG02MTdIcDF7/pyj3TaXbDw4Ot59hfT8SMABUyFwu
+         m6sM7j0QITS+IFkxap4/zsyxg4ME8YxYx5Dh1ncLVhDzFRXNCZTJ83KmiAK0jhhFqae0
+         ClgnXVDRts8jwpQ6suGeePnwkdnA/blLTgnNarW6+kw+c7bgxQw/0MMLJ47SsEB6tkVn
+         gOCbxLOg4d5sD2L4uctu8GsO1Af1bxg68cqtOIti37+TvsHL5FXRmto4/Tmz1YSuclcu
+         Ri/w==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@fondationtutator.ch header.s=rmdfvoeajx2xcfdo66vpawmaecbopytj header.b="YgPdDb/S";
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=BKJoBYTB;
+       spf=pass (google.com: domain of 0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com designates 54.240.8.61 as permitted sender) smtp.mailfrom=0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=fondationtutator.ch
+Return-Path: <0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com>
+Received: from a8-61.smtp-out.amazonses.com (a8-61.smtp-out.amazonses.com. [54.240.8.61])
+        by mx.google.com with ESMTPS id af79cd13be357-8caf9c04aa0si493646285a.211.2026.02.07.04.50.23
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 07 Feb 2026 04:50:23 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com designates 54.240.8.61 as permitted sender) client-ip=54.240.8.61;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@fondationtutator.ch header.s=rmdfvoeajx2xcfdo66vpawmaecbopytj header.b="YgPdDb/S";
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=BKJoBYTB;
+       spf=pass (google.com: domain of 0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com designates 54.240.8.61 as permitted sender) smtp.mailfrom=0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@amazonses.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=fondationtutator.ch
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=rmdfvoeajx2xcfdo66vpawmaecbopytj; d=fondationtutator.ch;
+	t=1770468623;
+	h=From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=qRGckJ5PF/OrtlXrfcuCBmw76vXnPoNpNuDJuGjVmgw=;
+	b=YgPdDb/SAglBmC1Soem4LpxqJQTkzuVEMW5pzqbJp+3862VR/UbtADl/gFIE2FR4
+	9zITIZe5FFMdvKoAxP/D7WVh/EyI4yAnGWScZnT6HqGXsUi2LWENe77pUMn+v86ZBR4
+	apOhfADqJiB7G0iMaosfh5OpHTljqh8/vgvNnuD0=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1770468623;
+	h=From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=qRGckJ5PF/OrtlXrfcuCBmw76vXnPoNpNuDJuGjVmgw=;
+	b=BKJoBYTB4QnC2y1CWqQGfG13C3cG27/D1X7VnOfxLF+cvWAay09zXFqfyPZF5I1S
+	bRuCVkjsdBsjpVLb8fvYw4uPQxw2Ldg/UlgighQa+DJPCXi1L98n9cg/9DnLGRCzZmS
+	Z11O4JXfE4tZllJFRdHMrecRlbu4uAM+IT3IzJrE=
+From: Tutator Forward <forward@fondationtutator.ch>
+To: odin.ragnarok.vallhala@gmail.com
+Subject: =?UTF-8?Q?V=C3=A9rification_du_courriel_-_Tutator_?=
+ =?UTF-8?Q?Forward?=
+Message-ID: <0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000@email.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 7 Feb 2026 12:50:23 +0000
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Feedback-ID: ::1.us-east-1.lCHT8C1BYNj5jFfidGS0WLbJ8W3P42iJpPQEPZwfcBc=:AmazonSES
+X-SES-Outgoing: 2026.02.07-54.240.8.61
+
+
+      <table role=3D"presentation" width=3D"100%" cellspacing=3D"0" cellpad=
+ding=3D"0" border=3D"0" style=3D"background-color:#f7f9fa;padding:24px;">
+          <tr>
+            <td align=3D"center" valign=3D"middle" style=3D"padding: 20px;"=
+>
+              <table role=3D"presentation" cellspacing=3D"0" cellpadding=3D=
+"0" border=3D"0" style=3D"border: 1px solid #C6C6C6; background-color: whit=
+e; width: auto; max-width: 680px">
+                <tr >
+                  <td style=3D"padding: 20px;">
+                    <!DOCTYPE html> <html lang=3D"en"> <head> <meta name=3D=
+"viewport" content=3D"width=3Ddevice-width, initial scale=3D1.0"/> <link hr=
+ef=3D"https://fonts.googleapis.com/css2?family=3DLato&display=3Dswap" rel=
+=3D"stylesheet"> <style type=3D"text/css"> *{font-family: 'Lato', sans-seri=
+f; letter-spacing: 1px;}</style></head><div  align=3D"center" style=3D"marg=
+in-top: 16px;"><img src=3D"https://grant-test.fondationtutator.ch/assets/im=
+ages/email/main-logo.png" alt=3D"tutator" height=3D"56px"></div> <div align=
+=3D"center"> <div style=3D"font-family: Lato; font-size: 15px; font-style: =
+normal;"> <p style=3D"text-align: left; margin: 0px; padding-top: 10px;"> B=
+onjour  <strong>Din finamorgan</strong>, </p><p style=3D"text-align: left; =
+margin: 0px; padding-top: 10px;"> Merci pour votre inscription en ligne !</=
+p><p style=3D"text-align: left; margin: 0px; padding-top: 10px;"> Pour <str=
+ong>activer votre compte</strong> et <strong>d=C3=A9finir votre mot de pass=
+e</strong>, veuillez saisir le code suivant : </p><p style=3D"text-align: c=
+enter; margin: 0px; font-weight: 900; font-size: 16px;padding-top: 10px;">E=
+O1qXRs0</p><p style=3D"text-align: left; margin: 0px; padding-top: 10px; pa=
+dding-bottom: 10px;">Vous pouvez entrer votre code en cliquant sur ce lien =
+:</p><a href=3D"https://4q43zk4q.r.us-east-1.awstrack.me/L0/https:%2F%2Ffor=
+ward.fondationtutator.ch%2Fsignup%2Fconfirmation%2Fodin.ragnarok.vallhala@g=
+mail.com%2FEO1qXRs0%2Ffr/1/0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea=
+8dfff-000000/lyt7_fRj1WRlm55MSbYiX9eO4CY=3D464" style=3D"color:#2D73B4;" > =
+https://forward.fondationtutator.ch/signup/confirmation/odin.ragnarok.vallh=
+ala@gmail.com/EO1qXRs0/fr </a><p style=3D"text-align: left; margin: 0px; pa=
+dding-top: 10px;">Nous avons h=C3=A2te de recevoir votre demande de subvent=
+ion !</p><p style=3D"text-align: left; margin: 0px; padding-top: 10px;"> Co=
+rdialement,</p><p style=3D"text-align: left; margin: 0px; padding-top: 10px=
+;"> <strong>L'=C3=A9quipe de Tutator</strong></p> <footer align=3D"center" =
+style=3D"margin-top: 32px;"><p style=3D"margin-bottom: 32px;"><img src=3D"h=
+ttps://grant-test.fondationtutator.ch/assets/images/email/logoForward.png" =
+alt=3D"logo" height=3D"48px"></p><a href=3D"https://4q43zk4q.r.us-east-1.aw=
+strack.me/L0/https:%2F%2Fwww.tutatorforward.com/1/0100019c3827428c-7ce5bb76=
+-4ad1-4255-ba46-26034ea8dfff-000000/BUN11mjn-e7l9wIZViiGdeqznUA=3D464" styl=
+e=3D"border-radius: 4px; box-shadow: 0px 5px 18px 0px #34C0C866; border: no=
+ne; color: white; padding: 14px 28px; background-color: #2D73B4; text-decor=
+ation: none; line-height: 21.6px; letter-spacing: 25%; font-size: 18px; fon=
+t-family: Lato; font-weight: 900;">WWW.TUTATORFORWARD.COM</a>
+      <div style=3D"margin-top: 32px;">
+      <p>To view this email in English, click here: <a href=3D"https://4q43=
+zk4q.r.us-east-1.awstrack.me/L0/https:%2F%2Fforward.fondationtutator.ch%2Fe=
+mail%2Ftranslate%2Fen%3FemailType=3DREGISTER%26data=3D%257B%2522encryptedDa=
+ta%2522%253A%2522c2d60852ae6ce71431d2ad0ee0a814e8b4a0f547bb1a0a112fe2dc3eb6=
+1b7fd0b605fcee0e6b6bb254a5184f0c3ab99c8ff80af63a688852e06d5d40be4ba72bede4f=
+03f90931d770fdb4f8c016e1e1fbd6f56bb7746e2b2d728962938c16cb05bb8717098eb5dda=
+ab69efeb7553d91beb06c280f52e770d582941f79c2bc0dc1ee67b7efa33e3cc1f7ec167658=
+a6ad5e724d42aaa1a6219dd63d4f218b96d0034b4652fb843c4f92cbd0bb51594d28f157265=
+21d14a6c0cc5b56a9fc7537146d26c714583d430426b00baba7d2810f37f06806f3f031004e=
+554cd42f038b52367a16828a12ecfdfa4e81014437814a1c81a07627c76d43e4692052350c9=
+a4cef2b5828debc4e7d8428b91c0cb84ec895a7263def8fec87fbe46add0c7679524d191c50=
+41155971cfc734ce0e67aba1aaf0cb351ee986d0c20bd84e1bd0f1da5512f81a7fe6d7627a1=
+474cb5351d4cfa39d918f118d4d1e83822578f7d8fb81c7c389dea6966601932598c0f3f872=
+03fc44bd821398df5912a348b0e632c3657b4d8689981db3da77c75edceb70748f3783bace2=
+c66ff30c9116c9e8b8c9faa14a6c8a8a8d5b370d025fb0b5491a5f048df78c639a77c1cd63a=
+638a1511db49a41087383f710f2bd77a7c3e580e8b9b860f1ebb8d8c9d07ec82ea55ad1a803=
+7d57ce8c1e9ac25f8edbf9dd6acd971b28b75e3cde1d32fa3edbf949865012afd3013f4c18d=
+ba94ffa6ca3cce8f2a36b32%2522%252C%2522iv%2522%253A%25229e7535642b63123c8332=
+7f95cb4106d1%2522%257D/1/0100019c3827428c-7ce5bb76-4ad1-4255-ba46-26034ea8d=
+fff-000000/6rjGHY490Absl-PlW-vOMrYKknE=3D464">ENGLISH</a></p>
+      <p>Para ver este correo en espa=C3=B1ol, hacer clic aqu=C3=AD: <a hre=
+f=3D"https://4q43zk4q.r.us-east-1.awstrack.me/L0/https:%2F%2Fforward.fondat=
+iontutator.ch%2Femail%2Ftranslate%2Fes%3FemailType=3DREGISTER%26data=3D%257=
+B%2522encryptedData%2522%253A%2522c2d60852ae6ce71431d2ad0ee0a814e8b4a0f547b=
+b1a0a112fe2dc3eb61b7fd0b605fcee0e6b6bb254a5184f0c3ab99c8ff80af63a688852e06d=
+5d40be4ba72bede4f03f90931d770fdb4f8c016e1e1fbd6f56bb7746e2b2d728962938c16cb=
+05bb8717098eb5ddaab69efeb7553d91beb06c280f52e770d582941f79c2bc0dc1ee67b7efa=
+33e3cc1f7ec167658a6ad5e724d42aaa1a6219dd63d4f218b96d0034b4652fb843c4f92cbd0=
+bb51594d28f15726521d14a6c0cc5b56a9fc7537146d26c714583d430426b00baba7d2810f3=
+7f06806f3f031004e554cd42f038b52367a16828a12ecfdfa4e81014437814a1c81a07627c7=
+6d43e4692052350c9a4cef2b5828debc4e7d8428b91c0cb84ec895a7263def8fec87fbe46ad=
+d0c7679524d191c5041155971cfc734ce0e67aba1aaf0cb351ee986d0c20bd84e1bd0f1da55=
+12f81a7fe6d7627a1474cb5351d4cfa39d918f118d4d1e83822578f7d8fb81c7c389dea6966=
+601932598c0f3f87203fc44bd821398df5912a348b0e632c3657b4d8689981db3da77c75edc=
+eb70748f3783bace2c66ff30c9116c9e8b8c9faa14a6c8a8a8d5b370d025fb0b5491a5f048d=
+f78c639a77c1cd63a638a1511db49a41087383f710f2bd77a7c3e580e8b9b860f1ebb8d8c9d=
+07ec82ea55ad1a8037d57ce8c1e9ac25f8edbf9dd6acd971b28b75e3cde1d32fa3edbf94986=
+5012afd3013f4c18dba94ffa6ca3cce8f2a36b32%2522%252C%2522iv%2522%253A%25229e7=
+535642b63123c83327f95cb4106d1%2522%257D/1/0100019c3827428c-7ce5bb76-4ad1-42=
+55-ba46-26034ea8dfff-000000/fsqnn4cCUolXflmPput6_07HDWE=3D464">ESPA=C3=91OL=
+</a></p>
+     =20
+      </div>
+    <p style=3D"border-top: 5px solid #34C0C8; line-height: 12px; font-fami=
+ly: Avenir Next; font-weight: 500; background-color: #888888; color: white;=
+ padding: 14px; margin-top: 32px;">Copyright =C2=A9 2025, Fondation Tutator=
+. Tous droits r=C3=A9serv=C3=A9s</p></footer>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+   =20
+<img alt=3D"" src=3D"https://4q43zk4q.r.us-east-1.awstrack.me/I0/0100019c38=
+27428c-7ce5bb76-4ad1-4255-ba46-26034ea8dfff-000000/fYMOchRQPA6v124fEtCeXDVV=
+dhs=3D464" style=3D"display: none; width: 1px; height: 1px;">
+__SEP__
+Delivered-To: odin.ragnarok.vallhala@gmail.com
+Received: by 2002:aa6:da44:0:b0:32a:195b:8c83 with SMTP id k4csp827828lkc;
+        Sat, 7 Feb 2026 04:49:38 -0800 (PST)
+X-Received: by 2002:a05:622a:144b:b0:4ed:65d9:162a with SMTP id d75a77b69052e-5063991b126mr79953701cf.34.1770468578711;
+        Sat, 07 Feb 2026 04:49:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770468578; cv=none;
+        d=google.com; s=arc-20240605;
+        b=gA8+CBwjfvrARZ2MD1en8vGl6QVOCiJdjzNNYArXkI4ay7LoyDPaQ18J4Yt6XsszBb
+         DsJGJQlW0zkgvm+xPkQZsvBC7IpQFzWsUlTeolEjJJ8YUE4o3zF6WksO/t5WpUVGmuIY
+         7NPcHURy46bUPzkRFpwESKFg0X3inXUc6ZYhR0+dtWVI35gU/AhRwwKwC+SdSI7/662X
+         k3kWQjPsPz+tCY0jPon4g8bz0mpZl3vbtD+lGzV0ife8MMzeWR6E+GsdnFMxKwxn9SE/
+         ttY0mjoXFS52//AONc9zFSOLYrOhSePvJuEjpeL9Z9JVMIIVYjGSWiW2NHsThwMQYl4q
+         T73A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:date:mime-version:subject:message-id:to:from
+         :dkim-signature:dkim-signature;
+        bh=1iz24I3mF8vJpeg+Ke0Uimb3PNqkGVG1kh1Ym0Jk9/c=;
+        fh=Ly5ihEOuvrgmbPxcJtJM6sLxWCkFHoM1JzlffGVghzk=;
+        b=K5Bxl41VnwGj76y7b+NOunbdlgEStSEQ6yuS0NlrZvwT4Y1crAjhxxXMtqZZG+Qg5t
+         UMR5D45UP2LS3hobVwi3XEzhNUylklnLHoQ7ShD5pIYu6+toOUdBy60VI9NrJxVtApxU
+         tXABAZulPWrEomhPCRGFt2ZAoHMLITUxRoUpfXfInTCqtweMgSzedeVA8GoF6sIONrZz
+         1fvhcTS960H8RDbFM9FKnxqdze+W4ljwGKCiXfspd5iiRc/TomnwN5JGy5PwB2w2Eqfj
+         Rsp1kgKExR8PI593/TnEgT2DuqBTrFivFD7U28CZAabvW1iJI/JBCBmajI6Z4e2y5qOY
+         X4Fw==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@apigee.com header.s=cpv4vcg6hldddl2azwj5ullbm6ycvphb header.b=xeMMmTdE;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=Tl1BEDrM;
+       spf=pass (google.com: domain of 0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com designates 54.240.48.118 as permitted sender) smtp.mailfrom=0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=apigee.com
+Return-Path: <0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com>
+Received: from a48-118.smtp-out.amazonses.com (a48-118.smtp-out.amazonses.com. [54.240.48.118])
+        by mx.google.com with ESMTPS id d75a77b69052e-50639152e99si63202301cf.67.2026.02.07.04.49.38
+        for <odin.ragnarok.vallhala@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 07 Feb 2026 04:49:38 -0800 (PST)
+Received-SPF: pass (google.com: domain of 0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com designates 54.240.48.118 as permitted sender) client-ip=54.240.48.118;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@apigee.com header.s=cpv4vcg6hldddl2azwj5ullbm6ycvphb header.b=xeMMmTdE;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=Tl1BEDrM;
+       spf=pass (google.com: domain of 0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com designates 54.240.48.118 as permitted sender) smtp.mailfrom=0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@amazonses.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=apigee.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=cpv4vcg6hldddl2azwj5ullbm6ycvphb; d=apigee.com; t=1770468578;
+	h=From:To:Message-ID:Subject:MIME-Version:Content-Type:Date;
+	bh=fCkYJ3mwyp2sb//Wp4+dCEV6ZOdCp6Ep61uMInEawNY=;
+	b=xeMMmTdEDXVaOKaqZDxTRPWOnmuYpkfUqUINz722qRhOndS2BYyXzDortILVJyos
+	PXwwSonWO4vf95+9Yl1VIazukwgtZIuGkJ5rZDqxH5Grf5X+eOIt4kgmTG9+Cg3sr0N
+	QPJskdCVQTAgKB7g4Aa27qFSjfocm9PucxYOmiLk=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1770468578;
+	h=From:To:Message-ID:Subject:MIME-Version:Content-Type:Date:Feedback-ID;
+	bh=fCkYJ3mwyp2sb//Wp4+dCEV6ZOdCp6Ep61uMInEawNY=;
+	b=Tl1BEDrMRSBnNBFjWbFiD9jTsrB/c8Oda8VMeN2QMj2aIMaXnMFk4ac4wwZQrRR0
+	Hf+Ud3TQtYQPs9uM6bY/d5Rjik7gHaDZcUerYm2/5ifGdUGyofgl3U/LbRWzfASJtmo
+	GWsR9MzUa5uqrvBdmKY5bzC+w038I2inVniwgUU0=
+From: noreply@apigee.com
+To: odin.ragnarok.vallhala@gmail.com
+Message-ID: <0100019c382693b6-e2773788-b03c-43a8-b3ce-ec543c71b41c-000000@email.amazonses.com>
+Subject: Verify your new account
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_430_1979617134.1770468577161"
+Date: Sat, 7 Feb 2026 12:49:38 +0000
+Feedback-ID: ::1.us-east-1.B24pT6fQHDF42R2woCr82KCXmqR8sL1lbiVAdUqHkME=:AmazonSES
+X-SES-Outgoing: 2026.02.07-54.240.48.118
+
+------=_Part_430_1979617134.1770468577161
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Welcome Din, 
+ Thank you for signing up for an account.
+ To verify your identity and to sign in, visit this link within 10 minutes:
+ http://api-portal.iec.ch?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZXJ2ZXIiLCJpYXQiOjE3NzA0Njg1NzcsImp0aSI6ImI3ZTAzOTBlLTIxZDctNDhmOS1iZTNiLTJkNzU2Y2I1ZmE1ZCIsIm5iZiI6MTc3MDQ2ODU2NywiZXhwIjoxNzcwNDY5MTc3LCJkYXRhIjoie1wic2l0ZUlkXCI6XCJpZWMtYXBpcG9ydGFsXCIsXCJlbWFpbFwiOlwib2Rpbi5yYWduYXJvay52YWxsaGFsYUBnbWFpbC5jb21cIn0ifQ.mRF0MXAKkEzcfxVY2iw4nxF0ytFpREnCp90jcDF_Syw
+------=_Part_430_1979617134.1770468577161
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Welcome Din,<br><br> Thank you for signing up for an account. To verify your identity and to sign in, visit this link within 10 minutes: <br><br> http://api-portal.iec.ch?t=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzZXJ2ZXIiLCJpYXQiOjE3NzA0Njg1NzcsImp0aSI6ImI3ZTAzOTBlLTIxZDctNDhmOS1iZTNiLTJkNzU2Y2I1ZmE1ZCIsIm5iZiI6MTc3MDQ2ODU2NywiZXhwIjoxNzcwNDY5MTc3LCJkYXRhIjoie1wic2l0ZUlkXCI6XCJpZWMtYXBpcG9ydGFsXCIsXCJlbWFpbFwiOlwib2Rpbi5yYWduYXJvay52YWxsaGFsYUBnbWFpbC5jb21cIn0ifQ.mRF0MXAKkEzcfxVY2iw4nxF0ytFpREnCp90jcDF_Syw <br><br>
+------=_Part_430_1979617134.1770468577161--

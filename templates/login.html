@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS Online Services - Login</title>
+	<link rel="icon" type="image/x-icon" href="/static/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+	<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <style>
+        :root{
+            --bg-1:#f6f7fb;
+            --bg-2:#eef1f9;
+            --ink:#1f2440;
+            --ink-soft:#5b6480;
+            --line:#e6e9f2;
+            --accent:#6b7cff;
+            --accent-2:#a78bfa;
+            --accent-soft:rgba(107,124,255,.12);
+        }
+        *{ -webkit-font-smoothing: antialiased; }
+        html,body{ font-family:'Inter', system-ui, sans-serif; color:var(--ink); }
+        .display-font{ font-family:'Plus Jakarta Sans','Inter',sans-serif; letter-spacing:-0.02em; }
+
+        /* Soft ambient background */
+        .scene{
+            background:
+                radial-gradient(1000px 600px at -10% -10%, #e8ecff 0%, transparent 60%),
+                radial-gradient(900px 600px at 110% 10%, #f3e8ff 0%, transparent 55%),
+                radial-gradient(800px 500px at 50% 120%, #e0f2fe 0%, transparent 60%),
+                linear-gradient(180deg, var(--bg-1), var(--bg-2));
+        }
+        .blob{
+            position:absolute; border-radius:9999px; filter:blur(70px); opacity:.55; pointer-events:none;
+            animation: drift 18s ease-in-out infinite;
+        }
+        .blob.b1{ width:380px; height:380px; background:#c7d2fe; top:-80px; left:-80px; }
+        .blob.b2{ width:420px; height:420px; background:#ddd6fe; bottom:-120px; right:-120px; animation-delay:-6s; }
+        .blob.b3{ width:300px; height:300px; background:#bae6fd; top:40%; left:55%; animation-delay:-12s; opacity:.4; }
+        @keyframes drift{
+            0%,100%{ transform: translate(0,0) scale(1); }
+            50%{ transform: translate(20px,-15px) scale(1.06); }
+        }
+
+        /* Subtle grid noise */
+        .grid-overlay{
+            background-image:
+                linear-gradient(rgba(31,36,64,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(31,36,64,0.04) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+        }
+
+        /* Card */
+        .glass-card{
+            background: rgba(255,255,255,0.78);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border:1px solid rgba(255,255,255,0.7);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.9) inset,
+                0 30px 60px -25px rgba(31,36,64,0.18),
+                0 10px 25px -15px rgba(31,36,64,0.12);
+        }
+
+        /* Logo mark */
+        .logo-mark{
+            background: conic-gradient(from 200deg at 50% 50%, #6b7cff, #a78bfa, #60a5fa, #6b7cff);
+            box-shadow: 0 10px 30px -10px rgba(107,124,255,.55), inset 0 0 0 1px rgba(255,255,255,.5);
+        }
+        .logo-mark::after{
+            content:""; position:absolute; inset:3px; border-radius:14px; background:rgba(255,255,255,.92);
+        }
+        .logo-mark i{ position:relative; z-index:1; background:linear-gradient(135deg,#6b7cff,#a78bfa); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+        /* Inputs */
+        .field{ position:relative; }
+        .field input{
+            width:100%; padding:1.05rem 1rem 1.05rem 2.85rem;
+            background:#fbfbfd; border:1px solid var(--line); border-radius:14px;
+            color:var(--ink); font-size:0.95rem;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .field input::placeholder{ color:#9aa3bd; }
+        .field input:focus{
+            outline:none; border-color:var(--accent); background:#fff;
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+        .field .leading{
+            position:absolute; left:1rem; top:50%; transform:translateY(-50%);
+            color:#8892b3; font-size:0.95rem;
+        }
+        .field .trailing{
+            position:absolute; right:.6rem; top:50%; transform:translateY(-50%);
+            width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+            border-radius:10px; color:#8892b3; cursor:pointer; transition:background .15s ease, color .15s ease;
+            border:none; background:transparent;
+        }
+        .field .trailing:hover{ background:#f1f3fa; color:var(--ink); }
+        .field input:focus + .leading,
+        .field input:focus ~ .leading{ color: var(--accent); }
+
+        .field-label{
+            display:flex; justify-content:space-between; align-items:center;
+            font-size:.78rem; font-weight:600; color:var(--ink-soft);
+            text-transform:uppercase; letter-spacing:.08em; margin-bottom:.5rem;
+        }
+
+        /* Submit */
+        .btn-primary{
+            position:relative; overflow:hidden;
+            background: linear-gradient(135deg, #6b7cff 0%, #8b5cf6 100%);
+            color:white; font-weight:600; letter-spacing:.01em;
+            border-radius:14px; padding:1rem 1.25rem; width:100%;
+            box-shadow: 0 10px 25px -10px rgba(107,124,255,.6), inset 0 1px 0 rgba(255,255,255,.25);
+            transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .btn-primary:hover{ transform: translateY(-1px); box-shadow: 0 16px 30px -10px rgba(107,124,255,.55); filter:saturate(110%); }
+        .btn-primary:active{ transform: translateY(0); }
+        .btn-primary .shine{
+            position:absolute; top:0; left:-60%; width:40%; height:100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3.6s ease-in-out infinite;
+        }
+        @keyframes shine{ 0%{ left:-60%; } 60%,100%{ left:120%; } }
+
+        /* Divider with dots */
+        .dotline{
+            display:flex; align-items:center; gap:.6rem; color:#8892b3; font-size:.75rem; letter-spacing:.18em; text-transform:uppercase;
+        }
+        .dotline::before, .dotline::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg, transparent, #d6dbeb, transparent); }
+
+        /* Feature pills */
+        .pill{
+            display:inline-flex; align-items:center; gap:.45rem;
+            padding:.45rem .75rem; border-radius:999px;
+            background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.9);
+            color:#3f4769; font-size:.78rem; font-weight:500;
+            box-shadow: 0 4px 12px -8px rgba(31,36,64,.15);
+            backdrop-filter: blur(10px);
+        }
+        .pill i{ color:var(--accent); }
+
+        /* Flash */
+        .flash{
+            display:flex; align-items:flex-start; gap:.65rem;
+            padding:.85rem 1rem; border-radius:12px; font-size:.88rem;
+            border:1px solid; margin-bottom:1rem;
+            animation: slideIn .35s ease;
+        }
+        .flash.error{ background:#fff1f2; border-color:#fecdd3; color:#9f1239; }
+        .flash.success{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+        .flash.info{ background:#eef2ff; border-color:#c7d2fe; color:#3730a3; }
+        @keyframes slideIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:translateY(0); } }
+
+        /* Card entry */
+        .enter{ animation: enter .6s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes enter{ from{ opacity:0; transform: translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+
+        /* Status dot */
+        .status-dot{
+            width:8px; height:8px; border-radius:9999px; background:#22c55e;
+            box-shadow: 0 0 0 4px rgba(34,197,94,.18);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse{
+            0%,100%{ box-shadow: 0 0 0 4px rgba(34,197,94,.18); }
+            50%{ box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+        }
+
+        @media (max-width: 640px){
+            .blob{ display:none; }
+        }
+    </style>
+</head>
+<body class="min-h-screen scene relative overflow-hidden">
+    <div class="absolute inset-0 grid-overlay pointer-events-none"></div>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+
+    <!-- Top bar -->
+    <header class="relative z-10 max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg logo-mark relative flex items-center justify-center">
+                <i class="ph ph-squares-four"></i>
+            </div>
+            <span class="display-font font-bold text-[15px] text-slate-800">TSS<span class="text-slate-400">·</span>Platform</span>
+        </div>
+        <div class="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+            <span class="status-dot"></span>
+            <span>All services operational</span>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="relative z-10 flex items-center justify-center px-4 pb-12" style="min-height: calc(100vh - 88px);">
+        <div class="w-full max-w-[440px] enter">
+            <div class="glass-card rounded-[28px] p-8 sm:p-10">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex relative w-16 h-16 rounded-2xl logo-mark items-center justify-center mb-5">
+                        <i class="fas fa-fingerprint text-2xl"></i>
+                    </div>
+                    <h1 class="display-font text-[28px] sm:text-[30px] font-bold text-slate-900 leading-tight">Welcome back</h1>
+                    <p class="text-slate-500 mt-2 text-[15px]">Sign in to access your TSS workspace</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash {% if category == 'error' %}error{% elif category == 'success' %}success{% else %}info{% endif %}">
+                                <i class="fas mt-0.5 {% if category == 'error' %}fa-circle-exclamation{% elif category == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}"></i>
+                                <span class="flex-1">{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Login Form -->
+                <form method="POST" class="space-y-5" id="loginForm">
+                    <input type="hidden" name="client_public_ip" id="clientPublicIp" value="">
+
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="field-label">
+                            <span>Username</span>
+                        </label>
+                        <div class="field">
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                required
+                                placeholder="your.username"
+                                autocomplete="username"
+                            >
+                            <span class="leading"><i class="fas fa-user"></i></span>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="field-label">
+                            <span>Password</span>
+                            <span class="text-[11px] text-slate-400 normal-case tracking-normal font-normal">Keep it safe</span>
+                        </label>
+                        <div class="field">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                required
+                                placeholder="••••••••••"
+                                autocomplete="current-password"
+                            >
+                            <span class="leading"><i class="fas fa-lock"></i></span>
+                            <button type="button" class="trailing" id="togglePwd" aria-label="Show password">
+                                <i class="fas fa-eye" id="togglePwdIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-primary group">
+                        <span class="shine"></span>
+                        <span class="relative inline-flex items-center justify-center gap-2">
+                            <span>Sign in securely</span>
+                            <i class="fas fa-arrow-right text-sm transition-transform group-hover:translate-x-0.5"></i>
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="dotline mt-7 mb-5">Protected access</div>
+
+                <!-- Pills -->
+                <div class="flex flex-wrap justify-center gap-2">
+                    <span class="pill"><i class="fas fa-shield-halved"></i> Encrypted</span>
+                    <span class="pill"><i class="fas fa-key"></i> Single sign-on</span>
+                    <span class="pill"><i class="fas fa-building"></i> Entity scoped</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <p class="text-center text-xs text-slate-400 mt-6">
+                © <span id="year"></span> TSS Online Services · Crafted with care
+            </p>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(data => { document.getElementById('clientPublicIp').value = data.ip; })
+                .catch(() => {});
+
+            // Show/hide password
+            const pwd = document.getElementById('password');
+            const toggle = document.getElementById('togglePwd');
+            const toggleIcon = document.getElementById('togglePwdIcon');
+            toggle.addEventListener('click', () => {
+                const isPwd = pwd.type === 'password';
+                pwd.type = isPwd ? 'text' : 'password';
+                toggleIcon.classList.toggle('fa-eye');
+                toggleIcon.classList.toggle('fa-eye-slash');
+                toggle.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const ipField = document.getElementById('clientPublicIp');
+            if (!ipField.value) {
+                e.preventDefault();
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(data => { ipField.value = data.ip; this.submit(); })
+                    .catch(() => { this.submit(); });
+            }
+        });
+    </script>
+</body>
+</html>
