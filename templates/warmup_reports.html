@@ -687,6 +687,34 @@
         <div class="h-52"><canvas id="inboxDomainPie"></canvas></div>
       </div>
     </div>
+
+    <!-- ── Web Activity charts ── -->
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+      <span class="inline-block w-1 h-3.5 rounded bg-gradient-to-b from-emerald-400 to-sky-400"></span>Web Activity — Link Clicks
+    </h3>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-7 h-7 rounded-lg bg-emerald-400/15 text-emerald-500 flex items-center justify-center shrink-0">
+            <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>
+          </span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Web Activity by TSS Entity</h3>
+        </div>
+        <p class="text-[11px] text-slate-400 mb-3 ml-9">Total link clicks attributed to each entity, split by Plan A (IP) and Plan B (Offer)</p>
+        <div class="h-56"><canvas id="webActivityByEntityChart"></canvas></div>
+      </div>
+      <div class="card glass rounded-2xl p-5 bg-white border border-slate-200 dark:bg-slate-900/60 dark:border-slate-700/50">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-7 h-7 rounded-lg bg-sky-400/15 text-sky-500 flex items-center justify-center shrink-0">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active vs Inactive Domains</h3>
+        </div>
+        <p class="text-[11px] text-slate-400 mb-3 ml-9">Domains with at least one link click vs domains with zero activity, per entity</p>
+        <div class="h-56"><canvas id="webActivityRatioChart"></canvas></div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="inboxEntityStats"></div>
     <div class="flex flex-wrap gap-2 mb-4" id="domainEntityTabs">
       <button class="dtab px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-sky-500 transition-colors" data-dtab="tss1">TSS1</button>
@@ -953,13 +981,24 @@ function processRawData(raw) {
     })()
   };
 
+  /* ── Total Web Activity (pre-compute from raw so it's ready for KPIs) ── */
+  let totalWebActivity = 0;
+  Object.values(raw.entity_domains || raw.domains || {}).forEach(ent => {
+    const spamIC  = (ent.spam  && ent.spam.interaction_count)  || {};
+    const inboxIC = (ent.inbox && ent.inbox.interaction_count) || {};
+    ['plan_a', 'plan_b'].forEach(p => {
+      Object.values(spamIC[p]  || {}).forEach(v => { totalWebActivity += v; });
+      Object.values(inboxIC[p] || {}).forEach(v => { totalWebActivity += v; });
+    });
+  });
+
   /* ── KPIs ── */
   const kpis = [
     {label:'Total Actions',   value: total.toLocaleString(),         sub:`hour ${raw.target_hour||'--'}`,                                                                       color:'slate',   icon:'activity'},
     {label:'Inbox Actions',   value: totalInbox.toLocaleString(),    sub: sm.inbox_change != null ? `${sm.inbox_change >= 0 ? '+' : ''}${sm.inbox_change}% vs Hour before` : '--',    color:'emerald', icon:'inbox'},
     {label:'Spam Actions',    value: totalSpam.toLocaleString(),     sub: sm.spam_change  != null ? `${sm.spam_change  >= 0 ? '+' : ''}${sm.spam_change}% vs Hour before`  : '--',    color:'rose',    icon:'alert-triangle'},
     {label:'Inbox Rate',      value:`${inboxRate}%`,                 sub: sm.rate_label || '--',                                                                                color:'emerald', icon:'sparkles'},
-    {label:'Spam–Inbox Gap',  value:(sm.gap||0).toLocaleString(),    sub:'healthy spread',                                                                                      color:'violet',  icon:'trending-up'},
+    {label:'Total Web Activity', value: totalWebActivity.toLocaleString(), sub:'link clicks across all entities',                                                              color:'emerald', icon:'mouse-pointer-click'},
     {label:'Active Profiles', value: activeProfiles.toLocaleString(),sub:`${(sm.low_activity||0).toLocaleString()} inactive`,                                                                        color:'emerald', icon:'users'},
     {label:'Active Proxies',  value: activeProxies.toLocaleString(), sub:`Reuse ${reuseRatio}x`,                                                                                color:'sky',     icon:'shield-check'},
     {label:'Total Active Sessions', value:`${totalActiveSessions}/${totalSessions}`, sub:`${totalSessions - totalActiveSessions} idle sessions`, color:'violet', icon:'layers'},
@@ -1019,6 +1058,16 @@ function processRawData(raw) {
       /* Derive totals from the merged dict so button labels always match table row sums */
       const spamTotalDerived  = Object.values(spamMerged).reduce((s,v)=>s+v, 0);
       const inboxTotalDerived = Object.values(inboxMerged).reduce((s,v)=>s+v, 0);
+      /* ── Interaction count (web-click activity) ── */
+      const spamIC  = (ent.spam  && ent.spam.interaction_count)  || {};
+      const inboxIC = (ent.inbox && ent.inbox.interaction_count) || {};
+      const icMap = {};
+      let icTotalA = 0, icTotalB = 0;
+      Object.entries(spamIC.plan_a  || {}).forEach(([d,v]) => { icMap[d] = (icMap[d]||0)+v; icTotalA += v; });
+      Object.entries(spamIC.plan_b  || {}).forEach(([d,v]) => { icMap[d] = (icMap[d]||0)+v; icTotalB += v; });
+      Object.entries(inboxIC.plan_a || {}).forEach(([d,v]) => { icMap[d] = (icMap[d]||0)+v; icTotalA += v; });
+      Object.entries(inboxIC.plan_b || {}).forEach(([d,v]) => { icMap[d] = (icMap[d]||0)+v; icTotalB += v; });
+
       entityData[meta.key] = {
         name: entName,
         hits: spamTotalDerived,
@@ -1030,6 +1079,10 @@ function processRawData(raw) {
         planBSpam:  (ent.spam  && ent.spam.plan_b)  ? Object.values(ent.spam.plan_b).reduce((s,v)=>s+v,0)  : 0,
         planAInbox: (ent.inbox && ent.inbox.plan_a) ? Object.values(ent.inbox.plan_a).reduce((s,v)=>s+v,0) : 0,
         planBInbox: (ent.inbox && ent.inbox.plan_b) ? Object.values(ent.inbox.plan_b).reduce((s,v)=>s+v,0) : 0,
+        icMap,          /* domain → total click count */
+        icTotal: icTotalA + icTotalB,
+        icTotalA,
+        icTotalB,
       };
     });
   }
@@ -1415,16 +1468,22 @@ function buildDomainPanels(d) {
     const div = document.createElement('div');
     div.id = 'dp-' + key; div.className = 'dpanel';
     const col = entityColor(ent.color);
+    const icMap = ent.icMap || {};
 
     const buildRows = (rows, total) => {
-      if (!rows || !rows.length) return '<tr><td colspan="5" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+      if (!rows || !rows.length) return '<tr><td colspan="6" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
       return rows.map(r => {
         const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+        const clicks = icMap[r[0]] || 0;
+        const clickBadge = clicks > 0
+          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500"><i data-lucide="mouse-pointer-click" style="width:10px;height:10px;display:inline-block"></i>${clicks.toLocaleString()}</span>`
+          : `<span class="text-[10px] text-slate-400 font-mono">—</span>`;
         return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
           <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
           <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
           <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
           <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+          <td class="px-3 py-2 text-center">${clickBadge}</td>
           <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
         </tr>`;
       }).join('');
@@ -1442,6 +1501,7 @@ function buildDomainPanels(d) {
               Inbox <span class="ml-1 font-mono">${(ent.inboxHits||0).toLocaleString()}</span>
             </button>
           </div>
+          ${ent.icTotal > 0 ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-400/12 text-emerald-500 border border-emerald-400/25"><i data-lucide="mouse-pointer-click" style="width:11px;height:11px;display:inline-block"></i>${ent.icTotal.toLocaleString()} clicks</span>` : ''}
         </div>
         <div class="relative">
           <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
@@ -1457,6 +1517,7 @@ function buildDomainPanels(d) {
               <th class="text-right px-3 py-2 font-bold">Total</th>
               <th class="text-right px-3 py-2 font-bold">Plan A</th>
               <th class="text-right px-3 py-2 font-bold">Plan B</th>
+              <th class="text-center px-3 py-2 font-bold">Web Activity</th>
               <th class="text-left px-3 py-2 font-bold w-32">Share</th>
             </tr></thead>
             <tbody>${buildRows(ent.rows, ent.hits)}</tbody>
@@ -1471,6 +1532,7 @@ function buildDomainPanels(d) {
               <th class="text-right px-3 py-2 font-bold">Total</th>
               <th class="text-right px-3 py-2 font-bold">Plan A</th>
               <th class="text-right px-3 py-2 font-bold">Plan B</th>
+              <th class="text-center px-3 py-2 font-bold">Web Activity</th>
               <th class="text-left px-3 py-2 font-bold w-32">Share</th>
             </tr></thead>
             <tbody>${buildRows(ent.inboxRows||[], ent.inboxHits||0)}</tbody>
@@ -1490,15 +1552,20 @@ function buildDomainPanels(d) {
 
 function updateDomainPanels(d) {
   /* Called on silent polls — refreshes button labels + table rows without rebuilding the DOM */
-  const buildRows = (rows, total) => {
-    if (!rows || !rows.length) return '<tr><td colspan="5" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+  const buildRows = (rows, total, icMap) => {
+    if (!rows || !rows.length) return '<tr><td colspan="6" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
     return rows.map(r => {
       const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+      const clicks = (icMap||{})[r[0]] || 0;
+      const clickBadge = clicks > 0
+        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500"><i data-lucide="mouse-pointer-click" style="width:10px;height:10px;display:inline-block"></i>${clicks.toLocaleString()}</span>`
+        : `<span class="text-[10px] text-slate-400 font-mono">—</span>`;
       return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
         <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
         <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
         <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
         <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+        <td class="px-3 py-2 text-center">${clickBadge}</td>
         <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
       </tr>`;
     }).join('');
@@ -1516,14 +1583,14 @@ function updateDomainPanels(d) {
     const spamDiv = document.getElementById(`dp-spam-${key}`);
     if (spamDiv) {
       const tbody = spamDiv.querySelector('tbody');
-      if (tbody) tbody.innerHTML = buildRows(ent.rows, ent.hits);
+      if (tbody) tbody.innerHTML = buildRows(ent.rows, ent.hits, ent.icMap||{});
     }
 
     /* Update inbox table tbody */
     const inboxDiv = document.getElementById(`dp-inbox-${key}`);
     if (inboxDiv) {
       const tbody = inboxDiv.querySelector('tbody');
-      if (tbody) tbody.innerHTML = buildRows(ent.inboxRows||[], ent.inboxHits||0);
+      if (tbody) tbody.innerHTML = buildRows(ent.inboxRows||[], ent.inboxHits||0, ent.icMap||{});
     }
   });
 }
@@ -1539,6 +1606,7 @@ function buildAllCharts(d) {
   buildExtraCharts(d);
   buildFromNameCharts(d);
   buildDomainPieCharts(d);
+  buildWebActivityCharts(d);
   buildProxyCharts(d);
   if (G.activeFnTab) buildEntFnCharts(d, G.activeFnTab);
 }
@@ -1663,6 +1731,73 @@ function buildDomainPieCharts(d) {
   makeChart('inboxDomainPie', {type:'doughnut', data:{labels:names,
     datasets:[{data:inboxDomains.map(v=>v||0.01),backgroundColor:['#38bdf8','#a78bfa','#fbbf24','#94a3b8'],borderWidth:0,hoverOffset:8}]
   }, options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:8,padding:10,font:{size:10}}}}}});
+}
+
+function buildWebActivityCharts(d) {
+  /* ── Chart 1: Web Activity by entity (grouped bar — Plan A vs Plan B) ── */
+  const tssKeys  = ['tss1','tss2','tss3'];
+  const tssNames = tssKeys.map(k => (d.entityData[k]||{name:k}).name);
+  const planAClicks = tssKeys.map(k => (d.entityData[k]||{icTotalA:0}).icTotalA || 0);
+  const planBClicks = tssKeys.map(k => (d.entityData[k]||{icTotalB:0}).icTotalB || 0);
+
+  makeChart('webActivityByEntityChart', {type:'bar', data:{
+    labels: tssNames,
+    datasets:[
+      {label:'Plan A (IP)',    data: planAClicks, backgroundColor:'rgba(56,189,248,.80)',  borderRadius:8, borderSkipped:false},
+      {label:'Plan B (Offer)', data: planBClicks, backgroundColor:'rgba(167,139,250,.80)', borderRadius:8, borderSkipped:false},
+    ]
+  }, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'top', labels:{usePointStyle:true, pointStyleWidth:8, padding:12}},
+      tooltip:{callbacks:{label: c => `${c.dataset.label}: ${c.raw.toLocaleString()} clicks`}}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{font:{size:11,weight:'600'}}},
+      y:{grid:{color:gridColor()}, beginAtZero:true, ticks:{precision:0},
+         title:{display:true, text:'Link Clicks', font:{size:10}, color: tickColor()}}
+    }
+  }});
+
+  /* ── Chart 2: Active vs Inactive domains per entity (stacked bar) ── */
+  const activeCounts   = tssKeys.map(k => {
+    const ent = d.entityData[k]; if (!ent) return 0;
+    const allDomains = [...new Set([...(ent.rows||[]).map(r=>r[0]), ...(ent.inboxRows||[]).map(r=>r[0])])];
+    return allDomains.filter(dom => (ent.icMap||{})[dom] > 0).length;
+  });
+  const inactiveCounts = tssKeys.map(k => {
+    const ent = d.entityData[k]; if (!ent) return 0;
+    const allDomains = [...new Set([...(ent.rows||[]).map(r=>r[0]), ...(ent.inboxRows||[]).map(r=>r[0])])];
+    return allDomains.filter(dom => !((ent.icMap||{})[dom] > 0)).length;
+  });
+
+  makeChart('webActivityRatioChart', {type:'bar', data:{
+    labels: tssNames,
+    datasets:[
+      {label:'With Activity',    data: activeCounts,   backgroundColor:'rgba(52,211,153,.80)',  borderRadius:[8,8,0,0], borderSkipped:false, stack:'s'},
+      {label:'No Activity',      data: inactiveCounts, backgroundColor:'rgba(148,163,184,.35)', borderRadius:[8,8,0,0], borderSkipped:false, stack:'s'},
+    ]
+  }, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'top', labels:{usePointStyle:true, pointStyleWidth:8, padding:12}},
+      tooltip:{callbacks:{
+        label: c => `${c.dataset.label}: ${c.raw.toLocaleString()} domain${c.raw!==1?'s':''}`,
+        afterBody: items => {
+          const k = tssKeys[items[0].dataIndex];
+          const ent = d.entityData[k]; if (!ent) return '';
+          const total = activeCounts[items[0].dataIndex] + inactiveCounts[items[0].dataIndex];
+          const pct = total > 0 ? Math.round(activeCounts[items[0].dataIndex] / total * 100) : 0;
+          return [`${pct}% domains have web activity`];
+        }
+      }}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{font:{size:11,weight:'600'}}, stacked:true},
+      y:{grid:{color:gridColor()}, beginAtZero:true, ticks:{precision:0}, stacked:true,
+         title:{display:true, text:'Domains', font:{size:10}, color: tickColor()}}
+    }
+  }});
 }
 
 /* ════════════════════════════════════════════════════════

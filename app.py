@@ -5949,6 +5949,7 @@ def sf_csv(key):
 WARMUP_DIR        = os.path.join('tssApi', 'extensions')
 WARMUP_LISTS_FILE = os.path.join(WARMUP_DIR, 'Limit_lists.txt')
 WARMUP_TRACKER    = os.path.join(WARMUP_DIR, 'tracker.json')
+WARMUP_DISABLED_FILE = os.path.join(WARMUP_DIR, 'disabled_lists.json')
 
 def _warmup_load():
     """Return (lists: list[dict], tracker: dict)"""
@@ -5989,6 +5990,23 @@ def _warmup_save_lists(lists):
             f.write(f"{item['name']}, {item['total']}\n")
 
 
+def _warmup_load_disabled():
+    """Return a set of disabled list names."""
+    try:
+        if os.path.exists(WARMUP_DISABLED_FILE):
+            with open(WARMUP_DISABLED_FILE, 'r', encoding='utf-8') as f:
+                return set(json.load(f))
+    except Exception:
+        pass
+    return set()
+
+
+def _warmup_save_disabled(disabled_set):
+    os.makedirs(WARMUP_DIR, exist_ok=True)
+    with open(WARMUP_DISABLED_FILE, 'w', encoding='utf-8') as f:
+        json.dump(list(disabled_set), f, ensure_ascii=False, indent=2)
+
+
 @app.route('/warmup-lists')
 @login_required
 def warmup_lists_page():
@@ -6013,6 +6031,7 @@ def api_warmup_lists_get():
     lists, tracker = _warmup_load()
     is_tssw = current_user.entity.upper() == 'TSSW'
     user_entity = current_user.entity.upper()
+    disabled_set = _warmup_load_disabled()
     enriched = []
     for item in lists:
         # Non-TSSW users only see their entity's lists
@@ -6022,7 +6041,8 @@ def api_warmup_lists_get():
         used      = tracker.get(item['name'], 0)
         remaining = max(0, item['total'] - used)
         enriched.append({'name': item['name'], 'total': item['total'],
-                         'used': used, 'remaining': remaining})
+                         'used': used, 'remaining': remaining,
+                         'disabled': item['name'] in disabled_set})
     return jsonify({
         'lists': enriched,
         'is_admin': current_user.has_warmup_lists_admin_permission,
@@ -6049,6 +6069,11 @@ def api_warmup_add_record(name):
     lists, tracker = _warmup_load()
     if not any(item['name'] == name for item in lists):
         return jsonify({'error': 'List not found'}), 404
+
+    # Block records on disabled lists
+    disabled_set = _warmup_load_disabled()
+    if name in disabled_set:
+        return jsonify({'error': 'This list is disabled. No new records can be added.'}), 403
 
     # Update tracker
     current_val = tracker.get(name, 0)
@@ -6157,7 +6182,52 @@ def api_warmup_lists_delete(name):
     if len(new_lists) == len(lists):
         return jsonify({'error': 'List not found'}), 404
     _warmup_save_lists(new_lists)
+    # Also remove from disabled set if present
+    disabled_set = _warmup_load_disabled()
+    if name in disabled_set:
+        disabled_set.discard(name)
+        _warmup_save_disabled(disabled_set)
     return jsonify({'success': True})
+
+
+@app.route('/api/warmup-lists/<path:name>/toggle-disable', methods=['POST'])
+@login_required
+def api_warmup_toggle_disable(name):
+    if not current_user.has_warmup_lists_admin_permission:
+        return jsonify({'error': 'Unauthorized'}), 403
+    data    = request.get_json() or {}
+    disable = data.get('disable')  # True = disable the list, False = re-enable it
+
+    lists, _ = _warmup_load()
+    idx = next((i for i, item in enumerate(lists) if item['name'] == name), None)
+    if idx is None:
+        return jsonify({'error': 'List not found'}), 404
+
+    disabled_set = _warmup_load_disabled()
+
+    if disable:
+        # Disabling: set total to 0 in Limit_lists.txt
+        lists[idx]['total'] = 0
+        _warmup_save_lists(lists)
+        disabled_set.add(name)
+        _warmup_save_disabled(disabled_set)
+        return jsonify({'success': True})
+    else:
+        # Enabling: require new_total > 0
+        new_total = data.get('new_total')
+        if new_total is None:
+            return jsonify({'error': 'Total is required when enabling a list'}), 400
+        try:
+            new_total = int(new_total)
+            if new_total <= 0:
+                raise ValueError()
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Maximum emails must be greater than 0 to enable the list'}), 400
+        lists[idx]['total'] = new_total
+        _warmup_save_lists(lists)
+        disabled_set.discard(name)
+        _warmup_save_disabled(disabled_set)
+        return jsonify({'success': True})
 
 
 WARMUP_HISTORY_FILE = os.path.join(WARMUP_DIR, 'History.json')

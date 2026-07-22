@@ -28,6 +28,61 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* ── Multi-select dropdown filters ── */
+        .ms-wrap { position: relative; width: 100%; }
+        .ms-btn {
+            width: 100%;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-family: inherit;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            color: #374151;
+            white-space: nowrap;
+            transition: border-color .15s;
+        }
+        .ms-btn:hover { border-color: #9ca3af; background: #f9fafb; }
+        .ms-btn.active { border-color: #6366f1; color: #4f46e5; }
+        .ms-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 3px);
+            left: 0;
+            z-index: 9999;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.14);
+            min-width: 120px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .ms-menu.open { display: block; }
+        .ms-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            white-space: nowrap;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        .ms-menu-item:hover { background: #f3f4f6; }
+        .ms-menu-item input[type=checkbox] { accent-color: #6366f1; cursor: pointer; }
+        .ms-divider { border: none; border-top: 1px solid #e5e7eb; margin: 3px 0; }
+
         .results-scroll table {
             table-layout: fixed;
             width: 100%;
@@ -435,37 +490,40 @@
                 </button>
             </div>
         </th>
-        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="overflow:visible;">
             <div class="flex flex-col items-start gap-1">
                 <span class="whitespace-nowrap">SPF</span>
-                <select id="spfFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
-                    <option value="All">All</option>
-                    <option value="PASS">PASS</option>
-                    <option value="NEUTRAL">NEUTRAL</option>
-                    <option value="UNKNOWN">UNKNOWN</option>
-                </select>
+                <div class="ms-wrap" id="spfWrap">
+                    <button type="button" class="ms-btn" id="spfBtn" onclick="toggleMs('spf')">
+                        <span id="spfLabel">All</span>
+                        <i class="fas fa-chevron-down" style="font-size:8px;opacity:.6;"></i>
+                    </button>
+                    <div class="ms-menu" id="spfMenu"></div>
+                </div>
             </div>
         </th>
-        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="overflow:visible;">
             <div class="flex flex-col items-start gap-1">
                 <span class="whitespace-nowrap">DKIM</span>
-                <select id="dkimFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
-                    <option value="All">All</option>
-                    <option value="PASS">PASS</option>
-                    <option value="NEUTRAL">NEUTRAL</option>
-                    <option value="UNKNOWN">UNKNOWN</option>
-                </select>
+                <div class="ms-wrap" id="dkimWrap">
+                    <button type="button" class="ms-btn" id="dkimBtn" onclick="toggleMs('dkim')">
+                        <span id="dkimLabel">All</span>
+                        <i class="fas fa-chevron-down" style="font-size:8px;opacity:.6;"></i>
+                    </button>
+                    <div class="ms-menu" id="dkimMenu"></div>
+                </div>
             </div>
         </th>
-        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="overflow:visible;">
             <div class="flex flex-col items-start gap-1">
                 <span class="whitespace-nowrap">DMARC</span>
-                <select id="dmarcFilter" class="w-full bg-white border border-gray-300 rounded px-1 py-1 text-xs">
-                    <option value="All">All</option>
-                    <option value="PASS">PASS</option>
-                    <option value="NEUTRAL">NEUTRAL</option>
-                    <option value="UNKNOWN">UNKNOWN</option>
-                </select>
+                <div class="ms-wrap" id="dmarcWrap">
+                    <button type="button" class="ms-btn" id="dmarcBtn" onclick="toggleMs('dmarc')">
+                        <span id="dmarcLabel">All</span>
+                        <i class="fas fa-chevron-down" style="font-size:8px;opacity:.6;"></i>
+                    </button>
+                    <div class="ms-menu" id="dmarcMenu"></div>
+                </div>
             </div>
         </th>
         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -583,6 +641,7 @@
                         done = true;
                         extractedData = pollResult.data;
                         filteredData = [...pollResult.data];
+                        buildDynamicFilters(extractedData);
                         displayResults(filteredData);
                         updateCounts();
                         resultsSection.classList.remove('hidden');
@@ -672,45 +731,108 @@
             }
         }
 
+        // ── Multi-select dropdown helpers ─────────────────────
+        const MS_FIELDS = ['spf', 'dkim', 'dmarc'];
+        const MS_KEY    = { spf: 'spf_status', dkim: 'dkim_status', dmarc: 'dmarc_status' };
+
+        function toggleMs(field) {
+            // Close other open menus first
+            MS_FIELDS.forEach(f => {
+                if (f !== field) document.getElementById(f + 'Menu').classList.remove('open');
+            });
+            const menu = document.getElementById(field + 'Menu');
+            menu.classList.toggle('open');
+        }
+
+        // Close menus on outside click
+        document.addEventListener('click', function(e) {
+            MS_FIELDS.forEach(f => {
+                const wrap = document.getElementById(f + 'Wrap');
+                if (wrap && !wrap.contains(e.target)) {
+                    document.getElementById(f + 'Menu').classList.remove('open');
+                }
+            });
+        });
+
+        function getMsSelected(field) {
+            // Returns array of checked values; empty array means "All"
+            return [...document.querySelectorAll(`#${field}Menu input[data-val]:checked`)]
+                .map(cb => cb.dataset.val);
+        }
+
+        function updateMsLabel(field) {
+            const sel = getMsSelected(field);
+            const labelEl = document.getElementById(field + 'Label');
+            const btnEl   = document.getElementById(field + 'Btn');
+            if (sel.length === 0) {
+                labelEl.textContent = 'All';
+                btnEl.classList.remove('active');
+            } else if (sel.length === 1) {
+                labelEl.textContent = sel[0];
+                btnEl.classList.add('active');
+            } else {
+                labelEl.textContent = sel.length + ' selected';
+                btnEl.classList.add('active');
+            }
+        }
+
+        function onMsAll(field) {
+            // Uncheck all value checkboxes when "All" is toggled on
+            document.querySelectorAll(`#${field}Menu input[data-val]`)
+                .forEach(cb => cb.checked = false);
+            // Keep "All" checked
+            document.getElementById(field + 'AllCheck').checked = true;
+            updateMsLabel(field);
+            applyFilters();
+        }
+
+        function onMsValue(field) {
+            const any = getMsSelected(field).length > 0;
+            // If at least one value is selected, uncheck "All"
+            document.getElementById(field + 'AllCheck').checked = !any;
+            updateMsLabel(field);
+            applyFilters();
+        }
+
+        function buildDynamicFilters(data) {
+            MS_FIELDS.forEach(field => {
+                const key    = MS_KEY[field];
+                const values = [...new Set(data.map(e => e[key]).filter(Boolean))].sort();
+                const menu   = document.getElementById(field + 'Menu');
+
+                menu.innerHTML =
+                    `<label class="ms-menu-item">
+                        <input type="checkbox" id="${field}AllCheck" checked
+                               onchange="onMsAll('${field}')"> All
+                    </label>
+                    <hr class="ms-divider">` +
+                    values.map(v =>
+                        `<label class="ms-menu-item">
+                            <input type="checkbox" data-val="${v}"
+                                   onchange="onMsValue('${field}')"> ${v}
+                        </label>`
+                    ).join('');
+
+                updateMsLabel(field);
+            });
+        }
+
+        // ── Main filter function ──────────────────────────────
         function applyFilters() {
-            const domainFilter = document.getElementById('filter_domain').value.toLowerCase().trim();
+            const domainFilter  = document.getElementById('filter_domain').value.toLowerCase().trim();
             const subjectFilter = document.getElementById('filter_subject').value.toLowerCase().trim();
-            const spfFilter = document.getElementById('spfFilter').value;
-            const dkimFilter = document.getElementById('dkimFilter').value;
-            const dmarcFilter = document.getElementById('dmarcFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
+            const spfSel        = getMsSelected('spf');
+            const dkimSel       = getMsSelected('dkim');
+            const dmarcSel      = getMsSelected('dmarc');
+            const typeFilter    = document.getElementById('typeFilter').value;
 
             filteredData = extractedData.filter(email => {
-                // Domain filter
-                if (domainFilter && !email.from_domain.toLowerCase().includes(domainFilter)) {
-                    return false;
-                }
-                
-                // Subject filter
-                if (subjectFilter && !email.subject.toLowerCase().includes(subjectFilter)) {
-                    return false;
-                }
-                
-                // SPF filter
-                if (spfFilter !== 'All' && email.spf_status !== spfFilter) {
-                    return false;
-                }
-                
-                // DKIM filter
-                if (dkimFilter !== 'All' && email.dkim_status !== dkimFilter) {
-                    return false;
-                }
-                
-                // DMARC filter
-                if (dmarcFilter !== 'All' && email.dmarc_status !== dmarcFilter) {
-                    return false;
-                }
-                
-                // Type filter
-                if (typeFilter !== 'All' && email.email_type !== typeFilter) {
-                    return false;
-                }
-                
+                if (domainFilter  && !email.from_domain.toLowerCase().includes(domainFilter))  return false;
+                if (subjectFilter && !email.subject.toLowerCase().includes(subjectFilter))      return false;
+                if (spfSel.length  > 0 && !spfSel.includes(email.spf_status))                 return false;
+                if (dkimSel.length > 0 && !dkimSel.includes(email.dkim_status))               return false;
+                if (dmarcSel.length > 0 && !dmarcSel.includes(email.dmarc_status))            return false;
+                if (typeFilter !== 'All' && email.email_type !== typeFilter)                   return false;
                 return true;
             });
 
@@ -718,12 +840,9 @@
             updateCounts();
         }
 
-        // Add event listeners for all filters
+        // Static filter event listeners
         document.getElementById('filter_domain').addEventListener('input', applyFilters);
         document.getElementById('filter_subject').addEventListener('input', applyFilters);
-        document.getElementById('spfFilter').addEventListener('change', applyFilters);
-        document.getElementById('dkimFilter').addEventListener('change', applyFilters);
-        document.getElementById('dmarcFilter').addEventListener('change', applyFilters);
         document.getElementById('typeFilter').addEventListener('change', applyFilters);
 
         // Copy IP addresses functionality - robust solution for web environments

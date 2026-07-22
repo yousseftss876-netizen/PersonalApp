@@ -256,6 +256,54 @@
         .btn-icon.danger:hover     { background: #fee2e2; border-color: #fca5a5; }
         .btn-icon.danger:hover i   { color: #dc2626; }
 
+        /* ── Disable toggle ── */
+        .toggle-wrap {
+            display: inline-flex; align-items: center; gap: 7px;
+            cursor: pointer; user-select: none;
+        }
+        .toggle-label-text {
+            font-size: 11px; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .04em;
+            white-space: nowrap;
+        }
+        .toggle-input { display: none; }
+        .toggle-slider {
+            width: 38px; height: 21px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            position: relative;
+            transition: background .2s;
+            flex-shrink: 0;
+        }
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            left: 3px; top: 3px;
+            width: 15px; height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform .2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        }
+        .toggle-input:checked + .toggle-slider { background: #ef4444; }
+        .toggle-input:checked + .toggle-slider::after { transform: translateX(17px); }
+        .toggle-container {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            transition: border-color .15s;
+        }
+        .toggle-container:hover { border-color: #fca5a5; }
+
+        /* ── Disabled list card ── */
+        .list-card.is-disabled { opacity: .7; background: #fafafa; }
+        .list-card.is-disabled .list-badge { background: #f1f5f9; }
+        .list-card.is-disabled .list-badge i { color: #94a3b8; }
+        .list-card.is-disabled .progress-bar { background: #cbd5e1; }
+        .pill-disabled { background: #fee2e2; color: #991b1b; font-weight: 700; }
+
         /* ── Empty state ── */
         .empty-state {
             text-align: center;
@@ -1342,6 +1390,62 @@
     </div>
 </div>
 
+<!-- ── Disable Confirm Modal ── -->
+<div class="modal-backdrop" id="disableConfirmModal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-head-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">
+                <i class="ph ph-prohibit"></i>
+            </div>
+            <div>
+                <h2>Disable List</h2>
+                <p>This will block all new sent records</p>
+            </div>
+        </div>
+        <p style="font-size:14px;color:#475569;line-height:1.6;">
+            Are you sure you want to disable <strong id="disableConfirmName"></strong>?<br>
+            Its maximum limit will be set to <strong>0</strong> and no one will be able to add new sent records until it is re-enabled.
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="cancelToggle()">Cancel</button>
+            <button class="btn-delete-confirm" onclick="doDisable()" style="background:linear-gradient(135deg,#ef4444,#f97316);">
+                <i class="ph ph-prohibit" style="margin-right:5px;vertical-align:-2px;"></i>Yes, Disable
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Enable Modal (needs new total) ── -->
+<div class="modal-backdrop" id="enableModal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-head-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">
+                <i class="ph ph-check-circle"></i>
+            </div>
+            <div>
+                <h2>Re-enable List</h2>
+                <p id="enableModalSub">Set a new maximum limit to activate</p>
+            </div>
+        </div>
+        <p style="font-size:13px;color:#475569;margin-bottom:16px;line-height:1.6;">
+            You are about to re-enable <strong id="enableConfirmName"></strong>.<br>
+            Please set a new maximum number of emails allowed (must be greater than 0).
+        </p>
+        <div class="form-group">
+            <label class="form-label">Maximum Emails Allowed</label>
+            <input class="form-input" id="enableTotalField" type="number" min="1" step="1" placeholder="e.g. 600"
+                   onkeydown="if(event.key==='Enter') doEnable()"/>
+            <div class="form-hint">Must be greater than 0 to activate the list</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="cancelToggle()">Cancel</button>
+            <button class="btn-save" id="enableSaveBtn" onclick="doEnable()">
+                <i class="ph ph-check-circle" style="margin-right:5px;vertical-align:-2px;"></i>Enable
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ── Toast container ── -->
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -1357,7 +1461,7 @@ let _hasAddRecord = false;
 
 // ── Boot — DOMContentLoaded is wired at bottom after fetchLists is defined ──
 
-['editModal','delModal'].forEach(id => {
+['editModal','delModal','disableConfirmModal','enableModal'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) closeModals();
     });
@@ -1449,17 +1553,33 @@ function renderLists(lists) {
         const pct     = l.total > 0 ? Math.min(100, Math.round((l.used / l.total) * 100)) : 0;
         const remain  = l.remaining;
         const isEmpty = remain <= 0;
-        const remainPill = isEmpty
-            ? `<span class="pill pill-empty"><i class="ph ph-x-circle"></i> Empty</span>`
-            : `<span class="pill pill-remain"><i class="ph ph-arrow-right"></i> ${remain.toLocaleString()} remain</span>`;
+        const isDisabled = !!l.disabled;
 
-        const addRecordBtn = _hasAddRecord ? `
+        const remainPill = isDisabled
+            ? `<span class="pill pill-disabled"><i class="ph ph-prohibit"></i> Disabled</span>`
+            : isEmpty
+                ? `<span class="pill pill-empty"><i class="ph ph-x-circle"></i> Empty</span>`
+                : `<span class="pill pill-remain"><i class="ph ph-arrow-right"></i> ${remain.toLocaleString()} remain</span>`;
+
+        // Add-record button: hidden when list is disabled
+        const addRecordBtn = (_hasAddRecord && !isDisabled) ? `
             <button class="btn-icon" title="Add Sent Record" onclick="openAddRecordModal(${esc(JSON.stringify(l.name))})" style="color:#6366f1;border-color:#c7d2fe;background:#f0f0ff;">
                 <i class="ph ph-plus-circle"></i>
             </button>` : '';
 
+        // Disable toggle: only for admins
+        const disableToggle = _isAdmin ? `
+            <div class="toggle-container" title="${isDisabled ? 'List is disabled — click to re-enable' : 'Click to disable this list'}">
+                <span class="toggle-label-text">${isDisabled ? 'Disabled' : 'Disable'}</span>
+                <label class="toggle-wrap">
+                    <input type="checkbox" class="toggle-input" ${isDisabled ? 'checked' : ''}
+                           onchange="confirmToggleDisable(${esc(JSON.stringify(l.name))}, this.checked, this)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>` : '';
+
         const adminActions = (_isAdmin || _hasAddRecord) ? `
-            <div class="list-actions">
+            <div class="list-actions" style="align-items:center;">
                 ${addRecordBtn}
                 ${_isAdmin ? `
                 <button class="btn-icon" title="Edit" onclick="openEditModal(${esc(JSON.stringify(l.name))})">
@@ -1467,11 +1587,12 @@ function renderLists(lists) {
                 </button>
                 <button class="btn-icon danger" title="Delete" onclick="openDeleteModal(${esc(JSON.stringify(l.name))})">
                     <i class="ph ph-trash"></i>
-                </button>` : ''}
+                </button>
+                ${disableToggle}` : ''}
             </div>` : '';
 
         return `
-        <div class="list-card">
+        <div class="list-card${isDisabled ? ' is-disabled' : ''}">
             <div class="list-card-left">
                 <div class="list-badge"><i class="ph ph-envelope"></i></div>
                 <div class="list-info">
@@ -1578,12 +1699,96 @@ async function confirmDelete() {
 function closeModals() {
     document.getElementById('editModal').classList.remove('open');
     document.getElementById('delModal').classList.remove('open');
+    document.getElementById('disableConfirmModal').classList.remove('open');
+    document.getElementById('enableModal').classList.remove('open');
     _editMode = null;
     _deleteTarget = null;
+    // Revert any pending toggle checkbox if user cancels
+    if (_pendingToggleEl) {
+        _pendingToggleEl.checked = !_pendingToggleEl.checked;
+        _pendingToggleEl = null;
+    }
+    _pendingToggleName = null;
+}
+
+// ── Disable / Enable toggle ────────────────────────────
+let _pendingToggleName = null;
+let _pendingToggleEl   = null;
+
+function confirmToggleDisable(name, wantsDisabled, checkboxEl) {
+    _pendingToggleName = name;
+    _pendingToggleEl   = checkboxEl;
+
+    if (wantsDisabled) {
+        // Show disable confirmation
+        document.getElementById('disableConfirmName').textContent = name;
+        document.getElementById('disableConfirmModal').classList.add('open');
+    } else {
+        // Show enable modal (need new total)
+        document.getElementById('enableConfirmName').textContent = name;
+        document.getElementById('enableTotalField').value = '';
+        document.getElementById('enableSaveBtn').disabled = false;
+        document.getElementById('enableModal').classList.add('open');
+        setTimeout(() => document.getElementById('enableTotalField').focus(), 150);
+    }
+}
+
+function cancelToggle() {
+    closeModals();
+}
+
+async function doDisable() {
+    if (!_pendingToggleName) return;
+    const name = _pendingToggleName;
+    _pendingToggleEl = null; // keep checkbox in its new state
+    document.getElementById('disableConfirmModal').classList.remove('open');
+    _pendingToggleName = null;
+    try {
+        const res = await api(`/api/warmup-lists/${encodeURIComponent(name)}/toggle-disable`, 'POST', { disable: true });
+        if (res.success) {
+            showToast(`"${name}" has been disabled`, 'ok');
+            await fetchLists();
+        } else {
+            showToast(res.error || 'Failed to disable list', 'err');
+            await fetchLists(); // revert UI state
+        }
+    } catch(e) {
+        showToast('Failed to disable list', 'err');
+        await fetchLists();
+    }
+}
+
+async function doEnable() {
+    if (!_pendingToggleName) return;
+    const totalRaw = document.getElementById('enableTotalField').value.trim();
+    const newTotal = parseInt(totalRaw, 10);
+    if (!totalRaw || isNaN(newTotal) || newTotal <= 0) {
+        showToast('Please enter a number greater than 0', 'err');
+        return;
+    }
+    const name = _pendingToggleName;
+    const btn  = document.getElementById('enableSaveBtn');
+    btn.disabled = true;
+    _pendingToggleEl = null;
+    try {
+        const res = await api(`/api/warmup-lists/${encodeURIComponent(name)}/toggle-disable`, 'POST', { disable: false, new_total: newTotal });
+        if (res.success) {
+            document.getElementById('enableModal').classList.remove('open');
+            _pendingToggleName = null;
+            showToast(`"${name}" has been enabled with limit ${newTotal.toLocaleString()}`, 'ok');
+            await fetchLists();
+        } else {
+            showToast(res.error || 'Failed to enable list', 'err');
+            btn.disabled = false;
+        }
+    } catch(e) {
+        showToast('Failed to enable list', 'err');
+        btn.disabled = false;
+    }
 }
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModals(); closeMsgModal(); closeAddRecordModal(); }
+    if (e.key === 'Escape') { closeModals(); closeMsgModal(); closeAddRecordModal(); }  // disableConfirmModal + enableModal handled inside closeModals()
     if (e.key === 'Enter' && document.getElementById('editModal').classList.contains('open')) {
         saveList();
     }
