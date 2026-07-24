@@ -323,9 +323,21 @@ def compress_and_log_response(response):
 
 
 if not app.secret_key:
-    
-    app.secret_key = "dev-secret-key-change-in-production"
-    logging.warning("Using development fallback for SESSION_SECRET. Set SESSION_SECRET environment variable for production.")
+    # No SESSION_SECRET env var — generate a stable random secret and persist it
+    # so sessions survive app restarts without requiring manual configuration.
+    _secret_file = os.path.join(os.path.dirname(__file__), '.session_secret')
+    try:
+        if os.path.exists(_secret_file):
+            with open(_secret_file, 'r') as _f:
+                app.secret_key = _f.read().strip()
+        else:
+            import secrets as _secrets
+            app.secret_key = _secrets.token_hex(32)
+            with open(_secret_file, 'w') as _f:
+                _f.write(app.secret_key)
+    except Exception:
+        import secrets as _secrets
+        app.secret_key = _secrets.token_hex(32)
 
 
 login_manager = LoginManager()
@@ -6508,4 +6520,12 @@ def page_not_found(e):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    import subprocess, sys
+    subprocess.run([
+        sys.executable, '-m', 'gunicorn',
+        '--bind', '0.0.0.0:5000',
+        '--workers', '1',
+        '--timeout', '120',
+        '--reuse-port',
+        'main:app'
+    ])

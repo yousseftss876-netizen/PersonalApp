@@ -158,10 +158,33 @@ def _make_snapshot(key, proc):
 
 # ── Recovery on startup ────────────────────────────────────────────────────────
 
+def _launch_process_thread(process_key, process_type, remaining, params):
+    """Start the correct background thread for a process type. Returns the thread or None."""
+    if process_type == 'include':
+        return threading.Thread(target=run_include_process, args=(process_key, remaining), daemon=True)
+    elif process_type == 'a_records':
+        return threading.Thread(target=run_a_records_process, args=(process_key, remaining), daemon=True)
+    elif process_type == 'ip':
+        target_ips = params.get('ips', [])
+        return threading.Thread(target=run_ip_process, args=(process_key, remaining, target_ips), daemon=True)
+    elif process_type == 'query':
+        queries = params.get('queries', [])
+        if isinstance(queries, str):
+            queries = [queries]
+        if not queries and params.get('query'):
+            queries = [params['query']]
+        queries = [q.strip() for q in queries if q.strip()]
+        return threading.Thread(target=run_query_process, args=(process_key, remaining, queries), daemon=True)
+    elif process_type == 'cname':
+        return threading.Thread(target=run_cname_process, args=(process_key, remaining), daemon=True)
+    return None
+
+
 def recover_interrupted_processes():
     """
     Called once at app startup. Marks any running/starting processes as
-    'interrupted' so users can see and resume them.
+    'interrupted' and immediately auto-resumes them so they continue from
+    where they left off without any user interaction.
     """
     if not os.path.exists(DATA_DIR):
         return
@@ -172,11 +195,15 @@ def recover_interrupted_processes():
         try:
             procs = load_persisted_processes(username)
             changed = False
+            to_resume = []
             for p in procs:
                 if p.get('status') in ('running', 'starting', 'stopping'):
                     p['status'] = 'interrupted'
                     p['finished_at'] = p.get('finished_at') or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     changed = True
+                # Queue for auto-resume: anything interrupted (newly or already on disk)
+                if p.get('status') == 'interrupted' and not p.get('deleted', False):
+                    to_resume.append(dict(p))
                 avail = p.get('availability')
                 if avail and avail.get('status') == 'running':
                     avail['status'] = 'error'
@@ -185,6 +212,57 @@ def recover_interrupted_processes():
                     changed = True
             if changed:
                 save_persisted_processes(username, procs)
+
+            # Auto-resume every interrupted process without waiting for the user
+            for snapshot in to_resume:
+                try:
+                    process_key = snapshot['key']
+                    process_type = snapshot.get('type', '')
+                    params = snapshot.get('params', {})
+                    completed = set(snapshot.get('completed_domains', []))
+                    all_domains = snapshot.get('domains_input', [])
+                    remaining = [d for d in all_domains if d not in completed]
+
+                    if not remaining:
+                        # Nothing left — just mark completed on disk
+                        snapshot['status'] = 'completed'
+                        snapshot['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        persist_process(username, snapshot)
+                        continue
+
+                    with process_lock:
+                        user_processes[process_key] = {
+                            'key': process_key,
+                            'type': process_type,
+                            'username': username,
+                            'status': 'starting',
+                            'progress': snapshot.get('progress', 0),
+                            'total': snapshot.get('total', len(all_domains)),
+                            'results': list(snapshot.get('results', [])),
+                            'started_at': snapshot.get('started_at', ''),
+                            'finished_at': '',
+                            'stop_flag': False,
+                            'params': params,
+                            'domains_input': all_domains,
+                            'completed_domains': completed,
+                            'deleted': False,
+                            'deleted_at': '',
+                        }
+
+                    thread = _launch_process_thread(process_key, process_type, remaining, params)
+                    if thread:
+                        thread.start()
+                        logger.info('Auto-resumed %s process %s for %s (%d domains remaining)',
+                                    process_type, process_key, username, len(remaining))
+                    else:
+                        with process_lock:
+                            if process_key in user_processes:
+                                del user_processes[process_key]
+                        logger.warning('Unknown process type %s for key %s — left as interrupted',
+                                       process_type, process_key)
+                except Exception as e:
+                    logger.error('Auto-resume failed for process %s (user %s): %s',
+                                 snapshot.get('key', '?'), username, e)
         except Exception as e:
             logger.error('Recovery error for %s: %s', username, e)
 
@@ -426,49 +504,61 @@ def run_include_process(process_key, domains):
     if not proc:
         return
     username = proc.get('username', '')
-    proc['status'] = 'running'
-    proc['total'] = proc.get('total', len(domains))
+    try:
+        proc['status'] = 'running'
+        proc['total'] = proc.get('total', len(domains))
 
-    _last_persist = [time.time()]
+        _last_persist = [time.time()]
 
-    # Restore existing results dict keyed by domain to avoid duplicates
-    existing_results = {r['domain']: r for r in proc.get('results', []) if isinstance(r, dict)}
-    all_broken = dict(existing_results)
+        # Restore existing results dict keyed by domain to avoid duplicates
+        existing_results = {r['domain']: r for r in proc.get('results', []) if isinstance(r, dict)}
+        all_broken = dict(existing_results)
 
-    for i, domain in enumerate(domains):
-        if proc.get('stop_flag'):
-            break
-        main_spf = get_spf_record(domain)
-        if main_spf:
-            broken_list = check_includes_recursive(domain)
-            for item in broken_list:
-                d = item['domain']
-                if d == domain:
-                    continue
-                if d not in all_broken:
-                    all_broken[d] = {
-                        'domain': d,
-                        'path': item['path'],
-                        'source': item['source'],
-                        'type': 'include'
-                    }
-        proc['progress'] = proc.get('progress', 0) + 1
+        for i, domain in enumerate(domains):
+            if proc.get('stop_flag'):
+                break
+            try:
+                main_spf = get_spf_record(domain)
+                if main_spf:
+                    broken_list = check_includes_recursive(domain)
+                    for item in broken_list:
+                        d = item['domain']
+                        if d == domain:
+                            continue
+                        if d not in all_broken:
+                            all_broken[d] = {
+                                'domain': d,
+                                'path': item['path'],
+                                'source': item['source'],
+                                'type': 'include'
+                            }
+            except Exception as e:
+                logger.warning('include process error on domain %s: %s', domain, e)
+            proc['progress'] = proc.get('progress', 0) + 1
+            proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
+
+            # Track completed domains
+            cd = proc.setdefault('completed_domains', set())
+            if isinstance(cd, list):
+                cd = set(cd)
+                proc['completed_domains'] = cd
+            cd.add(domain)
+
+            _periodic_persist(process_key, username, _last_persist)
+            time.sleep(0.05)
+
         proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
-
-        # Track completed domains
-        cd = proc.setdefault('completed_domains', set())
-        if isinstance(cd, list):
-            cd = set(cd)
-            proc['completed_domains'] = cd
-        cd.add(domain)
-
-        _periodic_persist(process_key, username, _last_persist)
-        time.sleep(0.05)
-
-    proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
-    proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
-    proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    persist_process(username, _make_snapshot(process_key, proc))
+        proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
+        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        persist_process(username, _make_snapshot(process_key, proc))
+    except Exception as e:
+        logger.error('run_include_process crashed for key %s: %s', process_key, e, exc_info=True)
+        try:
+            proc['status'] = 'interrupted'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+        except Exception:
+            pass
 
 
 def run_a_records_process(process_key, domains):
@@ -476,46 +566,58 @@ def run_a_records_process(process_key, domains):
     if not proc:
         return
     username = proc.get('username', '')
-    proc['status'] = 'running'
-    proc['total'] = proc.get('total', len(domains))
+    try:
+        proc['status'] = 'running'
+        proc['total'] = proc.get('total', len(domains))
 
-    _last_persist = [time.time()]
+        _last_persist = [time.time()]
 
-    existing_results = {r['domain']: r for r in proc.get('results', []) if isinstance(r, dict)}
-    all_broken = dict(existing_results)
+        existing_results = {r['domain']: r for r in proc.get('results', []) if isinstance(r, dict)}
+        all_broken = dict(existing_results)
 
-    for i, domain in enumerate(domains):
-        if proc.get('stop_flag'):
-            break
-        spf_record = get_spf_record(domain)
-        if spf_record:
-            a_domains = extract_a_directives(spf_record)
-            for a_dom in a_domains:
-                a_spf = get_spf_record(a_dom)
-                if not a_spf:
-                    if a_dom not in all_broken:
-                        all_broken[a_dom] = {
-                            'domain': a_dom,
-                            'path': [domain, 'a:' + a_dom],
-                            'source': domain,
-                            'type': 'a_records'
-                        }
-        proc['progress'] = proc.get('progress', 0) + 1
+        for i, domain in enumerate(domains):
+            if proc.get('stop_flag'):
+                break
+            try:
+                spf_record = get_spf_record(domain)
+                if spf_record:
+                    a_domains = extract_a_directives(spf_record)
+                    for a_dom in a_domains:
+                        a_spf = get_spf_record(a_dom)
+                        if not a_spf:
+                            if a_dom not in all_broken:
+                                all_broken[a_dom] = {
+                                    'domain': a_dom,
+                                    'path': [domain, 'a:' + a_dom],
+                                    'source': domain,
+                                    'type': 'a_records'
+                                }
+            except Exception as e:
+                logger.warning('a_records process error on domain %s: %s', domain, e)
+            proc['progress'] = proc.get('progress', 0) + 1
+            proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
+
+            cd = proc.setdefault('completed_domains', set())
+            if isinstance(cd, list):
+                cd = set(cd)
+                proc['completed_domains'] = cd
+            cd.add(domain)
+
+            _periodic_persist(process_key, username, _last_persist)
+            time.sleep(0.05)
+
         proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
-
-        cd = proc.setdefault('completed_domains', set())
-        if isinstance(cd, list):
-            cd = set(cd)
-            proc['completed_domains'] = cd
-        cd.add(domain)
-
-        _periodic_persist(process_key, username, _last_persist)
-        time.sleep(0.05)
-
-    proc['results'] = sorted(all_broken.values(), key=lambda x: x['domain'])
-    proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
-    proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    persist_process(username, _make_snapshot(process_key, proc))
+        proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
+        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        persist_process(username, _make_snapshot(process_key, proc))
+    except Exception as e:
+        logger.error('run_a_records_process crashed for key %s: %s', process_key, e, exc_info=True)
+        try:
+            proc['status'] = 'interrupted'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+        except Exception:
+            pass
 
 
 def check_spf_for_ip(domain, ip):
@@ -533,65 +635,82 @@ def run_ip_process(process_key, domains, target_ips):
     if not proc:
         return
     username = proc.get('username', '')
-    proc['status'] = 'running'
-    proc['total'] = proc.get('total', len(domains))
+    try:
+        proc['status'] = 'running'
+        proc['total'] = proc.get('total', len(domains))
 
-    _last_persist = [time.time()]
+        _last_persist = [time.time()]
 
-    valid_ips = []
-    for ip in target_ips:
-        try:
-            socket.inet_pton(socket.AF_INET, ip)
-            valid_ips.append(ip)
-        except OSError:
+        valid_ips = []
+        for ip in target_ips:
             try:
-                socket.inet_pton(socket.AF_INET6, ip)
+                socket.inet_pton(socket.AF_INET, ip)
                 valid_ips.append(ip)
             except OSError:
-                continue
+                try:
+                    socket.inet_pton(socket.AF_INET6, ip)
+                    valid_ips.append(ip)
+                except OSError:
+                    continue
 
-    if not valid_ips:
-        proc['status'] = 'completed'
-        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        persist_process(username, _make_snapshot(process_key, proc))
-        return
+        if not valid_ips:
+            proc['status'] = 'completed'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+            return
 
-    def check_domain(domain):
-        if proc.get('stop_flag'):
-            return None
-        domain_passes = []
-        for ip in valid_ips:
+        def check_domain(domain):
             if proc.get('stop_flag'):
                 return None
-            result, explanation = check_spf_for_ip(domain, ip)
-            if result == 'pass':
-                domain_passes.append({'domain': domain, 'ip': ip, 'result': 'pass', 'type': 'ip'})
-        return domain_passes if domain_passes else None
+            try:
+                domain_passes = []
+                for ip in valid_ips:
+                    if proc.get('stop_flag'):
+                        return None
+                    result, explanation = check_spf_for_ip(domain, ip)
+                    if result == 'pass':
+                        domain_passes.append({'domain': domain, 'ip': ip, 'result': 'pass', 'type': 'ip'})
+                return domain_passes if domain_passes else None
+            except Exception as e:
+                logger.warning('ip process check_domain error on %s: %s', domain, e)
+                return None
 
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        futures = {executor.submit(check_domain, d): d for d in domains}
-        for future in as_completed(futures):
-            if proc.get('stop_flag'):
-                executor.shutdown(wait=False, cancel_futures=True)
-                break
-            proc['progress'] = proc.get('progress', 0) + 1
-            result = future.result()
-            domain = futures[future]
-            if result:
-                with process_lock:
-                    proc['results'].extend(result)
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            futures = {executor.submit(check_domain, d): d for d in domains}
+            for future in as_completed(futures):
+                if proc.get('stop_flag'):
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    break
+                proc['progress'] = proc.get('progress', 0) + 1
+                domain = futures[future]
+                try:
+                    result = future.result()
+                except Exception as e:
+                    logger.warning('ip process future error on %s: %s', domain, e)
+                    result = None
+                if result:
+                    with process_lock:
+                        proc['results'].extend(result)
 
-            cd = proc.setdefault('completed_domains', set())
-            if isinstance(cd, list):
-                cd = set(cd)
-                proc['completed_domains'] = cd
-            cd.add(domain)
+                cd = proc.setdefault('completed_domains', set())
+                if isinstance(cd, list):
+                    cd = set(cd)
+                    proc['completed_domains'] = cd
+                cd.add(domain)
 
-            _periodic_persist(process_key, username, _last_persist)
+                _periodic_persist(process_key, username, _last_persist)
 
-    proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
-    proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    persist_process(username, _make_snapshot(process_key, proc))
+        proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
+        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        persist_process(username, _make_snapshot(process_key, proc))
+    except Exception as e:
+        logger.error('run_ip_process crashed for key %s: %s', process_key, e, exc_info=True)
+        try:
+            proc['status'] = 'interrupted'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+        except Exception:
+            pass
 
 
 def run_cname_process(process_key, domains):
@@ -599,50 +718,127 @@ def run_cname_process(process_key, domains):
     if not proc:
         return
     username = proc.get('username', '')
-    proc['status'] = 'running'
-    proc['total'] = proc.get('total', len(domains))
+    try:
+        proc['status'] = 'running'
+        proc['total'] = proc.get('total', len(domains))
 
-    _last_persist = [time.time()]
+        _last_persist = [time.time()]
 
-    # Build seen set from existing results to avoid duplicates on resume
-    seen = set()
-    for r in proc.get('results', []):
-        if isinstance(r, dict):
-            seen.add((r.get('domain', ''), r.get('cname', '')))
+        # Build seen set from existing results to avoid duplicates on resume
+        seen = set()
+        for r in proc.get('results', []):
+            if isinstance(r, dict):
+                seen.add((r.get('domain', ''), r.get('cname', '')))
 
-    def check_domain(domain):
-        if proc.get('stop_flag'):
-            return []
-        cnames = get_cname_records(domain)
-        if not cnames:
-            return []
-        hits = []
-        for cname in cnames:
+        def check_domain(domain):
+            if proc.get('stop_flag'):
+                return []
+            try:
+                cnames = get_cname_records(domain)
+                if not cnames:
+                    return []
+                hits = []
+                for cname in cnames:
+                    if proc.get('stop_flag'):
+                        break
+                    try:
+                        main_cname = get_main_domain(cname)
+                        if not main_cname:
+                            continue
+                        spf_record = get_spf_record(main_cname)
+                        if not spf_record:
+                            key = (domain, main_cname)
+                            if key not in seen:
+                                seen.add(key)
+                                hits.append({'domain': domain, 'cname': main_cname, 'type': 'cname'})
+                    except Exception as e:
+                        logger.warning('cname process inner error on %s -> %s: %s', domain, cname, e)
+                return hits
+            except Exception as e:
+                logger.warning('cname process check_domain error on %s: %s', domain, e)
+                return []
+
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            futures = {executor.submit(check_domain, d): d for d in domains}
+            for future in as_completed(futures):
+                if proc.get('stop_flag'):
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    break
+                proc['progress'] = proc.get('progress', 0) + 1
+                domain = futures[future]
+                try:
+                    hits = future.result()
+                except Exception as e:
+                    logger.warning('cname process future error on %s: %s', domain, e)
+                    hits = []
+                if hits:
+                    with process_lock:
+                        for h in hits:
+                            proc['results'].append(h)
+                        proc['results'].sort(key=lambda x: (x['domain'], x['cname']))
+
+                cd = proc.setdefault('completed_domains', set())
+                if isinstance(cd, list):
+                    cd = set(cd)
+                    proc['completed_domains'] = cd
+                cd.add(domain)
+
+                _periodic_persist(process_key, username, _last_persist)
+
+        proc['results'].sort(key=lambda x: (x['domain'], x['cname']))
+        proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
+        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        persist_process(username, _make_snapshot(process_key, proc))
+    except Exception as e:
+        logger.error('run_cname_process crashed for key %s: %s', process_key, e, exc_info=True)
+        try:
+            proc['status'] = 'interrupted'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+        except Exception:
+            pass
+
+
+def run_query_process(process_key, domains, queries):
+    proc = user_processes.get(process_key)
+    if not proc:
+        return
+    username = proc.get('username', '')
+    try:
+        proc['status'] = 'running'
+        proc['total'] = proc.get('total', len(domains))
+
+        _last_persist = [time.time()]
+
+        # Normalise queries to a list
+        if isinstance(queries, str):
+            queries = [queries]
+        queries_lower = [q.lower() for q in queries]
+
+        # Build existing domain set to avoid duplicates on resume
+        existing_domains = {r['domain'] for r in proc.get('results', []) if isinstance(r, dict)}
+
+        for i, domain in enumerate(domains):
             if proc.get('stop_flag'):
                 break
-            main_cname = get_main_domain(cname)
-            spf_record = get_spf_record(main_cname)
-            if not spf_record:
-                key = (domain, main_cname)
-                if key not in seen:
-                    seen.add(key)
-                    hits.append({'domain': domain, 'cname': main_cname, 'type': 'cname'})
-        return hits
-
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        futures = {executor.submit(check_domain, d): d for d in domains}
-        for future in as_completed(futures):
-            if proc.get('stop_flag'):
-                executor.shutdown(wait=False, cancel_futures=True)
-                break
+            try:
+                spf_record = get_spf_record(domain)
+                if spf_record:
+                    spf_lower = spf_record.lower()
+                    matched = [q for q, ql in zip(queries, queries_lower) if ql in spf_lower]
+                    if matched and domain not in existing_domains:
+                        with process_lock:
+                            proc['results'].append({
+                                'domain': domain,
+                                'spf': spf_record,
+                                'query': ', '.join(matched),
+                                'matched_queries': matched,
+                                'type': 'query'
+                            })
+                        existing_domains.add(domain)
+            except Exception as e:
+                logger.warning('query process error on domain %s: %s', domain, e)
             proc['progress'] = proc.get('progress', 0) + 1
-            hits = future.result()
-            domain = futures[future]
-            if hits:
-                with process_lock:
-                    for h in hits:
-                        proc['results'].append(h)
-                    proc['results'].sort(key=lambda x: (x['domain'], x['cname']))
 
             cd = proc.setdefault('completed_domains', set())
             if isinstance(cd, list):
@@ -651,62 +847,19 @@ def run_cname_process(process_key, domains):
             cd.add(domain)
 
             _periodic_persist(process_key, username, _last_persist)
+            time.sleep(0.02)
 
-    proc['results'].sort(key=lambda x: (x['domain'], x['cname']))
-    proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
-    proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    persist_process(username, _make_snapshot(process_key, proc))
-
-
-def run_query_process(process_key, domains, queries):
-    proc = user_processes.get(process_key)
-    if not proc:
-        return
-    username = proc.get('username', '')
-    proc['status'] = 'running'
-    proc['total'] = proc.get('total', len(domains))
-
-    _last_persist = [time.time()]
-
-    # Normalise queries to a list
-    if isinstance(queries, str):
-        queries = [queries]
-    queries_lower = [q.lower() for q in queries]
-
-    # Build existing domain set to avoid duplicates on resume
-    existing_domains = {r['domain'] for r in proc.get('results', []) if isinstance(r, dict)}
-
-    for i, domain in enumerate(domains):
-        if proc.get('stop_flag'):
-            break
-        spf_record = get_spf_record(domain)
-        if spf_record:
-            spf_lower = spf_record.lower()
-            matched = [q for q, ql in zip(queries, queries_lower) if ql in spf_lower]
-            if matched and domain not in existing_domains:
-                with process_lock:
-                    proc['results'].append({
-                        'domain': domain,
-                        'spf': spf_record,
-                        'query': ', '.join(matched),
-                        'matched_queries': matched,
-                        'type': 'query'
-                    })
-                existing_domains.add(domain)
-        proc['progress'] = proc.get('progress', 0) + 1
-
-        cd = proc.setdefault('completed_domains', set())
-        if isinstance(cd, list):
-            cd = set(cd)
-            proc['completed_domains'] = cd
-        cd.add(domain)
-
-        _periodic_persist(process_key, username, _last_persist)
-        time.sleep(0.02)
-
-    proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
-    proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    persist_process(username, _make_snapshot(process_key, proc))
+        proc['status'] = 'stopped' if proc.get('stop_flag') else 'completed'
+        proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        persist_process(username, _make_snapshot(process_key, proc))
+    except Exception as e:
+        logger.error('run_query_process crashed for key %s: %s', process_key, e, exc_info=True)
+        try:
+            proc['status'] = 'interrupted'
+            proc['finished_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            persist_process(username, _make_snapshot(process_key, proc))
+        except Exception:
+            pass
 
 
 # ── Public start / control API ─────────────────────────────────────────────────
