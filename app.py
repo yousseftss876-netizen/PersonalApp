@@ -12,7 +12,7 @@ import urllib.parse
 import dns.resolver
 import mysql.connector
 import tldextract
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutureTimeoutError
 from flask import Flask, render_template, request, flash, jsonify, redirect, url_for, session, Response, stream_with_context, make_response
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
@@ -49,15 +49,28 @@ CORS(app, resources={
 })
 app.secret_key = os.environ.get("SESSION_SECRET")
 
-# Recover interrupted processes after any restart
+import threading as _threading
+
+# Recover interrupted processes after any restart — run in background so the
+# worker can bind and serve immediately instead of blocking gunicorn startup.
+# (domain_founder.recover_interrupted_processes() relaunches real DNS/SPF/
+# Namecheap work for any process left running; doing that synchronously here
+# was enough to blow past gunicorn's --timeout during boot.)
 import subdomain_finder as _sf_mod
 import domain_founder as _df_mod
-with app.app_context():
-    try:
-        _sf_mod.recover_interrupted_processes()
-        _df_mod.recover_interrupted_processes()
-    except Exception as _e:
-        pass
+
+def _run_recovery():
+    with app.app_context():
+        try:
+            _sf_mod.recover_interrupted_processes()
+        except Exception as _e:
+            logging.error(f"subdomain_finder recovery error: {_e}")
+        try:
+            _df_mod.recover_interrupted_processes()
+        except Exception as _e:
+            logging.error(f"domain_founder recovery error: {_e}")
+
+_threading.Thread(target=_run_recovery, daemon=True, name="startup-recovery").start()
 
 
 DB_CONFIG = {
@@ -107,7 +120,6 @@ def setup_logging():
         werkzeug_logger.addHandler(handler)
         werkzeug_logger.propagate = False
         app._logging_setup_done = True
-import threading as _threading
 import ip_checker
 
 try:
@@ -268,7 +280,14 @@ import email_founder
 import subdomain_finder
 import gzip as _gzip
 
-logging.basicConfig(level=logging.DEBUG)
+# Root logger at INFO. DEBUG here would also make every imported library
+# (dns.resolver, requests, imaplib, urllib3, ...) log through the root
+# handler — Python's logging module serializes writes through one global
+# lock, so heavy concurrent thread activity (e.g. domain_founder recovery)
+# logging at DEBUG adds real contention on top of normal GIL contention.
+# Enable DEBUG on a specific logger when you need to trace something, e.g.:
+#   logging.getLogger('domain_founder').setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 def _fmt_bytes(n):
     """Format a byte count into a human-readable string."""
@@ -515,6 +534,44 @@ def get_real_arrival_time(email_message):
     
     return None
 
+
+# ── Bounded execution for public, synchronous CORS endpoints ───────────────
+#
+# /check_email and /count_emails are called synchronously by an external
+# Chrome extension expecting an immediate JSON response — they can't be
+# converted to the task_id/polling pattern used by /extract_emails without
+# also updating that extension. But connect_to_gmail() has a legitimate
+# worst case of several minutes (5 retries, up to 60s each, with growing
+# backoff sleeps in between), and count_emails_in_folders() can loop over
+# hundreds of messages on top of that. Left unbounded, a single slow/stuck
+# Gmail account can occupy a request thread long enough for gunicorn to
+# decide the whole worker is dead (WORKER TIMEOUT), taking every other
+# in-flight request down with it.
+#
+# _run_bounded() runs the blocking call on a small dedicated thread pool and
+# gives up after `timeout` seconds, returning a clean "timeout" error to the
+# caller instead. The underlying call keeps running in the background until
+# it finishes on its own (IMAP/DNS libraries have their own timeouts), but
+# the request thread — and therefore the gunicorn worker — is never held
+# hostage by it.
+_BOUNDED_CALL_POOL = ThreadPoolExecutor(max_workers=20, thread_name_prefix="bounded-call")
+_REQUEST_HARD_TIMEOUT_S = 100  # keep comfortably under gunicorn's --timeout 120
+
+
+def _run_bounded(fn, *args, timeout=_REQUEST_HARD_TIMEOUT_S, **kwargs):
+    """Run fn(*args, **kwargs) with a hard wall-clock timeout.
+
+    Returns (True, result) on success, or (False, None) if it didn't finish
+    in time. Never raises for a timeout — callers should treat (False, None)
+    as "still working, try again" rather than a hard failure.
+    """
+    future = _BOUNDED_CALL_POOL.submit(fn, *args, **kwargs)
+    try:
+        return True, future.result(timeout=timeout)
+    except FutureTimeoutError:
+        return False, None
+
+
 def count_emails_in_folders(email_addr, app_password, subject_filter=None, from_filter=None, received_after=None):
     """
     Count matching emails in INBOX and SPAM folders using REAL arrival time
@@ -722,8 +779,23 @@ def count_emails_endpoint():
                 'error': 'Invalid email format'
             }), 200
         
-        # Call the counting function with received_after parameter
-        result = count_emails_in_folders(email_addr, app_password, subject_filter, from_filter, received_after if received_after else None)
+        # Call the counting function with received_after parameter, bounded so a
+        # slow/stuck Gmail account can't hold this worker thread hostage.
+        ok, result = _run_bounded(
+            count_emails_in_folders,
+            email_addr, app_password, subject_filter, from_filter,
+            received_after if received_after else None,
+        )
+        if not ok:
+            response = jsonify({
+                'success': False,
+                'inbox_count': 0,
+                'spam_count': 0,
+                'total_count': 0,
+                'error': 'Timed out waiting for Gmail. Please try again.'
+            })
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
         
         # Add CORS headers for extension compatibility
         response = jsonify(result)
@@ -865,6 +937,92 @@ def load_users_from_file():
 
 USER_QUOTAS_FILE = 'user_quotas.json'
 
+def _check_email_core(email_addr, app_password, subject_filter, from_filter):
+    """Connect to Gmail and look for a matching email in INBOX then Spam.
+
+    Returns a plain location string: 'inbox', 'spam', 'not_found', or
+    'error: ...'. Runs on a worker thread via _run_bounded() so a stuck
+    IMAP connection can't hold up the calling request indefinitely.
+    """
+    mail = connect_to_gmail(email_addr, app_password)
+    if not mail:
+        return 'error: Authentication failed or connection error'
+
+    def find_matching_email(folder_name):
+        try:
+            mail.select(folder_name, readonly=True)
+            result, message_ids = mail.search(None, 'ALL')
+            if result != 'OK' or not message_ids[0]:
+                return False
+
+            uid_list = message_ids[0].split()
+            # Limit search to last 100 emails for performance
+            uid_list = uid_list[-100:] if len(uid_list) > 100 else uid_list
+
+            for uid in uid_list:
+                result, msg_data = mail.fetch(uid, '(BODY.PEEK[HEADER])')
+                if result != 'OK' or not msg_data or not msg_data[0]:
+                    continue
+
+                # Parse header data
+                if isinstance(msg_data[0], tuple) and len(msg_data[0]) >= 2:
+                    header_bytes = msg_data[0][1]
+                    if isinstance(header_bytes, bytes):
+                        email_message = email.message_from_bytes(header_bytes)
+                    else:
+                        continue
+
+                    # Apply subject filter if provided
+                    if subject_filter:
+                        email_subject = decode_mime_words(email_message.get('Subject', ''))
+                        if subject_filter.lower() not in email_subject.lower():
+                            continue
+
+                    # Apply from filter if provided
+                    if from_filter:
+                        email_from = email_message.get('From', '')
+                        if from_filter.lower() not in email_from.lower():
+                            continue
+
+                    # Found matching email!
+                    return True
+            return False
+        except Exception:
+            return False
+
+    try:
+        # Check INBOX first
+        if find_matching_email('INBOX'):
+            mail.logout()
+            return 'inbox'
+
+        # Check Spam folder
+        if find_matching_email('[Gmail]/Spam'):
+            mail.logout()
+            return 'spam'
+
+        # Email not found in either folder
+        mail.logout()
+        return 'not_found'
+
+    except imaplib.IMAP4.error as e:
+        try:
+            mail.logout()
+        except:
+            pass
+        error_msg = str(e).lower()
+        if 'authentication' in error_msg or 'login' in error_msg:
+            return 'error: Authentication failed. Use a valid Gmail App Password.'
+        return f'error: IMAP error - {str(e)}'
+
+    except Exception as e:
+        try:
+            mail.logout()
+        except:
+            pass
+        return f'error: {str(e)}'
+
+
 @app.route('/check_email', methods=['POST', 'OPTIONS'])
 def check_email_endpoint():
     # Handle OPTIONS preflight request
@@ -900,100 +1058,18 @@ def check_email_endpoint():
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 200
         
-        # Connect to Gmail using existing function
-        mail = connect_to_gmail(email_addr, app_password)
-        if not mail:
-            response = jsonify({'location': 'error: Authentication failed or connection error'})
+        # Bounded so a slow/stuck Gmail account can't hold this worker thread
+        # (and therefore the gunicorn worker) hostage past the safe window.
+        ok, location = _run_bounded(_check_email_core, email_addr, app_password, subject_filter, from_filter)
+        if not ok:
+            response = jsonify({'location': 'error: Timed out waiting for Gmail. Please try again.'})
             response.headers.add("Access-Control-Allow-Origin", "*")
             return response, 200
-        
-        try:
-            # Helper function to search for matching email in a folder
-            def find_matching_email(folder_name):
-                try:
-                    mail.select(folder_name, readonly=True)
-                    result, message_ids = mail.search(None, 'ALL')
-                    if result != 'OK' or not message_ids[0]:
-                        return False
-                    
-                    uid_list = message_ids[0].split()
-                    # Limit search to last 100 emails for performance
-                    uid_list = uid_list[-100:] if len(uid_list) > 100 else uid_list
-                    
-                    for uid in uid_list:
-                        result, msg_data = mail.fetch(uid, '(BODY.PEEK[HEADER])')
-                        if result != 'OK' or not msg_data or not msg_data[0]:
-                            continue
-                        
-                        # Parse header data
-                        if isinstance(msg_data[0], tuple) and len(msg_data[0]) >= 2:
-                            header_bytes = msg_data[0][1]
-                            if isinstance(header_bytes, bytes):
-                                email_message = email.message_from_bytes(header_bytes)
-                            else:
-                                continue
-                            
-                            # Apply subject filter if provided
-                            if subject_filter:
-                                email_subject = decode_mime_words(email_message.get('Subject', ''))
-                                if subject_filter.lower() not in email_subject.lower():
-                                    continue
-                            
-                            # Apply from filter if provided
-                            if from_filter:
-                                email_from = email_message.get('From', '')
-                                if from_filter.lower() not in email_from.lower():
-                                    continue
-                            
-                            # Found matching email!
-                            return True
-                    return False
-                except Exception:
-                    return False
-            
-            # Check INBOX first
-            if find_matching_email('INBOX'):
-                mail.logout()
-                response = jsonify({'location': 'inbox'})
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
-            
-            # Check Spam folder
-            if find_matching_email('[Gmail]/Spam'):
-                mail.logout()
-                response = jsonify({'location': 'spam'})
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
-            
-            # Email not found in either folder
-            mail.logout()
-            response = jsonify({'location': 'not_found'})
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
-            
-        except imaplib.IMAP4.error as e:
-            try:
-                mail.logout()
-            except:
-                pass
-            error_msg = str(e).lower()
-            if 'authentication' in error_msg or 'login' in error_msg:
-                response = jsonify({'location': 'error: Authentication failed. Use a valid Gmail App Password.'})
-                response.headers.add("Access-Control-Allow-Origin", "*")
-                return response, 200
-            response = jsonify({'location': f'error: IMAP error - {str(e)}'})
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
-            
-        except Exception as e:
-            try:
-                mail.logout()
-            except:
-                pass
-            response = jsonify({'location': f'error: {str(e)}'})
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response, 200
-             
+
+        response = jsonify({'location': location})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response, 200
+
     except Exception as e:
         logging.error(f"Error in check_email_endpoint: {e}")
         response = jsonify({'location': f'error: Server error - {str(e)}'})
@@ -6521,10 +6597,28 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     import subprocess, sys
+
+    # gthread instead of the default sync worker class: sync gives each
+    # worker exactly one request at a time, so a single slow IMAP/DNS call
+    # (this app does plenty of both) occupies the ENTIRE worker until it
+    # finishes or gunicorn kills it on --timeout — taking every other
+    # in-flight request down with it. gthread lets each worker process
+    # handle several requests concurrently on separate threads, all sharing
+    # the same in-process state (user_processes dicts, _EXTRACT_TASKS, etc.)
+    # that this app relies on — unlike bumping --workers with sync, which
+    # would split that state across separate processes that can't see each
+    # other's data.
+    #
+    # Tune via env vars if needed; defaults are conservative.
+    gunicorn_workers = os.environ.get('GUNICORN_WORKERS', '2')
+    gunicorn_threads = os.environ.get('GUNICORN_THREADS', '4')
+
     subprocess.run([
         sys.executable, '-m', 'gunicorn',
         '--bind', '0.0.0.0:5000',
-        '--workers', '1',
+        '--worker-class', 'gthread',
+        '--workers', gunicorn_workers,
+        '--threads', gunicorn_threads,
         '--timeout', '120',
         '--reuse-port',
         'main:app'
