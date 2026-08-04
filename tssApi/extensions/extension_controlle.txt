@@ -1,8 +1,0 @@
-IPs Warmup Extension,5,disallow
-IPs Warmup Extension,6,disallow
-IPs Warmup Extension,6.1.0,allow
-IPs Warmup Extension,6.1.2,allow
-IPs Warmup Extension,6.1.3,allow
-IPs Warmup Extension,6.2.1,allow
-IPs Warmup Extension,6.2.2,allow
-IPs Warmup Extension,6.3.0,allow
