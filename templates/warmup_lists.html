@@ -296,6 +296,10 @@
             transition: border-color .15s;
         }
         .toggle-container:hover { border-color: #fca5a5; }
+        /* ── Display-disabled toggle (blue/indigo, not red) ── */
+        .toggle-input.show-disabled-input:checked + .toggle-slider { background: #6366f1; }
+        .toggle-container.show-disabled-container { cursor: pointer; }
+        .toggle-container.show-disabled-container:hover { border-color: #a5b4fc; }
 
         /* ── Disabled list card ── */
         .list-card.is-disabled { opacity: .7; background: #fafafa; }
@@ -1057,9 +1061,22 @@
     <!-- Section header -->
     <div class="section-hd">
         <h2 id="sectionTitle">Lists</h2>
-        <button class="btn-add" id="btnAddList" style="display:none;" onclick="openAddModal()">
-            <i class="ph ph-plus"></i> Add List
-        </button>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div class="toggle-container show-disabled-container" title="Toggle visibility of disabled lists"
+                 onclick="document.getElementById('showDisabledToggle').click()">
+                <span class="toggle-label-text" style="color:var(--text);font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;">
+                    <i class="ph ph-eye" style="margin-right:4px;vertical-align:-2px;font-size:13px;"></i>Display the Disabled Lists
+                </span>
+                <label class="toggle-wrap" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="showDisabledToggle" class="toggle-input show-disabled-input"
+                           onchange="applyEntityFilter()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <button class="btn-add" id="btnAddList" style="display:none;" onclick="openAddModal()">
+                <i class="ph ph-plus"></i> Add List
+            </button>
+        </div>
     </div>
 
     <!-- Lists -->
@@ -1499,11 +1516,17 @@ function buildEntityFilter() {
 }
 
 function getFilteredLists() {
-    if (!_isTssw) return _allLists;
+    const showDisabled = document.getElementById('showDisabledToggle')
+        ? document.getElementById('showDisabledToggle').checked
+        : false;
+
+    let lists = showDisabled ? _allLists : _allLists.filter(l => !l.disabled);
+
+    if (!_isTssw) return lists;
     const sel = document.getElementById('entitySelect');
     const val = sel ? sel.value : 'ALL';
-    if (val === 'ALL') return _allLists;
-    return _allLists.filter(l => extractEntity(l.name) === val);
+    if (val === 'ALL') return lists;
+    return lists.filter(l => extractEntity(l.name) === val);
 }
 
 function applyEntityFilter() {
