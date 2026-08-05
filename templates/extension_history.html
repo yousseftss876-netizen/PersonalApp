@@ -58,6 +58,49 @@
         .toggle-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
         .toggle-label.allow   { color: #16a34a; }
         .toggle-label.disallow { color: #9ca3af; }
+
+        /* Active users badge & popover */
+        .active-users-wrap { position: relative; display: inline-flex; align-items: center; }
+        .active-users-badge { cursor: pointer; user-select: none; }
+        .active-users-popover {
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 0;
+            z-index: 100;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(99,102,241,0.14);
+            min-width: 180px;
+            max-width: 260px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .active-users-popover .user-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: #f8f9ff;
+            margin-bottom: 4px;
+        }
+        .active-users-popover .user-card:last-child { margin-bottom: 0; }
+        .active-users-popover .user-card i { color: #818cf8; flex-shrink: 0; }
+        .active-users-popover .user-card span { font-size: 0.78rem; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .active-users-live-dot {
+            display: inline-block;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin-right: 4px;
+            animation: pulse-dot 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.75); }
+        }
 		/* ── TSSW Background Watermark ───────────────── */
         .tssw-watermark{
             position:fixed;
@@ -221,6 +264,20 @@
                         {% endif %}
                     </span>
                     <span class="text-xs text-gray-400">— version access status</span>
+
+                    {% if can_see_ext_users and ver_str %}
+                    <div class="active-users-wrap ml-2" id="au-wrap-{{ orig_idx }}" data-version="{{ ver_str }}">
+                        <span class="badge bg-indigo-50 text-indigo-600 active-users-badge" id="au-badge-{{ orig_idx }}" title="Active users on this version">
+                            <span class="active-users-live-dot"></span>
+                            <i class="fas fa-users mr-1"></i>
+                            <span id="au-count-{{ orig_idx }}">—</span>
+                        </span>
+                        <div class="active-users-popover hidden" id="au-popover-{{ orig_idx }}">
+                            <div class="text-xs font-bold text-gray-500 mb-2 px-1">Active users — v{{ ver_str }}</div>
+                            <div id="au-list-{{ orig_idx }}"></div>
+                        </div>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <label class="toggle-wrap disabled" title="Cannot toggle: no version number was declared for this entry">
                         <input type="checkbox" disabled>
@@ -231,6 +288,24 @@
                     </span>
                     <span class="text-xs text-gray-400">— declare a version to enable toggling</span>
                     {% endif %}
+                </div>
+                {% endif %}
+
+                {# For users who have display_extensions_users but NOT add_extensions: show active users row #}
+                {% if can_see_ext_users and not current_user.has_add_extensions_permission and ver_str %}
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                    <div class="active-users-wrap" id="au-wrap-{{ orig_idx }}" data-version="{{ ver_str }}">
+                        <span class="badge bg-indigo-50 text-indigo-600 active-users-badge" id="au-badge-{{ orig_idx }}" title="Active users on this version">
+                            <span class="active-users-live-dot"></span>
+                            <i class="fas fa-users mr-1"></i>
+                            <span id="au-count-{{ orig_idx }}">—</span>
+                        </span>
+                        <div class="active-users-popover hidden" id="au-popover-{{ orig_idx }}">
+                            <div class="text-xs font-bold text-gray-500 mb-2 px-1">Active users — v{{ ver_str }}</div>
+                            <div id="au-list-{{ orig_idx }}"></div>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-400">— active users on this version</span>
                 </div>
                 {% endif %}
             </div>
@@ -343,6 +418,79 @@
                 showToast('An error occurred', false);
             }
         }
+
+        // ── Active Users Live Polling (every 3 s) ───────────────────────────
+        {% if can_see_ext_users %}
+        (function () {
+            const EXT_NAME = {{ ext.name | tojson }};
+            let auETag = null;
+
+            function updateBadges(data) {
+                document.querySelectorAll('[id^="au-wrap-"]').forEach(function (wrap) {
+                    const idx     = wrap.id.replace('au-wrap-', '');
+                    const verStr  = wrap.dataset.version;
+                    const users   = data.filter(function (u) {
+                        return u['Extension Name'] === EXT_NAME && u['Version'] === verStr;
+                    });
+
+                    const countEl = document.getElementById('au-count-' + idx);
+                    const listEl  = document.getElementById('au-list-'  + idx);
+                    if (countEl) countEl.textContent = users.length;
+                    if (listEl) {
+                        if (users.length === 0) {
+                            listEl.innerHTML =
+                                '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;padding:4px 0;">No active users</p>';
+                        } else {
+                            // Build DOM nodes to avoid XSS — never interpolate user data into innerHTML
+                            listEl.textContent = '';
+                            users.forEach(function (u) {
+                                var card = document.createElement('div');
+                                card.className = 'user-card';
+                                var icon = document.createElement('i');
+                                icon.className = 'fas fa-user-circle';
+                                var name = document.createElement('span');
+                                name.textContent = u['Mailer'];
+                                card.appendChild(icon);
+                                card.appendChild(name);
+                                listEl.appendChild(card);
+                            });
+                        }
+                    }
+                });
+            }
+
+            async function fetchActiveUsers(silent) {
+                try {
+                    const headers = { 'Cache-Control': 'no-cache' };
+                    if (silent && auETag) headers['If-None-Match'] = auETag;
+                    const r = await fetch('/api/extensions/active-users', { cache: 'no-cache', headers: headers });
+                    if (r.status === 304) return;
+                    const j = await r.json();
+                    if (!j.success) return;
+                    auETag = r.headers.get('ETag') || null;
+                    updateBadges(j.data);
+                } catch (e) {
+                    console.error('Active users fetch error:', e);
+                }
+            }
+
+            // Hover: show / hide popovers
+            function bindPopovers() {
+                document.querySelectorAll('[id^="au-wrap-"]').forEach(function (wrap) {
+                    const idx     = wrap.id.replace('au-wrap-', '');
+                    const popover = document.getElementById('au-popover-' + idx);
+                    if (!popover) return;
+                    wrap.addEventListener('mouseenter', function () { popover.classList.remove('hidden'); });
+                    wrap.addEventListener('mouseleave', function () { popover.classList.add('hidden');    });
+                });
+            }
+
+            bindPopovers();
+            fetchActiveUsers(false);
+            setInterval(function () { fetchActiveUsers(true); }, 3000);
+        })();
+        {% endif %}
+        // ────────────────────────────────────────────────────────────────────
 
         async function toggleStatus(idx, checkbox) {
             // Prevent double-click during request

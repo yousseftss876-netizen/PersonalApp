@@ -413,6 +413,7 @@ class User(UserMixin):
         self.has_add_warmup_record_permission = False
         self.has_warmup_reports_permission = False
         self.has_warmup_sessions_permission = False
+        self.has_display_extensions_users_permission = False
         self.max_processes = 1  # Default limit
         self.email_founder_max_processes = 10  # Default Email Founder limit
         self.domain_quota = 0   # Default quota (0 means unlimited or not set)
@@ -865,6 +866,7 @@ def load_user(user_id):
             user.has_add_warmup_record_permission = 'add_warmup_record' in permissions
             user.has_warmup_reports_permission = 'warmup_reports' in permissions
             user.has_warmup_sessions_permission = 'warmup_sessions' in permissions
+            user.has_display_extensions_users_permission = 'display_extensions_users' in permissions
             user.max_processes = user_data.get('max_processes', 1)
             user.email_founder_max_processes = user_data.get('email_founder_max_processes', 10)
             user.domain_quota = user_data.get('domain_quota', 0)
@@ -4300,7 +4302,32 @@ def extension_history(ext_id):
     versions_status = get_versions_status(ext['name'])
     can_download_ext = user_can_download_extension(ext, current_user.username)
     return render_template('extension_history.html', ext=ext, versions_status=versions_status,
-                            can_download_ext=can_download_ext)
+                            can_download_ext=can_download_ext,
+                            can_see_ext_users=current_user.has_display_extensions_users_permission)
+
+@app.route('/api/extensions/active-users')
+@login_required
+def get_extension_active_users():
+    if not current_user.has_display_extensions_users_permission:
+        return jsonify({'error': 'Unauthorized'}), 403
+    filepath = os.path.join('tssApi', 'extensions', 'active_users.json')
+    try:
+        mtime = os.path.getmtime(filepath)
+        etag = f'"{int(mtime)}"'
+    except OSError:
+        etag = '"0"'
+    if_none_match = request.headers.get('If-None-Match', '')
+    if if_none_match == etag:
+        return Response(status=304)
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = []
+    resp = jsonify({'success': True, 'data': data})
+    resp.headers['ETag'] = etag
+    resp.headers['Cache-Control'] = 'no-cache'
+    return resp
 
 @app.route('/api/extensions/<ext_id>', methods=['DELETE'])
 @login_required
@@ -5160,6 +5187,7 @@ ALL_PERMISSIONS = [
     ('add_warmup_record', 'Add New Warmup Record'),
     ('warmup_reports', 'Warmup Reports'),
     ('warmup_sessions', 'Warmup Sessions'),
+    ('display_extensions_users', 'Display Extensions Users'),
 ]
 
 @app.route('/manage-users')
