@@ -1055,6 +1055,36 @@ function processRawData(raw) {
         const pB = (ent.inbox.plan_b && ent.inbox.plan_b[domain]) || 0;
         return [domain, tot, pA, pB];
       });
+
+      /* ── Domain × From Name rows (for the Domains table "From Name" column) ──
+         One row per domain+from-name pair — a domain used by several from
+         names appears as several rows, one per from name, each with that
+         from name's own total/Plan A/Plan B counts. Falls back to a single
+         "—" from-name row per domain when from_names_by_domain isn't present
+         (older drop files), so nothing breaks on old data. */
+      const buildFnByDomainRows = (merged, fnByDomain, planA, planB) => {
+        const fnMerged = (fnByDomain && fnByDomain.merged) || {};
+        const fnA = (fnByDomain && fnByDomain.plan_a) || {};
+        const fnB = (fnByDomain && fnByDomain.plan_b) || {};
+        const out = [];
+        Object.entries(merged).sort(([,a],[,b])=>b-a).forEach(([domain, tot]) => {
+          const names = fnMerged[domain];
+          if (names && Object.keys(names).length) {
+            Object.entries(names).sort(([,a],[,b])=>b-a).forEach(([fname, cnt]) => {
+              const pA = (fnA[domain] && fnA[domain][fname]) || 0;
+              const pB = (fnB[domain] && fnB[domain][fname]) || 0;
+              out.push([domain, fname, cnt, pA, pB]);
+            });
+          } else {
+            const pA = (planA && planA[domain]) || 0;
+            const pB = (planB && planB[domain]) || 0;
+            out.push([domain, '—', tot, pA, pB]);
+          }
+        });
+        return out;
+      };
+      const spamRowsByFromName  = buildFnByDomainRows(spamMerged,  ent.spam  && ent.spam.from_names_by_domain,  ent.spam  && ent.spam.plan_a,  ent.spam  && ent.spam.plan_b);
+      const inboxRowsByFromName = buildFnByDomainRows(inboxMerged, ent.inbox && ent.inbox.from_names_by_domain, ent.inbox && ent.inbox.plan_a, ent.inbox && ent.inbox.plan_b);
       /* Derive totals from the merged dict so button labels always match table row sums */
       const spamTotalDerived  = Object.values(spamMerged).reduce((s,v)=>s+v, 0);
       const inboxTotalDerived = Object.values(inboxMerged).reduce((s,v)=>s+v, 0);
@@ -1075,6 +1105,8 @@ function processRawData(raw) {
         color: meta.color,
         inboxHits: inboxTotalDerived,
         inboxRows,
+        rowsByFromName: spamRowsByFromName,
+        inboxRowsByFromName,
         planASpam:  (ent.spam  && ent.spam.plan_a)  ? Object.values(ent.spam.plan_a).reduce((s,v)=>s+v,0)  : 0,
         planBSpam:  (ent.spam  && ent.spam.plan_b)  ? Object.values(ent.spam.plan_b).reduce((s,v)=>s+v,0)  : 0,
         planAInbox: (ent.inbox && ent.inbox.plan_a) ? Object.values(ent.inbox.plan_a).reduce((s,v)=>s+v,0) : 0,
@@ -1471,18 +1503,19 @@ function buildDomainPanels(d) {
     const icMap = ent.icMap || {};
 
     const buildRows = (rows, total) => {
-      if (!rows || !rows.length) return '<tr><td colspan="6" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+      if (!rows || !rows.length) return '<tr><td colspan="7" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
       return rows.map(r => {
-        const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+        const pct = total > 0 ? Math.round(((r[3]||0)+(r[4]||0)) / total * 100) : 0;
         const clicks = icMap[r[0]] || 0;
         const clickBadge = clicks > 0
           ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500"><i data-lucide="mouse-pointer-click" style="width:10px;height:10px;display:inline-block"></i>${clicks.toLocaleString()}</span>`
           : `<span class="text-[10px] text-slate-400 font-mono">—</span>`;
-        return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
-          <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
-          <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
-          <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
-          <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+        return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()} ${(r[1]||'').toLowerCase()}">
+          <td class="px-3 py-2 font-mono text-xs break-all cursor-pointer hover:text-sky-500" title="Click to copy" onclick="copyCellValue(this,'${escCopyVal(r[0])}')">${r[0]}</td>
+          <td class="px-3 py-2 font-mono text-xs break-all text-slate-500 cursor-pointer hover:text-sky-500" title="Click to copy" onclick="copyCellValue(this,'${escCopyVal(r[1]||'')}')">${r[1]||'—'}</td>
+          <td class="px-3 py-2 text-right font-semibold">${r[2]||0}</td>
+          <td class="px-3 py-2 text-right text-sky-500">${r[3]||0}</td>
+          <td class="px-3 py-2 text-right text-violet-500">${r[4]||0}</td>
           <td class="px-3 py-2 text-center">${clickBadge}</td>
           <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
         </tr>`;
@@ -1510,32 +1543,34 @@ function buildDomainPanels(d) {
         </div>
       </div>
       <div id="dp-spam-${key}">
-        <div class="overflow-x-auto nice-scroll">
+        <div class="overflow-x-auto overflow-y-auto nice-scroll" style="max-height:480px">
           <table class="w-full text-sm" id="tbl-spam-${key}">
-            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-900 z-10">
               <th class="text-left px-3 py-2 font-bold">Domain</th>
+              <th class="text-left px-3 py-2 font-bold">From Name</th>
               <th class="text-right px-3 py-2 font-bold">Total</th>
               <th class="text-right px-3 py-2 font-bold">Plan A</th>
               <th class="text-right px-3 py-2 font-bold">Plan B</th>
               <th class="text-center px-3 py-2 font-bold">Web Activity</th>
               <th class="text-left px-3 py-2 font-bold w-32">Share</th>
             </tr></thead>
-            <tbody>${buildRows(ent.rows, ent.hits)}</tbody>
+            <tbody>${buildRows(ent.rowsByFromName || ent.rows, ent.hits)}</tbody>
           </table>
         </div>
       </div>
       <div id="dp-inbox-${key}" style="display:none">
-        <div class="overflow-x-auto nice-scroll">
+        <div class="overflow-x-auto overflow-y-auto nice-scroll" style="max-height:480px">
           <table class="w-full text-sm" id="tbl-inbox-${key}">
-            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700">
+            <thead><tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-900 z-10">
               <th class="text-left px-3 py-2 font-bold">Domain</th>
+              <th class="text-left px-3 py-2 font-bold">From Name</th>
               <th class="text-right px-3 py-2 font-bold">Total</th>
               <th class="text-right px-3 py-2 font-bold">Plan A</th>
               <th class="text-right px-3 py-2 font-bold">Plan B</th>
               <th class="text-center px-3 py-2 font-bold">Web Activity</th>
               <th class="text-left px-3 py-2 font-bold w-32">Share</th>
             </tr></thead>
-            <tbody>${buildRows(ent.inboxRows||[], ent.inboxHits||0)}</tbody>
+            <tbody>${buildRows(ent.inboxRowsByFromName || ent.inboxRows || [], ent.inboxHits||0)}</tbody>
           </table>
         </div>
       </div>
@@ -1553,18 +1588,19 @@ function buildDomainPanels(d) {
 function updateDomainPanels(d) {
   /* Called on silent polls — refreshes button labels + table rows without rebuilding the DOM */
   const buildRows = (rows, total, icMap) => {
-    if (!rows || !rows.length) return '<tr><td colspan="6" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
+    if (!rows || !rows.length) return '<tr><td colspan="7" class="px-3 py-6 text-center italic text-slate-400">No domains detected</td></tr>';
     return rows.map(r => {
-      const pct = total > 0 ? Math.round(((r[2]||0)+(r[3]||0)) / total * 100) : 0;
+      const pct = total > 0 ? Math.round(((r[3]||0)+(r[4]||0)) / total * 100) : 0;
       const clicks = (icMap||{})[r[0]] || 0;
       const clickBadge = clicks > 0
         ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-400/15 text-emerald-500"><i data-lucide="mouse-pointer-click" style="width:10px;height:10px;display:inline-block"></i>${clicks.toLocaleString()}</span>`
         : `<span class="text-[10px] text-slate-400 font-mono">—</span>`;
-      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()}">
-        <td class="px-3 py-2 font-mono text-xs break-all">${r[0]}</td>
-        <td class="px-3 py-2 text-right font-semibold">${r[1]}</td>
-        <td class="px-3 py-2 text-right text-sky-500">${r[2]||0}</td>
-        <td class="px-3 py-2 text-right text-violet-500">${r[3]||0}</td>
+      return `<tr class="border-b border-slate-100 dark:border-slate-800/70 hover:bg-sky-50/30 dark:hover:bg-sky-500/5" data-row="${r[0].toLowerCase()} ${(r[1]||'').toLowerCase()}">
+        <td class="px-3 py-2 font-mono text-xs break-all cursor-pointer hover:text-sky-500" title="Click to copy" onclick="copyCellValue(this,'${escCopyVal(r[0])}')">${r[0]}</td>
+        <td class="px-3 py-2 font-mono text-xs break-all text-slate-500 cursor-pointer hover:text-sky-500" title="Click to copy" onclick="copyCellValue(this,'${escCopyVal(r[1]||'')}')">${r[1]||'—'}</td>
+        <td class="px-3 py-2 text-right font-semibold">${r[2]||0}</td>
+        <td class="px-3 py-2 text-right text-sky-500">${r[3]||0}</td>
+        <td class="px-3 py-2 text-right text-violet-500">${r[4]||0}</td>
         <td class="px-3 py-2 text-center">${clickBadge}</td>
         <td class="px-3 py-2"><div class="pbar"><div class="pfill" style="width:${pct}%;background:#38bdf8"></div></div></td>
       </tr>`;
@@ -1583,14 +1619,14 @@ function updateDomainPanels(d) {
     const spamDiv = document.getElementById(`dp-spam-${key}`);
     if (spamDiv) {
       const tbody = spamDiv.querySelector('tbody');
-      if (tbody) tbody.innerHTML = buildRows(ent.rows, ent.hits, ent.icMap||{});
+      if (tbody) tbody.innerHTML = buildRows(ent.rowsByFromName || ent.rows, ent.hits, ent.icMap||{});
     }
 
     /* Update inbox table tbody */
     const inboxDiv = document.getElementById(`dp-inbox-${key}`);
     if (inboxDiv) {
       const tbody = inboxDiv.querySelector('tbody');
-      if (tbody) tbody.innerHTML = buildRows(ent.inboxRows||[], ent.inboxHits||0, ent.icMap||{});
+      if (tbody) tbody.innerHTML = buildRows(ent.inboxRowsByFromName || ent.inboxRows || [], ent.inboxHits||0, ent.icMap||{});
     }
   });
 }
@@ -2351,6 +2387,46 @@ function filterDomainTbl(input, ent) {
     const t = document.getElementById('tbl-'+di+'-'+ent); if (!t) return;
     t.querySelectorAll('tbody tr').forEach(r => { r.style.display = (!q || (r.getAttribute('data-row')||r.textContent).toLowerCase().includes(q)) ? '' : 'none'; });
   });
+}
+
+/* Escape a value so it's safe to embed inside a single-quoted JS string
+   within an onclick="..." HTML attribute (domains/from-names are plain
+   text, but this guards against stray quotes/backslashes anyway). */
+function escCopyVal(v) {
+  return String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+/* Click-to-copy for Domain / From Name table cells. Copies the raw value
+   (not "—" placeholders) and briefly flashes "Copied!" in place of the
+   cell text as feedback. */
+function copyCellValue(el, value) {
+  if (!value) return;
+  const doCopy = (navigator.clipboard && window.isSecureContext)
+    ? navigator.clipboard.writeText(value).catch(() => fallbackCopy(value))
+    : Promise.resolve(fallbackCopy(value));
+  doCopy.then ? doCopy.then(() => flashCopied(el)) : flashCopied(el);
+}
+function fallbackCopy(value) {
+  const ta = document.createElement('textarea');
+  ta.value = value;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+}
+function flashCopied(el) {
+  if (!el || el.dataset.copyBusy) return;
+  el.dataset.copyBusy = '1';
+  const orig = el.textContent;
+  el.textContent = 'Copied!';
+  el.classList.add('text-emerald-500');
+  setTimeout(() => {
+    el.textContent = orig;
+    el.classList.remove('text-emerald-500');
+    delete el.dataset.copyBusy;
+  }, 700);
 }
 
 /* ════════════════════════════════════════════════════════
