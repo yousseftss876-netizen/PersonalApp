@@ -4015,6 +4015,36 @@ def get_extension_service_users():
         if 'download_extension' in u.get('permissions', []) or 'add_extensions' in u.get('permissions', [])
     ]
 
+def get_user_entity_lookup():
+    """Return entities indexed by the names used by the extensions activity feed.
+
+    The activity feed normally identifies a user by ``Mailer``.  Supporting
+    both the configured username and display name keeps the lookup working
+    whether the extension reports either value.
+    """
+    lookup = {}
+    for user in load_users_from_file():
+        entity = user.get('entity', '').strip() or 'Unknown Entity'
+        for identity in (user.get('username', ''), user.get('name', '')):
+            identity = identity.strip().casefold()
+            if identity:
+                lookup[identity] = entity
+    return lookup
+
+def add_entities_to_extension_active_users(data):
+    """Add the configured entity to each active-user record without credentials."""
+    entity_lookup = get_user_entity_lookup()
+    enriched = []
+    for record in data if isinstance(data, list) else []:
+        if not isinstance(record, dict):
+            enriched.append(record)
+            continue
+        enriched_record = record.copy()
+        identity = str(record.get('Mailer', '')).strip().casefold()
+        enriched_record['Entity'] = entity_lookup.get(identity, 'Unknown Entity')
+        enriched.append(enriched_record)
+    return enriched
+
 def user_can_download_extension(ext, username):
     """Whether `username` is allowed to download `ext`, based on its allowed_users setting.
     Missing/'all' means everyone with service access can download it (default for legacy entries)."""
@@ -4324,7 +4354,7 @@ def get_extension_active_users():
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = []
-    resp = jsonify({'success': True, 'data': data})
+    resp = jsonify({'success': True, 'data': add_entities_to_extension_active_users(data)})
     resp.headers['ETag'] = etag
     resp.headers['Cache-Control'] = 'no-cache'
     return resp
