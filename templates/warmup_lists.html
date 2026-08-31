@@ -1350,6 +1350,11 @@
                         style="padding:5px 28px 5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#1e293b;background:#fff url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 8px center;background-size:12px;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer;font-family:inherit;font-weight:600;max-width:220px;">
                         <option value="">All Lists</option>
                     </select>
+                    <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-left:1.5px solid #e2e8f0;padding-left:10px;">Mailer</span>
+                    <select id="dropsMailerFilter" onchange="filterDropsTable()"
+                        style="padding:5px 28px 5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#1e293b;background:#fff url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>') no-repeat right 8px center;background-size:12px;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer;font-family:inherit;font-weight:600;max-width:220px;">
+                        <option value="">All Mailers</option>
+                    </select>
                     <span id="dropsFilterCount" style="font-size:12px;color:#94a3b8;margin-left:4px;"></span>
                 </div>
                 <div class="hist-table-wrap" style="border-radius:0 0 14px 14px;border-top:none;">
@@ -2599,15 +2604,34 @@ function drawDropsTable(h) {
     _dropsAllRows = [...h].sort((a,b) => b.datetime.localeCompare(a.datetime));
     const sel = document.getElementById('dropsEntityFilter');
     if (sel) sel.value = '';
+    const mailerSel = document.getElementById('dropsMailerFilter');
+    if (mailerSel) mailerSel.value = '';
     const cnt = document.getElementById('dropsFilterCount');
     if (cnt) cnt.textContent = '';
     updateDropsListOptions('');
+    updateDropsMailerOptions();
     _renderDropsRows(_dropsAllRows);
 }
 
 function _extractDropsEntity(listName) {
     const m = listName.match(/^(TSS\w+?)(?:\s|$|-)/);
     return m ? m[1] : null;
+}
+
+function _getDropsMailer(row) {
+    return String(row.mailer || row.added_by_name || row.added_by || '').trim();
+}
+
+function updateDropsMailerOptions() {
+    const mailerSel = document.getElementById('dropsMailerFilter');
+    if (!mailerSel) return;
+    const prev = mailerSel.value;
+    const names = [...new Set(
+        _dropsAllRows.map(_getDropsMailer).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+    mailerSel.innerHTML = '<option value="">All Mailers</option>' +
+        names.map(n => `<option value="${esc(n)}"${n === prev ? ' selected' : ''}>${esc(n)}</option>`).join('');
+    if (prev && !names.includes(prev)) mailerSel.value = '';
 }
 
 function updateDropsListOptions(entity) {
@@ -2637,6 +2661,8 @@ function filterDropsTable() {
     const entitySel = document.getElementById('dropsEntityFilter');
     const entity    = entitySel ? entitySel.value : '';
     const listName  = document.getElementById('dropsListFilter').value;
+    const mailerSel = document.getElementById('dropsMailerFilter');
+    const mailer    = mailerSel ? mailerSel.value : '';
     let rows = _dropsAllRows;
     if (entity) {
         rows = rows.filter(r => _extractDropsEntity(r.list_name) === entity);
@@ -2644,8 +2670,11 @@ function filterDropsTable() {
     if (listName) {
         rows = rows.filter(r => r.list_name === listName);
     }
+    if (mailer) {
+        rows = rows.filter(r => _getDropsMailer(r) === mailer);
+    }
     const cnt = document.getElementById('dropsFilterCount');
-    const isFiltered = entity || listName;
+    const isFiltered = entity || listName || mailer;
     cnt.textContent = isFiltered ? `${rows.length} of ${_dropsAllRows.length} drops` : '';
     _renderDropsRows(rows);
 
